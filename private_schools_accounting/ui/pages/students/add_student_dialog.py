@@ -365,11 +365,14 @@ class AddStudentDialog(QDialog):
             errors.append("الشعبة مطلوبة")
         
         # التحقق من الرسوم
-        try:
-            if self.total_fee_edit.text().strip():
-                float(self.total_fee_edit.text().strip())
-        except ValueError:
-            errors.append("يجب أن تكون الرسوم رقماً صحيحاً")
+        total_fee_text = self.total_fee_edit.text().strip()
+        if not total_fee_text:
+            errors.append("القسط الكلي مطلوب")
+        else:
+            try:
+                float(total_fee_text)
+            except ValueError:
+                errors.append("يجب أن يكون القسط الكلي رقماً صحيحاً")
         
         return errors
     

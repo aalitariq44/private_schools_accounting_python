@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
             # إطار الرأس
             header_frame = QFrame()
             header_frame.setObjectName("sidebarHeader")
-            header_frame.setFixedHeight(100)
+            header_frame.setFixedHeight(10)
             
             header_layout = QVBoxLayout(header_frame)
             header_layout.setAlignment(Qt.AlignCenter)
@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
                 {"name": "salaries", "text": "الرواتب", "icon": "salaries.png", "active": False},
                 {"name": "separator2", "text": "---", "icon": None, "active": False},
                 {"name": "settings", "text": "الإعدادات", "icon": "settings.png", "active": False},
+                {"name": "logout", "text": "تسجيل خروج", "icon": "logout.png", "active": True},
             ]
             
             for item in menu_items:
@@ -247,7 +248,9 @@ class MainWindow(QMainWindow):
             button.setStyleSheet("text-align: right; padding-right: 25px;")
             
             # ربط الإشارة
-            if active:
+            if name == "logout":
+                button.clicked.connect(self.logout)
+            elif active:
                 button.clicked.connect(lambda: self.navigate_to_page(name))
             else:
                 button.clicked.connect(self.show_coming_soon)
@@ -291,7 +294,7 @@ class MainWindow(QMainWindow):
             # إطار شريط العنوان
             header_frame = QFrame()
             header_frame.setObjectName("contentHeader")
-            header_frame.setFixedHeight(140)
+            header_frame.setFixedHeight(100)
             
             header_layout = QHBoxLayout(header_frame)
             header_layout.setContentsMargins(20, 15, 20, 15)
@@ -303,10 +306,6 @@ class MainWindow(QMainWindow):
             
             # مساحة مرنة
             header_layout.addStretch()
-            
-            # معلومات المستخدم
-            user_info = self.create_user_info()
-            header_layout.addWidget(user_info)
             
             layout.addWidget(header_frame)
             
@@ -322,17 +321,6 @@ class MainWindow(QMainWindow):
             
             user_layout = QHBoxLayout(user_frame)
             user_layout.setContentsMargins(15, 8, 15, 8)
-            
-            # اسم المستخدم
-            user_label = QLabel("المدير")
-            user_label.setObjectName("userName")
-            user_layout.addWidget(user_label)
-            
-            # زر تسجيل الخروج
-            logout_button = QPushButton("تسجيل خروج")
-            logout_button.setObjectName("logoutButton")
-            logout_button.clicked.connect(self.logout)
-            user_layout.addWidget(logout_button)
             
             return user_frame
             
@@ -797,20 +785,6 @@ class MainWindow(QMainWindow):
                     color: #2C3E50;
                     font-size: 16px;
                     font-weight: bold;
-                }
-                
-                #logoutButton {
-                    background-color: #E74C3C;
-                    color: white;
-                    border: none;
-                    padding: 8px 15px;
-                    border-radius: 4px;
-                    font-size: 16px;
-                    font-weight: bold;
-                }
-                
-                #logoutButton:hover {
-                    background-color: #C0392B;
                 }
                 
                 #pagesStack {
