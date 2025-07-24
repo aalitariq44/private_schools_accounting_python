@@ -480,7 +480,7 @@ class AdditionalFeesPage(QWidget):
             # بناء الاستعلام مع الفلاتر
             query = """
                 SELECT af.id, s.name as student_name, sc.name_ar as school_name,
-                       af.fee_type, af.description, af.amount, af.created_at,
+                       af.fee_type, af.notes, af.amount, af.created_at,
                        af.collection_date, af.collected_amount, af.status, af.notes
                 FROM additional_fees af
                 LEFT JOIN students s ON af.student_id = s.id
@@ -516,7 +516,7 @@ class AdditionalFeesPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (af.description LIKE ? OR s.name LIKE ?)"
+                query += " AND (af.notes LIKE ? OR s.name LIKE ?)"
                 search_param = f"%{search_text}%"
                 params.extend([search_param, search_param])
             

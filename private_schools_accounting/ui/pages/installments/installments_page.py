@@ -479,7 +479,7 @@ class InstallmentsPage(QWidget):
             # بناء الاستعلام مع الفلاتر
             query = """
                 SELECT i.id, s.name as student_name, sc.name_ar as school_name,
-                       i.installment_type, i.amount, i.due_date, i.payment_date,
+                       i.type, i.amount, i.due_date, i.payment_date,
                        i.paid_amount, (i.amount - COALESCE(i.paid_amount, 0)) as remaining,
                        i.status, i.notes
                 FROM installments i

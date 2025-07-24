@@ -339,7 +339,7 @@ class StudentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT s.id, s.name as full_name, s.national_id, sc.name_ar as school_name,
+                SELECT s.id, s.name as full_name, s.national_id_number, sc.name_ar as school_name,
                        s.grade, s.academic_year, s.guardian_name, s.guardian_phone,
                        s.status, s.created_at
                 FROM students s
@@ -369,7 +369,7 @@ class StudentsPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (s.name LIKE ? OR s.national_id LIKE ?)"
+                query += " AND (s.name LIKE ? OR s.national_id_number LIKE ?)"
                 search_param = f"%{search_text}%"
                 params.extend([search_param, search_param])
             
