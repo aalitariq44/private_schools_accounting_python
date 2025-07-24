@@ -35,11 +35,8 @@ class DashboardPage(QWidget):
         try:
             # التخطيط الرئيسي
             main_layout = QVBoxLayout()
-            main_layout.setContentsMargins(20, 20, 20, 20)
-            main_layout.setSpacing(20)
-            
-            # رسالة الترحيب
-            self.create_welcome_section(main_layout)
+            main_layout.setContentsMargins(10, 10, 10, 10)
+            main_layout.setSpacing(10)
             
             # إحصائيات سريعة
             self.create_statistics_section(main_layout)
@@ -59,33 +56,6 @@ class DashboardPage(QWidget):
             logging.error(f"خطأ في إعداد واجهة لوحة التحكم: {e}")
             raise
     
-    def create_welcome_section(self, layout):
-        """إنشاء قسم الترحيب"""
-        try:
-            welcome_frame = QFrame()
-            welcome_frame.setObjectName("welcomeFrame")
-            
-            welcome_layout = QVBoxLayout(welcome_frame)
-            welcome_layout.setAlignment(Qt.AlignCenter)
-            welcome_layout.setContentsMargins(30, 30, 30, 30)
-            
-            # عنوان الترحيب
-            welcome_title = QLabel("مرحباً بك في نظام حسابات المدارس الأهلية")
-            welcome_title.setObjectName("welcomeTitle")
-            welcome_title.setAlignment(Qt.AlignCenter)
-            welcome_layout.addWidget(welcome_title)
-            
-            # نص الترحيب
-            welcome_text = QLabel("إدارة شاملة ومتقدمة لحسابات المدارس الأهلية")
-            welcome_text.setObjectName("welcomeText")
-            welcome_text.setAlignment(Qt.AlignCenter)
-            welcome_layout.addWidget(welcome_text)
-            
-            layout.addWidget(welcome_frame)
-            
-        except Exception as e:
-            logging.error(f"خطأ في إنشاء قسم الترحيب: {e}")
-            raise
     
     def create_statistics_section(self, layout):
         """إنشاء قسم الإحصائيات السريعة"""
@@ -94,7 +64,7 @@ class DashboardPage(QWidget):
             stats_frame.setObjectName("statsFrame")
             
             stats_layout = QVBoxLayout(stats_frame)
-            stats_layout.setContentsMargins(20, 20, 20, 20)
+            stats_layout.setContentsMargins(2, 2, 2, 2)
             
             # عنوان القسم
             stats_title = QLabel("الإحصائيات السريعة")
@@ -103,7 +73,7 @@ class DashboardPage(QWidget):
             
             # شبكة الإحصائيات
             stats_grid = QGridLayout()
-            stats_grid.setSpacing(15)
+            stats_grid.setSpacing(1)
             
             # إنشاء بطاقات الإحصائيات
             self.schools_card = self.create_stat_card("المدارس", "0", "#3498DB")
@@ -133,11 +103,11 @@ class DashboardPage(QWidget):
         try:
             card = QFrame()
             card.setObjectName("statCard")
-            card.setFixedHeight(120)
+            card.setFixedHeight(40)
             
             layout = QVBoxLayout(card)
             layout.setAlignment(Qt.AlignCenter)
-            layout.setContentsMargins(20, 20, 20, 20)
+            layout.setContentsMargins(1, 1, 1, 1)
             
             # القيمة
             value_label = QLabel(value)
@@ -155,17 +125,18 @@ class DashboardPage(QWidget):
             card.setStyleSheet(f"""
                 #statCard {{
                     background-color: {color};
-                    border-radius: 12px;
+                    border-radius: 3px;
                     border: none;
+                    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
                 }}
                 #statValue {{
                     color: white;
-                    font-size: 28px;
+                    font-size: 10px;
                     font-weight: bold;
                 }}
                 #statTitle {{
                     color: rgba(255, 255, 255, 0.9);
-                    font-size: 18px;
+                    font-size: 7px;
                     font-weight: bold;
                 }}
             """)
@@ -183,7 +154,7 @@ class DashboardPage(QWidget):
             actions_frame.setObjectName("actionsFrame")
             
             actions_layout = QVBoxLayout(actions_frame)
-            actions_layout.setContentsMargins(20, 20, 20, 20)
+            actions_layout.setContentsMargins(5, 5, 5, 5)
             
             # عنوان القسم
             actions_title = QLabel("الإجراءات السريعة")
@@ -192,7 +163,7 @@ class DashboardPage(QWidget):
             
             # أزرار الإجراءات
             buttons_layout = QHBoxLayout()
-            buttons_layout.setSpacing(15)
+            buttons_layout.setSpacing(5)
             
             # زر إضافة مدرسة
             add_school_btn = QPushButton("إضافة مدرسة جديدة")
@@ -232,7 +203,7 @@ class DashboardPage(QWidget):
             info_frame.setObjectName("infoFrame")
             
             info_layout = QVBoxLayout(info_frame)
-            info_layout.setContentsMargins(20, 20, 20, 20)
+            info_layout.setContentsMargins(5, 5, 5, 5)
             
             # عنوان القسم
             info_title = QLabel("معلومات النظام")
@@ -241,7 +212,7 @@ class DashboardPage(QWidget):
             
             # معلومات النظام
             info_grid = QGridLayout()
-            info_grid.setSpacing(10)
+            info_grid.setSpacing(3)
             
             # تاريخ آخر تحديث
             self.last_update_label = QLabel("آخر تحديث: جاري التحميل...")
@@ -450,26 +421,6 @@ class DashboardPage(QWidget):
         """إعداد تنسيقات الصفحة"""
         try:
             style = """
-                #welcomeFrame {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
-                                              stop: 0 #3498DB, stop: 1 #2980B9);
-                    border-radius: 15px;
-                    margin-bottom: 20px;
-                }
-                
-                #welcomeTitle {
-                    color: white;
-                    font-size: 28px;
-                    font-weight: bold;
-                    margin-bottom: 15px;
-                }
-                
-                #welcomeText {
-                    color: #ECF0F1;
-                    font-size: 20px;
-                    margin-bottom: 15px;
-                }
-                
                 #statsFrame, #actionsFrame, #infoFrame {
                     background-color: white;
                     border: 1px solid #E9ECEF;
@@ -478,23 +429,23 @@ class DashboardPage(QWidget):
                 }
                 
                 #sectionTitle {
-                    font-size: 22px;
+                    font-size: 16px;
                     font-weight: bold;
                     color: #2C3E50;
-                    margin-bottom: 20px;
-                    padding-bottom: 12px;
-                    border-bottom: 2px solid #ECF0F1;
+                    margin-bottom: 10px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid #ECF0F1;
                 }
                 
                 #actionButton {
                     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3498DB, stop: 1 #2980B9);
                     color: white;
                     border: none;
-                    padding: 15px 25px;
-                    border-radius: 8px;
-                    font-size: 18px;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    font-size: 14px;
                     font-weight: bold;
-                    min-width: 180px;
+                    min-width: 120px;
                 }
                 
                 #actionButton:hover {
@@ -507,7 +458,7 @@ class DashboardPage(QWidget):
                 
                 #infoLabel {
                     color: #7F8C8D;
-                    font-size: 16px;
+                    font-size: 14px;
                 }
             """
             

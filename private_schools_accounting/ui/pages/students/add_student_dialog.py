@@ -167,38 +167,14 @@ class AddStudentDialog(QDialog):
         basic_layout.setSpacing(12)
         
         # الحقول الأساسية
-        self.first_name_edit = QLineEdit()
-        self.first_name_edit.setPlaceholderText("أدخل الاسم الأول")
-        basic_layout.addRow("الاسم الأول (عربي):", self.first_name_edit)
-        
-        self.first_name_en_edit = QLineEdit()
-        self.first_name_en_edit.setPlaceholderText("Enter first name")
-        basic_layout.addRow("الاسم الأول (إنجليزي):", self.first_name_en_edit)
-        
-        self.last_name_edit = QLineEdit()
-        self.last_name_edit.setPlaceholderText("أدخل الاسم الأخير")
-        basic_layout.addRow("الاسم الأخير (عربي):", self.last_name_edit)
-        
-        self.last_name_en_edit = QLineEdit()
-        self.last_name_en_edit.setPlaceholderText("Enter last name")
-        basic_layout.addRow("الاسم الأخير (إنجليزي):", self.last_name_en_edit)
-        
-        # تاريخ الميلاد
-        self.birth_date_edit = QDateEdit()
-        self.birth_date_edit.setDate(QDate.currentDate().addYears(-6))
-        self.birth_date_edit.setCalendarPopup(True)
-        self.birth_date_edit.setDisplayFormat("yyyy-MM-dd")
-        basic_layout.addRow("تاريخ الميلاد:", self.birth_date_edit)
+        self.full_name_edit = QLineEdit()
+        self.full_name_edit.setPlaceholderText("أدخل الاسم الكامل للطالب")
+        basic_layout.addRow("الاسم الكامل:", self.full_name_edit)
         
         # الجنس
         self.gender_combo = QComboBox()
         self.gender_combo.addItems(["ذكر", "أنثى"])
         basic_layout.addRow("الجنس:", self.gender_combo)
-        
-        # رقم الهوية
-        self.national_id_edit = QLineEdit()
-        self.national_id_edit.setPlaceholderText("أدخل رقم الهوية")
-        basic_layout.addRow("رقم الهوية:", self.national_id_edit)
         
         main_layout.addWidget(basic_info_group)
         
@@ -223,20 +199,16 @@ class AddStudentDialog(QDialog):
         academic_layout.addRow("الصف:", self.grade_combo)
         
         # الشعبة
-        self.section_edit = QLineEdit()
-        self.section_edit.setPlaceholderText("مثال: أ، ب، ج")
-        academic_layout.addRow("الشعبة:", self.section_edit)
+        self.section_combo = QComboBox()
+        self.section_combo.addItems(["ا", "ب", "ج", "د", "هـ", "و", "ز", "ح", "ط", "ي"])
+        academic_layout.addRow("الشعبة:", self.section_combo)
         
-        # رقم الطالب
-        self.student_number_edit = QLineEdit()
-        self.student_number_edit.setPlaceholderText("رقم الطالب في المدرسة")
-        academic_layout.addRow("رقم الطالب:", self.student_number_edit)
-        
-        # سنة الالتحاق
-        self.enrollment_year_spin = QSpinBox()
-        self.enrollment_year_spin.setRange(2000, 2030)
-        self.enrollment_year_spin.setValue(datetime.now().year)
-        academic_layout.addRow("سنة الالتحاق:", self.enrollment_year_spin)
+        # تاريخ المباشرة
+        self.start_date_edit = QDateEdit()
+        self.start_date_edit.setDate(QDate.currentDate())
+        self.start_date_edit.setCalendarPopup(True)
+        self.start_date_edit.setDisplayFormat("yyyy-MM-dd")
+        academic_layout.addRow("تاريخ المباشرة:", self.start_date_edit)
         
         # الحالة
         self.status_combo = QComboBox()
@@ -250,21 +222,10 @@ class AddStudentDialog(QDialog):
         contact_layout = QFormLayout(contact_info_group)
         contact_layout.setSpacing(12)
         
-        # اسم ولي الأمر
-        self.guardian_name_edit = QLineEdit()
-        self.guardian_name_edit.setPlaceholderText("اسم ولي الأمر")
-        contact_layout.addRow("اسم ولي الأمر:", self.guardian_name_edit)
-        
-        # هاتف ولي الأمر
-        self.guardian_phone_edit = QLineEdit()
-        self.guardian_phone_edit.setPlaceholderText("رقم الهاتف")
-        contact_layout.addRow("هاتف ولي الأمر:", self.guardian_phone_edit)
-        
-        # العنوان
-        self.address_edit = QTextEdit()
-        self.address_edit.setPlaceholderText("العنوان التفصيلي")
-        self.address_edit.setMaximumHeight(80)
-        contact_layout.addRow("العنوان:", self.address_edit)
+        # الهاتف
+        self.phone_edit = QLineEdit()
+        self.phone_edit.setPlaceholderText("رقم الهاتف")
+        contact_layout.addRow("الهاتف:", self.phone_edit)
         
         main_layout.addWidget(contact_info_group)
         
@@ -378,30 +339,11 @@ class AddStudentDialog(QDialog):
         errors = []
         
         # التحقق من الحقول المطلوبة
-        if not self.first_name_edit.text().strip():
-            errors.append("الاسم الأول (عربي) مطلوب")
-            
-        if not self.last_name_edit.text().strip():
-            errors.append("الاسم الأخير (عربي) مطلوب")
-            
-        if not self.national_id_edit.text().strip():
-            errors.append("رقم الهوية مطلوب")
-        elif len(self.national_id_edit.text().strip()) < 10:
-            errors.append("رقم الهوية يجب أن يكون 10 أرقام على الأقل")
+        if not self.full_name_edit.text().strip():
+            errors.append("الاسم الكامل للطالب مطلوب")
             
         if self.school_combo.currentIndex() == -1:
             errors.append("يجب اختيار المدرسة")
-            
-        if not self.guardian_name_edit.text().strip():
-            errors.append("اسم ولي الأمر مطلوب")
-            
-        if not self.guardian_phone_edit.text().strip():
-            errors.append("هاتف ولي الأمر مطلوب")
-        
-        # التحقق من تاريخ الميلاد
-        birth_date = self.birth_date_edit.date().toPyDate()
-        if birth_date >= datetime.now().date():
-            errors.append("تاريخ الميلاد يجب أن يكون في الماضي")
         
         return errors
     
@@ -437,35 +379,23 @@ class AddStudentDialog(QDialog):
             return
         
         try:
-            # التحقق من عدم تكرار رقم الهوية
-            query = "SELECT id FROM students WHERE national_id_number = ?"
-            existing_student = db_manager.execute_query(query, (self.national_id_edit.text().strip(),))
-            if existing_student:
-                QMessageBox.warning(self, "خطأ", "رقم الهوية موجود مسبقاً")
-                return
-            
             # إدراج البيانات الأساسية
             insert_query = """
                 INSERT INTO students (
-                    name, national_id_number, school_id, grade,
-                    section, academic_year, gender, phone,
-                    guardian_name, guardian_phone, total_fee, start_date, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    full_name, school_id, grade,
+                    section, gender, phone,
+                    start_date, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             student_data = (
-                f"{self.first_name_edit.text().strip()} {self.last_name_edit.text().strip()}",
-                self.national_id_edit.text().strip(),
+                self.full_name_edit.text().strip(),
                 self.school_combo.currentData(),
                 self.grade_combo.currentText(),
-                self.section_edit.text().strip(),
-                str(self.enrollment_year_spin.value()),
+                self.section_combo.currentText(),
                 self.gender_combo.currentText(),
-                self.guardian_phone_edit.text().strip(),
-                self.guardian_name_edit.text().strip(),
-                self.guardian_phone_edit.text().strip(),
-                0.0,  # total_fee - يمكن تحديده لاحقاً
-                datetime.now().date().isoformat(),
+                self.phone_edit.text().strip(),
+                self.start_date_edit.date().toString("yyyy-MM-dd"),
                 self.status_combo.currentText()
             )
             

@@ -185,7 +185,7 @@ def test_students_operations():
         
         # إضافة طالب تجريبي
         student_data = {
-            'name': 'علي أحمد محمد',
+            'full_name': 'علي أحمد محمد',
             'school_id': school_id,
             'grade': 'الأول الابتدائي',
             'section': 'أ',
@@ -196,7 +196,7 @@ def test_students_operations():
         }
         
         insert_query = """
-            INSERT INTO students (name, school_id, grade, section, gender, phone, total_fee, start_date)
+            INSERT INTO students (full_name, school_id, grade, section, gender, phone, total_fee, start_date)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
         

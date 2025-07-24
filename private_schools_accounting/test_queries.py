@@ -15,9 +15,9 @@ def test_queries():
         # اختبار استعلام الطلاب
         print("=== اختبار استعلام الطلاب ===")
         students_query = """
-            SELECT s.id, s.name as full_name, s.national_id_number, sc.name_ar as school_name,
-                   s.grade, s.academic_year, s.guardian_name, s.guardian_phone,
-                   s.status, s.created_at
+            SELECT s.id, s.full_name, sc.name_ar as school_name,
+                   s.grade, s.section, s.gender,
+                   s.phone, s.status, s.start_date
             FROM students s
             LEFT JOIN schools sc ON s.school_id = sc.id
             LIMIT 5

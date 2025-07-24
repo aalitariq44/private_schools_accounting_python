@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
             # إطار شريط العنوان
             header_frame = QFrame()
             header_frame.setObjectName("contentHeader")
-            header_frame.setFixedHeight(70)
+            header_frame.setFixedHeight(140)
             
             header_layout = QHBoxLayout(header_frame)
             header_layout.setContentsMargins(20, 15, 20, 15)

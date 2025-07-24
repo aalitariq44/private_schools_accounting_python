@@ -218,9 +218,9 @@ class StudentsPage(QWidget):
             
             # إعداد الأعمدة
             columns = [
-                "المعرف", "الاسم الكامل", "رقم الهوية", "المدرسة", 
-                "الصف", "السنة الدراسية", "ولي الأمر", "رقم الهاتف",
-                "الحالة", "تاريخ التسجيل"
+                "المعرف", "الاسم الكامل", "المدرسة", 
+                "الصف", "الشعبة", "الجنس",
+                "الهاتف", "الحالة", "تاريخ المباشرة"
             ]
             
             self.students_table.setColumnCount(len(columns))
@@ -239,13 +239,12 @@ class StudentsPage(QWidget):
             header.setDefaultSectionSize(120)
             header.resizeSection(0, 80)   # المعرف
             header.resizeSection(1, 150)  # الاسم الكامل
-            header.resizeSection(2, 120)  # رقم الهوية
-            header.resizeSection(3, 130)  # المدرسة
-            header.resizeSection(4, 100)  # الصف
-            header.resizeSection(5, 120)  # السنة الدراسية
-            header.resizeSection(6, 130)  # ولي الأمر
-            header.resizeSection(7, 110)  # رقم الهاتف
-            header.resizeSection(8, 80)   # الحالة
+            header.resizeSection(2, 130)  # المدرسة
+            header.resizeSection(3, 100)  # الصف
+            header.resizeSection(4, 80)   # الشعبة
+            header.resizeSection(5, 80)   # الجنس
+            header.resizeSection(6, 110)  # الهاتف
+            header.resizeSection(7, 80)   # الحالة
             
             # إخفاء العمود الأول (المعرف) 
             self.students_table.setColumnHidden(0, True)
@@ -339,9 +338,9 @@ class StudentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT s.id, s.name as full_name, s.national_id_number, sc.name_ar as school_name,
-                       s.grade, s.academic_year, s.guardian_name, s.guardian_phone,
-                       s.status, s.created_at
+                SELECT s.id, s.full_name, sc.name_ar as school_name,
+                       s.grade, s.section, s.gender,
+                       s.phone, s.status, s.start_date
                 FROM students s
                 LEFT JOIN schools sc ON s.school_id = sc.id
                 WHERE 1=1
@@ -369,9 +368,9 @@ class StudentsPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (s.name LIKE ? OR s.national_id_number LIKE ?)"
+                query += " AND (s.full_name LIKE ?)"
                 search_param = f"%{search_text}%"
-                params.extend([search_param, search_param])
+                params.append(search_param)
             
             query += " ORDER BY s.created_at DESC"
             
@@ -398,47 +397,44 @@ class StudentsPage(QWidget):
                 # الاسم الكامل
                 self.students_table.setItem(row, 1, QTableWidgetItem(student[1] or ""))
                 
-                # رقم الهوية
-                self.students_table.setItem(row, 2, QTableWidgetItem(student[2] or ""))
-                
                 # المدرسة
-                self.students_table.setItem(row, 3, QTableWidgetItem(student[3] or "غير محدد"))
+                self.students_table.setItem(row, 2, QTableWidgetItem(student[2] or "غير محدد"))
                 
                 # الصف
+                self.students_table.setItem(row, 3, QTableWidgetItem(student[3] or ""))
+                
+                # الشعبة
                 self.students_table.setItem(row, 4, QTableWidgetItem(student[4] or ""))
                 
-                # السنة الدراسية
+                # الجنس
                 self.students_table.setItem(row, 5, QTableWidgetItem(student[5] or ""))
                 
-                # ولي الأمر
+                # الهاتف
                 self.students_table.setItem(row, 6, QTableWidgetItem(student[6] or ""))
                 
-                # رقم الهاتف
-                self.students_table.setItem(row, 7, QTableWidgetItem(student[7] or ""))
-                
                 # الحالة
-                status_item = QTableWidgetItem(student[8] or "نشط")
-                if student[8] == "نشط":
+                status_item = QTableWidgetItem(student[7] or "نشط")
+                if student[7] == "نشط":
                     status_item.setBackground(Qt.green)
-                elif student[8] == "منقطع":
+                elif student[7] == "منقطع":
                     status_item.setBackground(Qt.red)
-                elif student[8] == "متخرج":
+                elif student[7] == "متخرج":
                     status_item.setBackground(Qt.blue)
-                self.students_table.setItem(row, 8, status_item)
+                self.students_table.setItem(row, 7, status_item)
                 
-                # تاريخ التسجيل
-                created_at = student[9]
-                if created_at:
+                # تاريخ المباشرة
+                start_date = student[8]
+                if start_date:
                     try:
                         from datetime import datetime
-                        date_obj = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        date_obj = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
                         formatted_date = date_obj.strftime("%Y-%m-%d")
                     except:
-                        formatted_date = str(created_at)[:10]
+                        formatted_date = str(start_date)[:10]
                 else:
                     formatted_date = ""
                 
-                self.students_table.setItem(row, 9, QTableWidgetItem(formatted_date))
+                self.students_table.setItem(row, 8, QTableWidgetItem(formatted_date))
             
             # تحديث إحصائية العدد المعروض
             self.displayed_count_label.setText(f"عدد الطلاب المعروضين: {len(self.current_students)}")

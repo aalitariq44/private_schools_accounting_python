@@ -164,37 +164,14 @@ class EditStudentDialog(QDialog):
         basic_layout.setSpacing(12)
         
         # الحقول الأساسية
-        self.first_name_edit = QLineEdit()
-        self.first_name_edit.setPlaceholderText("أدخل الاسم الأول")
-        basic_layout.addRow("الاسم الأول (عربي):", self.first_name_edit)
-        
-        self.first_name_en_edit = QLineEdit()
-        self.first_name_en_edit.setPlaceholderText("Enter first name")
-        basic_layout.addRow("الاسم الأول (إنجليزي):", self.first_name_en_edit)
-        
-        self.last_name_edit = QLineEdit()
-        self.last_name_edit.setPlaceholderText("أدخل الاسم الأخير")
-        basic_layout.addRow("الاسم الأخير (عربي):", self.last_name_edit)
-        
-        self.last_name_en_edit = QLineEdit()
-        self.last_name_en_edit.setPlaceholderText("Enter last name")
-        basic_layout.addRow("الاسم الأخير (إنجليزي):", self.last_name_en_edit)
-        
-        # تاريخ الميلاد
-        self.birth_date_edit = QDateEdit()
-        self.birth_date_edit.setCalendarPopup(True)
-        self.birth_date_edit.setDisplayFormat("yyyy-MM-dd")
-        basic_layout.addRow("تاريخ الميلاد:", self.birth_date_edit)
+        self.full_name_edit = QLineEdit()
+        self.full_name_edit.setPlaceholderText("أدخل الاسم الكامل للطالب")
+        basic_layout.addRow("الاسم الكامل:", self.full_name_edit)
         
         # الجنس
         self.gender_combo = QComboBox()
         self.gender_combo.addItems(["ذكر", "أنثى"])
         basic_layout.addRow("الجنس:", self.gender_combo)
-        
-        # رقم الهوية
-        self.national_id_edit = QLineEdit()
-        self.national_id_edit.setPlaceholderText("أدخل رقم الهوية")
-        basic_layout.addRow("رقم الهوية:", self.national_id_edit)
         
         main_layout.addWidget(basic_info_group)
         
@@ -218,19 +195,15 @@ class EditStudentDialog(QDialog):
         academic_layout.addRow("الصف:", self.grade_combo)
         
         # الشعبة
-        self.section_edit = QLineEdit()
-        self.section_edit.setPlaceholderText("مثال: أ، ب، ج")
-        academic_layout.addRow("الشعبة:", self.section_edit)
+        self.section_combo = QComboBox()
+        self.section_combo.addItems(["ا", "ب", "ج", "د", "هـ", "و", "ز", "ح", "ط", "ي"])
+        academic_layout.addRow("الشعبة:", self.section_combo)
         
-        # رقم الطالب
-        self.student_number_edit = QLineEdit()
-        self.student_number_edit.setPlaceholderText("رقم الطالب في المدرسة")
-        academic_layout.addRow("رقم الطالب:", self.student_number_edit)
-        
-        # سنة الالتحاق
-        self.enrollment_year_spin = QSpinBox()
-        self.enrollment_year_spin.setRange(2000, 2030)
-        academic_layout.addRow("سنة الالتحاق:", self.enrollment_year_spin)
+        # تاريخ المباشرة
+        self.start_date_edit = QDateEdit()
+        self.start_date_edit.setCalendarPopup(True)
+        self.start_date_edit.setDisplayFormat("yyyy-MM-dd")
+        academic_layout.addRow("تاريخ المباشرة:", self.start_date_edit)
         
         # الحالة
         self.status_combo = QComboBox()
@@ -244,21 +217,10 @@ class EditStudentDialog(QDialog):
         contact_layout = QFormLayout(contact_info_group)
         contact_layout.setSpacing(12)
         
-        # اسم ولي الأمر
-        self.guardian_name_edit = QLineEdit()
-        self.guardian_name_edit.setPlaceholderText("اسم ولي الأمر")
-        contact_layout.addRow("اسم ولي الأمر:", self.guardian_name_edit)
-        
-        # هاتف ولي الأمر
-        self.guardian_phone_edit = QLineEdit()
-        self.guardian_phone_edit.setPlaceholderText("رقم الهاتف")
-        contact_layout.addRow("هاتف ولي الأمر:", self.guardian_phone_edit)
-        
-        # العنوان
-        self.address_edit = QTextEdit()
-        self.address_edit.setPlaceholderText("العنوان التفصيلي")
-        self.address_edit.setMaximumHeight(80)
-        contact_layout.addRow("العنوان:", self.address_edit)
+        # الهاتف
+        self.phone_edit = QLineEdit()
+        self.phone_edit.setPlaceholderText("رقم الهاتف")
+        contact_layout.addRow("الهاتف:", self.phone_edit)
         
         main_layout.addWidget(contact_info_group)
         
@@ -339,9 +301,9 @@ class EditStudentDialog(QDialog):
         """تحميل بيانات الطالب الحالية"""
         try:
             query = """
-                SELECT name, national_id_number, school_id, grade,
-                       section, academic_year, gender, phone,
-                       guardian_name, guardian_phone, photo, status
+                SELECT full_name, school_id, grade,
+                       section, gender, phone,
+                       photo, status, start_date
                 FROM students WHERE id = ?
             """
             
@@ -350,58 +312,54 @@ class EditStudentDialog(QDialog):
             if students:
                 student = students[0]
                 
-                # Parse the full name to first and last name
-                name_parts = (student[0] or "").split(" ", 1)
-                first_name = name_parts[0] if name_parts else ""
-                last_name = name_parts[1] if len(name_parts) > 1 else ""
-                
                 # ملء الحقول بالبيانات الحالية
-                self.first_name_edit.setText(first_name)
-                self.last_name_edit.setText(last_name)
+                self.full_name_edit.setText(student[0] or "")
                 
                 # الجنس
-                if student[6]:
-                    index = self.gender_combo.findText(student[6])
+                if student[4]:
+                    index = self.gender_combo.findText(student[4])
                     if index >= 0:
                         self.gender_combo.setCurrentIndex(index)
                 
-                self.national_id_edit.setText(student[1] or "")
-                
                 # المدرسة
-                if student[2]:
+                if student[1]:
                     for i in range(self.school_combo.count()):
-                        if self.school_combo.itemData(i) == student[2]:
+                        if self.school_combo.itemData(i) == student[1]:
                             self.school_combo.setCurrentIndex(i)
                             break
                 
                 # الصف
-                if student[3]:
-                    index = self.grade_combo.findText(student[3])
+                if student[2]:
+                    index = self.grade_combo.findText(student[2])
                     if index >= 0:
                         self.grade_combo.setCurrentIndex(index)
                 
-                self.section_edit.setText(student[4] or "")
-                self.student_number_edit.setText("")  # Not in database schema
+                # الشعبة
+                if student[3]:
+                    index = self.section_combo.findText(student[3])
+                    if index >= 0:
+                        self.section_combo.setCurrentIndex(index)
                 
-                if student[5]:
+                # الهاتف
+                self.phone_edit.setText(student[5] or "")
+                
+                # تاريخ المباشرة
+                if student[8]:
                     try:
-                        year = int(student[5])
-                        self.enrollment_year_spin.setValue(year)
+                        date = QDate.fromString(student[8], "yyyy-MM-dd")
+                        self.start_date_edit.setDate(date)
                     except:
-                        self.enrollment_year_spin.setValue(datetime.now().year)
+                        self.start_date_edit.setDate(QDate.currentDate())
                 
                 # الحالة
-                if student[11]:
-                    index = self.status_combo.findText(student[11])
+                if student[7]:
+                    index = self.status_combo.findText(student[7])
                     if index >= 0:
                         self.status_combo.setCurrentIndex(index)
                 
-                self.guardian_name_edit.setText(student[8] or "")
-                self.guardian_phone_edit.setText(student[9] or "")
-                
                 # الصورة
-                if student[10]:
-                    self.current_photo = student[10]
+                if student[6]:
+                    self.current_photo = student[6]
                     self.load_current_photo()
                     
         except Exception as e:
@@ -455,30 +413,11 @@ class EditStudentDialog(QDialog):
         errors = []
         
         # التحقق من الحقول المطلوبة
-        if not self.first_name_edit.text().strip():
-            errors.append("الاسم الأول (عربي) مطلوب")
-            
-        if not self.last_name_edit.text().strip():
-            errors.append("الاسم الأخير (عربي) مطلوب")
-            
-        if not self.national_id_edit.text().strip():
-            errors.append("رقم الهوية مطلوب")
-        elif len(self.national_id_edit.text().strip()) < 10:
-            errors.append("رقم الهوية يجب أن يكون 10 أرقام على الأقل")
+        if not self.full_name_edit.text().strip():
+            errors.append("الاسم الكامل للطالب مطلوب")
             
         if self.school_combo.currentIndex() == -1:
             errors.append("يجب اختيار المدرسة")
-            
-        if not self.guardian_name_edit.text().strip():
-            errors.append("اسم ولي الأمر مطلوب")
-            
-        if not self.guardian_phone_edit.text().strip():
-            errors.append("هاتف ولي الأمر مطلوب")
-        
-        # التحقق من تاريخ الميلاد
-        birth_date = self.birth_date_edit.date().toPyDate()
-        if birth_date >= datetime.now().date():
-            errors.append("تاريخ الميلاد يجب أن يكون في الماضي")
         
         return errors
     
@@ -520,45 +459,33 @@ class EditStudentDialog(QDialog):
             return
         
         try:
-            # التحقق من عدم تكرار رقم الهوية (باستثناء الطالب الحالي)
-            query = "SELECT id FROM students WHERE national_id_number = ? AND id != ?"
-            existing_student = db_manager.execute_query(query, (self.national_id_edit.text().strip(), self.student_id))
-            if existing_student:
-                QMessageBox.warning(self, "خطأ", "رقم الهوية موجود مسبقاً لطالب آخر")
-                return
-            
-            # معالجة الصورة
-            photo_filename = self.save_photo()
-            if not photo_filename and self.current_photo:
-                photo_filename = self.current_photo
-            
             # تحديث البيانات
             update_query = """
                 UPDATE students SET
-                    name = ?, national_id_number = ?, school_id = ?, grade = ?,
-                    section = ?, academic_year = ?, gender = ?, phone = ?,
-                    guardian_name = ?, guardian_phone = ?, status = ?,
+                    full_name = ?, school_id = ?, grade = ?,
+                    section = ?, gender = ?, phone = ?,
+                    start_date = ?, status = ?,
                     updated_at = CURRENT_TIMESTAMP
             """
             
             params = [
-                f"{self.first_name_edit.text().strip()} {self.last_name_edit.text().strip()}",
-                self.national_id_edit.text().strip(),
+                self.full_name_edit.text().strip(),
                 self.school_combo.currentData(),
                 self.grade_combo.currentText(),
-                self.section_edit.text().strip(),
-                str(self.enrollment_year_spin.value()),
+                self.section_combo.currentText(),
                 self.gender_combo.currentText(),
-                self.guardian_phone_edit.text().strip(),
-                self.guardian_name_edit.text().strip(),
-                self.guardian_phone_edit.text().strip(),
+                self.phone_edit.text().strip(),
+                self.start_date_edit.date().toString("yyyy-MM-dd"),
                 self.status_combo.currentText()
             ]
             
             # إضافة الصورة للتحديث إذا تم تغييرها
-            if photo_filename is not None:
+            if self.photo_path is not None:  # If a new photo was selected
                 update_query += ", photo = ?"
+                photo_filename = self.save_photo()
                 params.append(photo_filename)
+            elif self.current_photo is None:  # If photo was removed
+                update_query += ", photo = NULL"
             
             update_query += " WHERE id = ?"
             params.append(self.student_id)

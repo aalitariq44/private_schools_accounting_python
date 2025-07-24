@@ -58,14 +58,15 @@ CREATE TABLE schools (
 ```sql
 CREATE TABLE students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,    -- المعرف الفريد
-    name TEXT NOT NULL,                      -- اسم الطالب الكامل
-    school_id INTEGER NOT NULL,             -- معرف المدرسة
-    grade TEXT NOT NULL,                    -- الصف الدراسي
-    section TEXT NOT NULL,                  -- الشعبة
-    gender TEXT NOT NULL,                   -- الجنس (ذكر/أنثى)
-    phone TEXT,                             -- رقم الهاتف
-    total_fee DECIMAL(10,2) NOT NULL,       -- القسط الكلي
-    start_date DATE NOT NULL,               -- تاريخ المباشرة
+    full_name TEXT NOT NULL,                 -- الاسم الكامل للطالب
+    school_id INTEGER NOT NULL,              -- معرف المدرسة
+    grade TEXT NOT NULL,                     -- الصف الدراسي
+    section TEXT NOT NULL,                   -- الشعبة
+    gender TEXT NOT NULL,                    -- الجنس (ذكر/أنثى)
+    phone TEXT,                              -- رقم الهاتف
+    total_fee DECIMAL(10,2) NOT NULL,        -- القسط الكلي
+    start_date DATE NOT NULL,                -- تاريخ المباشرة
+    status TEXT DEFAULT 'نشط',               -- الحالة
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
@@ -161,7 +162,7 @@ CREATE TABLE app_settings (
 ```sql
 -- فهارس الطلاب
 CREATE INDEX idx_students_school_id ON students(school_id);
-CREATE INDEX idx_students_name ON students(name);
+CREATE INDEX idx_students_name ON students(full_name);
 CREATE INDEX idx_students_grade ON students(grade);
 
 -- فهارس الأقساط  
@@ -239,7 +240,7 @@ GROUP BY s.id;
 ### 3. طلاب مدرسة معينة
 ```sql
 SELECT 
-    s.name,
+    s.full_name,
     s.grade,
     s.section,
     s.total_fee,
@@ -247,7 +248,7 @@ SELECT
 FROM students s
 JOIN schools sc ON s.school_id = sc.id
 WHERE sc.id = ?
-ORDER BY s.grade, s.section, s.name;
+ORDER BY s.grade, s.section, s.full_name;
 ```
 
 ### 4. الأقساط في فترة معينة
@@ -255,7 +256,7 @@ ORDER BY s.grade, s.section, s.name;
 SELECT 
     i.payment_date,
     i.amount,
-    s.name as student_name,
+    s.full_name as student_name,
     sc.name_ar as school_name
 FROM installments i
 JOIN students s ON i.student_id = s.id

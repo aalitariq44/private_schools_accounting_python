@@ -29,10 +29,9 @@ def comprehensive_test():
         # فحص جدول الطلاب
         print("   - فحص جدول الطلاب...")
         students_cols = db_manager.execute_query("PRAGMA table_info(students)")
-        expected_student_cols = ['id', 'name', 'national_id_number', 'school_id', 'grade', 
-                               'section', 'academic_year', 'gender', 'phone', 'guardian_name', 
-                               'guardian_phone', 'total_fee', 'start_date', 'status', 
-                               'created_at', 'updated_at']
+        expected_student_cols = ['id', 'full_name', 'school_id', 'grade', 
+                               'section', 'gender', 'phone', 'total_fee', 
+                               'start_date', 'status', 'created_at', 'updated_at']
         
         actual_student_cols = [col[1] for col in students_cols]
         missing_cols = [col for col in expected_student_cols if col not in actual_student_cols]
