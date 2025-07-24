@@ -194,9 +194,10 @@ class AddStudentDialog(QDialog):
         academic_layout.addRow("الصف:", self.grade_combo)
         
         # الشعبة
-        self.section_edit = QLineEdit()
-        self.section_edit.setPlaceholderText("مثل: أ، ب، ج")
-        academic_layout.addRow("الشعبة:", self.section_edit)
+        self.section_combo = QComboBox()
+        self.section_combo.addItems(["أ", "ب", "ج", "د", "ه", "و", "ز", "ح", "ط", "ي"])
+        self.section_combo.setPlaceholderText("اختر الشعبة")
+        academic_layout.addRow("الشعبة:", self.section_combo)
         
         # السنة الدراسية
         self.academic_year_edit = QLineEdit()
@@ -342,7 +343,7 @@ class AddStudentDialog(QDialog):
         if self.grade_combo.currentIndex() <= 0:
             errors.append("يجب اختيار الصف")
             
-        if not self.section_edit.text().strip():
+        if self.section_combo.currentIndex() < 0: # Check if an item is selected
             errors.append("الشعبة مطلوبة")
         
         # التحقق من الرسوم
@@ -382,7 +383,7 @@ class AddStudentDialog(QDialog):
                 self.full_name_edit.text().strip(),
                 school_data['id'],
                 self.grade_combo.currentData(),
-                self.section_edit.text().strip(),
+                self.section_combo.currentText(), # Changed from section_edit to section_combo
                 self.academic_year_edit.text().strip() or f"{datetime.now().year}-{datetime.now().year + 1}",
                 self.gender_combo.currentText(),
                 self.phone_edit.text().strip(),
