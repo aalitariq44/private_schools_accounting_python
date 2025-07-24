@@ -171,11 +171,6 @@ class AddStudentDialog(QDialog):
         self.full_name_edit.setPlaceholderText("أدخل الاسم الكامل للطالب")
         basic_layout.addRow("الاسم الكامل:", self.full_name_edit)
         
-        # الرقم الوطني
-        self.national_id_edit = QLineEdit()
-        self.national_id_edit.setPlaceholderText("رقم الهوية أو شهادة الميلاد")
-        basic_layout.addRow("الرقم الوطني:", self.national_id_edit)
-        
         # الجنس
         self.gender_combo = QComboBox()
         self.gender_combo.addItems(["ذكر", "أنثى"])
@@ -236,16 +231,6 @@ class AddStudentDialog(QDialog):
         self.phone_edit = QLineEdit()
         self.phone_edit.setPlaceholderText("رقم هاتف الطالب")
         contact_layout.addRow("هاتف الطالب:", self.phone_edit)
-        
-        # اسم ولي الأمر
-        self.guardian_name_edit = QLineEdit()
-        self.guardian_name_edit.setPlaceholderText("اسم ولي الأمر")
-        contact_layout.addRow("اسم ولي الأمر:", self.guardian_name_edit)
-        
-        # هاتف ولي الأمر
-        self.guardian_phone_edit = QLineEdit()
-        self.guardian_phone_edit.setPlaceholderText("رقم هاتف ولي الأمر")
-        contact_layout.addRow("هاتف ولي الأمر:", self.guardian_phone_edit)
         
         content_layout.addWidget(contact_info_group)
         
@@ -383,11 +368,10 @@ class AddStudentDialog(QDialog):
             # إدراج البيانات الأساسية
             insert_query = """
                 INSERT INTO students (
-                    name, national_id_number, school_id, grade,
+                    name, school_id, grade,
                     section, academic_year, gender, phone,
-                    guardian_name, guardian_phone, total_fee,
-                    start_date, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    total_fee, start_date, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             total_fee = 0.0
@@ -396,15 +380,12 @@ class AddStudentDialog(QDialog):
             
             student_data = (
                 self.full_name_edit.text().strip(),
-                self.national_id_edit.text().strip(),
                 school_data['id'],
                 self.grade_combo.currentData(),
                 self.section_edit.text().strip(),
                 self.academic_year_edit.text().strip() or f"{datetime.now().year}-{datetime.now().year + 1}",
                 self.gender_combo.currentText(),
                 self.phone_edit.text().strip(),
-                self.guardian_name_edit.text().strip(),
-                self.guardian_phone_edit.text().strip(),
                 total_fee,
                 self.start_date_edit.date().toString("yyyy-MM-dd"),
                 self.status_combo.currentText()
