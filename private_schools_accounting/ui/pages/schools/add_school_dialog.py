@@ -506,7 +506,7 @@ class AddSchoolDialog(QDialog):
                 'principal_name': self.principal_input.text().strip(),
                 'phone': self.phone_input.text().strip() or None,
                 'address': self.address_input.toPlainText().strip() or None,
-                'school_types': json.dumps(school_types, ensure_ascii=False),
+                'school_types': ",".join(school_types), # Store as comma-separated string
                 'logo_path': logo_path
             }
             

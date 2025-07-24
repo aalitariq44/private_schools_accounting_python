@@ -26,6 +26,7 @@ class AddStudentDialog(QDialog):
         self.photo_path = None
         self.setup_ui()
         self.load_schools()
+        self.update_grades_for_school() # Call after loading schools to populate grades initially
         self.setup_connections()
         
     def setup_ui(self):
@@ -199,11 +200,6 @@ class AddStudentDialog(QDialog):
         self.section_combo.setPlaceholderText("اختر الشعبة")
         academic_layout.addRow("الشعبة:", self.section_combo)
         
-        # السنة الدراسية
-        self.academic_year_edit = QLineEdit()
-        self.academic_year_edit.setPlaceholderText("مثل: 2024-2025")
-        academic_layout.addRow("السنة الدراسية:", self.academic_year_edit)
-        
         # المبلغ الإجمالي
         self.total_fee_edit = QLineEdit()
         self.total_fee_edit.setPlaceholderText("المبلغ الإجمالي بالدينار")
@@ -274,6 +270,10 @@ class AddStudentDialog(QDialog):
                     'types': school['school_types']
                 }
                 self.school_combo.addItem(school['name_ar'], school_data)
+            
+            # Select the first school if available to trigger grade population
+            if schools:
+                self.school_combo.setCurrentIndex(1) # Select the first actual school, skipping "اختر المدرسة"
                 
         except Exception as e:
             logging.error(f"خطأ في تحميل المدارس: {e}")
@@ -285,41 +285,58 @@ class AddStudentDialog(QDialog):
             self.grade_combo.clear()
             
             if self.school_combo.currentIndex() <= 0:
+                logging.info("No school selected or 'اختر المدرسة' is selected. Clearing grades.")
                 return
                 
             school_data = self.school_combo.currentData()
             if not school_data:
+                logging.warning("No school data found for selected school.")
                 return
-                
+            
+            logging.info(f"Selected school data: {school_data}")
             school_types_str = school_data.get('types', '')
+            logging.info(f"Raw school types string: '{school_types_str}'")
             
             # تحليل أنواع المدرسة
-            try:
-                school_types = json.loads(school_types_str) if school_types_str else []
-            except:
-                school_types = [school_types_str] if school_types_str else []
+            school_types = []
+            if school_types_str:
+                try:
+                    # Try to parse as JSON array
+                    parsed_types = json.loads(school_types_str)
+                    if isinstance(parsed_types, list):
+                        school_types = parsed_types
+                    else:
+                        # If not a list, treat as a single string
+                        school_types = [school_types_str]
+                except json.JSONDecodeError:
+                    # If not a valid JSON, assume it's a comma-separated string
+                    school_types = [t.strip() for t in school_types_str.split(',') if t.strip()]
+            
+            logging.info(f"Parsed school types list: {school_types}")
             
             # قائمة الصفوف
             all_grades = []
             
             # إضافة الصفوف حسب نوع المدرسة
-            if "ابتدائي" in school_types:
+            if "ابتدائية" in school_types:
                 all_grades.extend([
                     "الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي",
                     "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي"
                 ])
             
-            if "متوسط" in school_types:
+            if "متوسطة" in school_types:
                 all_grades.extend([
                     "الأول المتوسط", "الثاني المتوسط", "الثالث المتوسط"
                 ])
             
-            if "إعدادي" in school_types or "ثانوي" in school_types:
+            if "إعدادية" in school_types or "ثانوية" in school_types: # Assuming "ثانوية" is also covered by "إعدادية"
                 all_grades.extend([
                     "الرابع العلمي", "الرابع الأدبي",
                     "الخامس العلمي", "الخامس الأدبي", 
                     "السادس العلمي", "السادس الأدبي"
                 ])
+            
+            logging.info(f"Grades to be added: {all_grades}")
             
             # إضافة الصفوف إلى القائمة
             self.grade_combo.addItem("اختر الصف", None)
@@ -328,6 +345,7 @@ class AddStudentDialog(QDialog):
                 
         except Exception as e:
             logging.error(f"خطأ في تحديث الصفوف: {e}")
+            QMessageBox.warning(self, "خطأ", f"حدث خطأ في تحديث الصفوف:\\n{str(e)}")
     
     def validate_inputs(self):
         """التحقق من صحة البيانات المدخلة"""
@@ -370,9 +388,9 @@ class AddStudentDialog(QDialog):
             insert_query = """
                 INSERT INTO students (
                     name, school_id, grade,
-                    section, academic_year, gender, phone,
+                    section, gender, phone,
                     total_fee, start_date, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             total_fee = 0.0
@@ -383,8 +401,7 @@ class AddStudentDialog(QDialog):
                 self.full_name_edit.text().strip(),
                 school_data['id'],
                 self.grade_combo.currentData(),
-                self.section_combo.currentText(), # Changed from section_edit to section_combo
-                self.academic_year_edit.text().strip() or f"{datetime.now().year}-{datetime.now().year + 1}",
+                self.section_combo.currentText(),
                 self.gender_combo.currentText(),
                 self.phone_edit.text().strip(),
                 total_fee,
