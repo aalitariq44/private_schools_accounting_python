@@ -81,10 +81,12 @@ class StudentsPage(QWidget):
             
             title_label = QLabel("إدارة الطلاب")
             title_label.setObjectName("pageTitle")
+            title_label.setStyleSheet("color: black;")
             text_layout.addWidget(title_label)
             
             desc_label = QLabel("إدارة معلومات الطلاب والتسجيل والإحصائيات")
             desc_label.setObjectName("pageDesc")
+            desc_label.setStyleSheet("color: black;")
             text_layout.addWidget(desc_label)
             
             header_layout.addLayout(text_layout)
