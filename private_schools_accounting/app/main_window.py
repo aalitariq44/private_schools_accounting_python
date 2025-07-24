@@ -397,11 +397,9 @@ class MainWindow(QMainWindow):
         """تحميل صفحة الطلاب"""
         try:
             from ui.pages.students.students_page import StudentsPage
-            
             students = StudentsPage()
             self.pages["students"] = students
             self.pages_stack.addWidget(students)
-            
         except Exception as e:
             logging.error(f"خطأ في تحميل صفحة الطلاب: {e}")
             # إنشاء صفحة بديلة
@@ -430,9 +428,9 @@ class MainWindow(QMainWindow):
         try:
             from ui.pages.additional_fees.additional_fees_page import AdditionalFeesPage
             
-            fees = AdditionalFeesPage()
-            self.pages["additional_fees"] = fees
-            self.pages_stack.addWidget(fees)
+            additional_fees = AdditionalFeesPage()
+            self.pages["additional_fees"] = additional_fees
+            self.pages_stack.addWidget(additional_fees)
             
         except Exception as e:
             logging.error(f"خطأ في تحميل صفحة الرسوم الإضافية: {e}")
@@ -469,15 +467,15 @@ class MainWindow(QMainWindow):
             widget = QWidget()
             layout = QVBoxLayout(widget)
             layout.setAlignment(Qt.AlignCenter)
-            
+
             # رسالة
             label = QLabel(message)
             label.setAlignment(Qt.AlignCenter)
             label.setObjectName("placeholderMessage")
             layout.addWidget(label)
-            
+
             return widget
-            
+
         except Exception as e:
             logging.error(f"خطأ في إنشاء الصفحة البديلة: {e}")
             return QWidget()
@@ -488,26 +486,26 @@ class MainWindow(QMainWindow):
             if page_name not in self.pages:
                 logging.warning(f"الصفحة غير موجودة: {page_name}")
                 return
-            
+
             # تحديث حالة الأزرار
             self.update_sidebar_buttons(page_name)
-            
+
             # عرض الصفحة
             page_widget = self.pages[page_name]
             self.pages_stack.setCurrentWidget(page_widget)
-            
+
             # تحديث عنوان الصفحة
             self.update_page_title(page_name)
-            
+
             # تحديث الصفحة الحالية
             self.current_page = page_name
-            
+
             # إرسال إشارة تغيير الصفحة
             self.page_changed.emit(page_name)
-            
+
             # تسجيل الإجراء
             log_user_action("تم الانتقال إلى صفحة", page_name)
-            
+
         except Exception as e:
             logging.error(f"خطأ في الانتقال إلى الصفحة {page_name}: {e}")
     
@@ -545,7 +543,6 @@ class MainWindow(QMainWindow):
     def show_dashboard(self):
         """عرض صفحة لوحة التحكم"""
         self.navigate_to_page("dashboard")
-    
     def show_coming_soon(self):
         """عرض رسالة قريباً"""
         try:
@@ -717,13 +714,13 @@ class MainWindow(QMainWindow):
                 
                 #appTitle {
                     color: white;
-                    font-size: 16px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
                 #appVersion {
                     color: #BDC3C7;
-                    font-size: 10px;
+                    font-size: 24px;
                 }
                 
                 #sidebarScrollArea {
@@ -737,7 +734,7 @@ class MainWindow(QMainWindow):
                     color: #BDC3C7;
                     text-align: right;
                     padding: 12px 20px;
-                    font-size: 13px;
+                    font-size: 24px;
                     border-radius: 0;
                 }
                 
@@ -774,7 +771,7 @@ class MainWindow(QMainWindow):
                 }
                 
                 #pageTitle {
-                    font-size: 20px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
                 }
@@ -787,7 +784,7 @@ class MainWindow(QMainWindow):
                 
                 #userName {
                     color: #2C3E50;
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -797,7 +794,7 @@ class MainWindow(QMainWindow):
                     border: none;
                     padding: 5px 10px;
                     border-radius: 4px;
-                    font-size: 11px;
+                    font-size: 24px;
                 }
                 
                 #logoutButton:hover {
@@ -811,7 +808,7 @@ class MainWindow(QMainWindow):
                 }
                 
                 #placeholderMessage {
-                    font-size: 16px;
+                    font-size: 24px;
                     color: #7F8C8D;
                     padding: 50px;
                 }
