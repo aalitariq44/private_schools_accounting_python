@@ -17,6 +17,8 @@ from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
+from .add_school_dialog import AddSchoolDialog
+from .edit_school_dialog import EditSchoolDialog
 
 
 class SchoolsPage(QWidget):
@@ -387,12 +389,22 @@ class SchoolsPage(QWidget):
     def add_school(self):
         """إضافة مدرسة جديدة"""
         try:
-            # سيتم تطوير نافذة إضافة المدرسة لاحقاً
-            self.show_info_message("قيد التطوير", "نافذة إضافة المدرسة قيد التطوير")
-            log_user_action("طلب إضافة مدرسة جديدة")
+            dialog = AddSchoolDialog(self)
+            dialog.school_added.connect(self.on_school_added)
+            dialog.exec_()
             
         except Exception as e:
-            logging.error(f"خطأ في إضافة مدرسة: {e}")
+            logging.error(f"خطأ في فتح نافذة إضافة مدرسة: {e}")
+            self.show_error_message("خطأ", f"حدث خطأ في فتح نافذة إضافة المدرسة: {str(e)}")
+    
+    def on_school_added(self, school_data):
+        """معالجة إضافة مدرسة جديدة"""
+        try:
+            log_user_action("تم إضافة مدرسة جديدة", school_data.get('name_ar', ''))
+            self.refresh()
+            
+        except Exception as e:
+            logging.error(f"خطأ في معالجة إضافة المدرسة: {e}")
     
     def edit_school(self, row, column):
         """تعديل مدرسة عند الضغط المزدوج"""
@@ -407,12 +419,45 @@ class SchoolsPage(QWidget):
     def edit_school_by_id(self, school_id: int):
         """تعديل مدرسة بالمعرف"""
         try:
-            # سيتم تطوير نافذة تعديل المدرسة لاحقاً
-            self.show_info_message("قيد التطوير", f"نافذة تعديل المدرسة {school_id} قيد التطوير")
-            log_user_action("طلب تعديل مدرسة", f"المعرف: {school_id}")
+            # الحصول على بيانات المدرسة
+            query = """
+                SELECT id, name_ar, name_en, principal_name, phone, address, school_types, logo_path, created_at
+                FROM schools WHERE id = ?
+            """
+            
+            result = db_manager.execute_query(query, (school_id,))
+            if result:
+                school_data = {
+                    'id': result[0],
+                    'name_ar': result[1],
+                    'name_en': result[2],
+                    'principal_name': result[3],
+                    'phone': result[4],
+                    'address': result[5],
+                    'school_types': result[6],
+                    'logo_path': result[7],
+                    'created_at': result[8]
+                }
+                
+                # فتح نافذة التعديل
+                dialog = EditSchoolDialog(school_data, self)
+                dialog.school_updated.connect(self.on_school_updated)
+                dialog.exec_()
+            else:
+                self.show_error_message("خطأ", "لم يتم العثور على المدرسة")
             
         except Exception as e:
             logging.error(f"خطأ في تعديل المدرسة {school_id}: {e}")
+            self.show_error_message("خطأ", f"حدث خطأ في تعديل المدرسة: {str(e)}")
+    
+    def on_school_updated(self, school_data):
+        """معالجة تحديث بيانات مدرسة"""
+        try:
+            log_user_action("تم تحديث بيانات مدرسة", school_data.get('name_ar', ''))
+            self.refresh()
+            
+        except Exception as e:
+            logging.error(f"خطأ في معالجة تحديث المدرسة: {e}")
     
     def delete_school_by_id(self, school_id: int):
         """حذف مدرسة بالمعرف"""
