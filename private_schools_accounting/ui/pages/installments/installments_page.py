@@ -416,7 +416,7 @@ class InstallmentsPage(QWidget):
             
             # جلب المدارس من قاعدة البيانات
             query = "SELECT id, name_ar FROM schools ORDER BY name_ar"
-            schools = db_manager.execute_query(query, fetch_all=True)
+            schools = db_manager.execute_query(query)
             
             if schools:
                 for school in schools:
@@ -440,22 +440,22 @@ class InstallmentsPage(QWidget):
             # بناء الاستعلام
             if selected_school_id:
                 query = """
-                    SELECT id, full_name 
+                    SELECT id, name as full_name
                     FROM students 
                     WHERE school_id = ? AND status = 'نشط'
-                    ORDER BY full_name
+                    ORDER BY name
                 """
                 params = [selected_school_id]
             else:
                 query = """
-                    SELECT id, full_name 
+                    SELECT id, name as full_name
                     FROM students 
                     WHERE status = 'نشط'
-                    ORDER BY full_name
+                    ORDER BY name
                 """
                 params = []
             
-            students = db_manager.execute_query(query, params, fetch_all=True)
+            students = db_manager.execute_query(query, params)
             
             if students:
                 for student in students:
@@ -478,7 +478,7 @@ class InstallmentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT i.id, s.full_name as student_name, sc.name_ar as school_name,
+                SELECT i.id, s.name as student_name, sc.name_ar as school_name,
                        i.installment_type, i.amount, i.due_date, i.payment_date,
                        i.paid_amount, (i.amount - COALESCE(i.paid_amount, 0)) as remaining,
                        i.status, i.notes
@@ -516,7 +516,7 @@ class InstallmentsPage(QWidget):
             query += " ORDER BY i.due_date DESC, i.created_at DESC"
             
             # تنفيذ الاستعلام
-            installments = db_manager.execute_query(query, params, fetch_all=True)
+            installments = db_manager.execute_query(query, params)
             
             self.current_installments = installments or []
             self.populate_installments_table()

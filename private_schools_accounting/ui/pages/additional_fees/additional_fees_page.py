@@ -417,7 +417,7 @@ class AdditionalFeesPage(QWidget):
             
             # جلب المدارس من قاعدة البيانات
             query = "SELECT id, name_ar FROM schools ORDER BY name_ar"
-            schools = db_manager.execute_query(query, fetch_all=True)
+            schools = db_manager.execute_query(query)
             
             if schools:
                 for school in schools:
@@ -441,22 +441,22 @@ class AdditionalFeesPage(QWidget):
             # بناء الاستعلام
             if selected_school_id:
                 query = """
-                    SELECT id, full_name 
+                    SELECT id, name 
                     FROM students 
                     WHERE school_id = ? AND status = 'نشط'
-                    ORDER BY full_name
+                    ORDER BY name
                 """
                 params = [selected_school_id]
             else:
                 query = """
-                    SELECT id, full_name 
+                    SELECT id, name 
                     FROM students 
                     WHERE status = 'نشط'
-                    ORDER BY full_name
+                    ORDER BY name
                 """
                 params = []
             
-            students = db_manager.execute_query(query, params, fetch_all=True)
+            students = db_manager.execute_query(query, params)
             
             if students:
                 for student in students:
@@ -479,7 +479,7 @@ class AdditionalFeesPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT af.id, s.full_name as student_name, sc.name_ar as school_name,
+                SELECT af.id, s.name as student_name, sc.name_ar as school_name,
                        af.fee_type, af.description, af.amount, af.created_at,
                        af.collection_date, af.collected_amount, af.status, af.notes
                 FROM additional_fees af
@@ -516,14 +516,14 @@ class AdditionalFeesPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (af.description LIKE ? OR s.full_name LIKE ?)"
+                query += " AND (af.description LIKE ? OR s.name LIKE ?)"
                 search_param = f"%{search_text}%"
                 params.extend([search_param, search_param])
             
             query += " ORDER BY af.created_at DESC"
             
             # تنفيذ الاستعلام
-            fees = db_manager.execute_query(query, params, fetch_all=True)
+            fees = db_manager.execute_query(query, params)
             
             self.current_fees = fees or []
             self.populate_fees_table()
