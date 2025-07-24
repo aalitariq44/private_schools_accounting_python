@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-صفحة إدارة الطلاب
+صفحة إدارة الطلاب - محدثة
 """
 
 import logging
@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, 
     QTableWidgetItem, QPushButton, QLabel, QLineEdit,
     QFrame, QMessageBox, QHeaderView, QAbstractItemView,
-    QMenu, QComboBox, QDateEdit, QSpinBox, QAction
+    QMenu, QComboBox, QDateEdit, QSpinBox, QAction, QDialog
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
@@ -107,6 +107,7 @@ class StudentsPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في إنشاء رأس الصفحة: {e}")
+            raise
     
     def create_toolbar(self, layout):
         """إنشاء شريط الأدوات والفلاتر"""
@@ -114,21 +115,19 @@ class StudentsPage(QWidget):
             toolbar_frame = QFrame()
             toolbar_frame.setObjectName("toolbarFrame")
             
-            toolbar_layout = QVBoxLayout(toolbar_frame)
+            toolbar_layout = QHBoxLayout(toolbar_frame)
             toolbar_layout.setContentsMargins(15, 10, 15, 10)
-            toolbar_layout.setSpacing(10)
             
-            # الصف الأول - فلاتر
+            # فلاتر البحث
             filters_layout = QHBoxLayout()
             
-            # اختيار المدرسة
+            # فلتر المدرسة
             school_label = QLabel("المدرسة:")
             school_label.setObjectName("filterLabel")
             filters_layout.addWidget(school_label)
             
             self.school_combo = QComboBox()
             self.school_combo.setObjectName("filterCombo")
-            self.school_combo.setMinimumWidth(200)
             filters_layout.addWidget(self.school_combo)
             
             # فلتر الصف
@@ -138,13 +137,11 @@ class StudentsPage(QWidget):
             
             self.grade_combo = QComboBox()
             self.grade_combo.setObjectName("filterCombo")
-            self.grade_combo.addItem("جميع الصفوف", "")
-            self.grade_combo.addItems([
-                "الأول الابتدائي", "الثاني الابتدائي", "الثالث الابتدائي",
-                "الرابع الابتدائي", "الخامس الابتدائي", "السادس الابتدائي",
-                "الأول المتوسط", "الثاني المتوسط", "الثالث المتوسط",
-                "الرابع الإعدادي", "الخامس الإعدادي", "السادس الإعدادي"
-            ])
+            self.grade_combo.addItems(["جميع الصفوف", "الأول الابتدائي", "الثاني الابتدائي", 
+                                      "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", 
+                                      "السادس الابتدائي", "الأول المتوسط", "الثاني المتوسط", 
+                                      "الثالث المتوسط", "الرابع العلمي", "الرابع الأدبي",
+                                      "الخامس العلمي", "الخامس الأدبي", "السادس العلمي", "السادس الأدبي"])
             filters_layout.addWidget(self.grade_combo)
             
             # فلتر الحالة
@@ -154,41 +151,28 @@ class StudentsPage(QWidget):
             
             self.status_combo = QComboBox()
             self.status_combo.setObjectName("filterCombo")
-            self.status_combo.addItems(["جميع الحالات", "نشط", "منقطع", "متخرج"])
+            self.status_combo.addItems(["جميع الحالات", "نشط", "منقطع", "متخرج", "محول"])
             filters_layout.addWidget(self.status_combo)
             
-            filters_layout.addStretch()
-            
-            toolbar_layout.addLayout(filters_layout)
-            
-            # الصف الثاني - البحث والأزرار
-            actions_layout = QHBoxLayout()
-            
-            # البحث
+            # مربع البحث
             search_label = QLabel("البحث:")
             search_label.setObjectName("filterLabel")
-            actions_layout.addWidget(search_label)
+            filters_layout.addWidget(search_label)
             
             self.search_input = QLineEdit()
             self.search_input.setObjectName("searchInput")
-            self.search_input.setPlaceholderText("ابحث عن الطلاب بالاسم أو رقم الهوية...")
-            self.search_input.setMinimumWidth(300)
-            actions_layout.addWidget(self.search_input)
+            self.search_input.setPlaceholderText("ابحث في أسماء الطلاب...")
+            filters_layout.addWidget(self.search_input)
             
-            actions_layout.addStretch()
+            toolbar_layout.addLayout(filters_layout)
+            toolbar_layout.addStretch()
             
             # أزرار العمليات
+            actions_layout = QHBoxLayout()
+            
             self.add_student_button = QPushButton("إضافة طالب")
             self.add_student_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_student_button)
-            
-            self.import_students_button = QPushButton("استيراد قائمة")
-            self.import_students_button.setObjectName("secondaryButton")
-            actions_layout.addWidget(self.import_students_button)
-            
-            self.export_students_button = QPushButton("تصدير القائمة")
-            self.export_students_button.setObjectName("secondaryButton")
-            actions_layout.addWidget(self.export_students_button)
             
             self.refresh_button = QPushButton("تحديث")
             self.refresh_button.setObjectName("refreshButton")
@@ -212,42 +196,26 @@ class StudentsPage(QWidget):
             table_layout = QVBoxLayout(table_frame)
             table_layout.setContentsMargins(0, 0, 0, 0)
             
-            # إنشاء الجدول
+            # الجدول
             self.students_table = QTableWidget()
             self.students_table.setObjectName("dataTable")
             
-            # إعداد الأعمدة
-            columns = [
-                "المعرف", "الاسم الكامل", "المدرسة", 
-                "الصف", "الشعبة", "الجنس",
-                "الهاتف", "الحالة", "تاريخ المباشرة"
-            ]
-            
+            # إعداد أعمدة الجدول
+            columns = ["المعرف", "الاسم", "المدرسة", "الصف", "الشعبة", "الجنس", "الهاتف", "الحالة", "الإجراءات"]
             self.students_table.setColumnCount(len(columns))
             self.students_table.setHorizontalHeaderLabels(columns)
             
             # إعداد خصائص الجدول
-            self.students_table.setAlternatingRowColors(True)
             self.students_table.setSelectionBehavior(QAbstractItemView.SelectRows)
             self.students_table.setSelectionMode(QAbstractItemView.SingleSelection)
+            self.students_table.setAlternatingRowColors(True)
             self.students_table.setSortingEnabled(True)
-            self.students_table.setShowGrid(False)
             
-            # تخصيص عرض الأعمدة
+            # إعداد حجم الأعمدة
             header = self.students_table.horizontalHeader()
             header.setStretchLastSection(True)
-            header.setDefaultSectionSize(120)
-            header.resizeSection(0, 80)   # المعرف
-            header.resizeSection(1, 150)  # الاسم الكامل
-            header.resizeSection(2, 130)  # المدرسة
-            header.resizeSection(3, 100)  # الصف
-            header.resizeSection(4, 80)   # الشعبة
-            header.resizeSection(5, 80)   # الجنس
-            header.resizeSection(6, 110)  # الهاتف
-            header.resizeSection(7, 80)   # الحالة
-            
-            # إخفاء العمود الأول (المعرف) 
-            self.students_table.setColumnHidden(0, True)
+            for i in range(len(columns) - 1):
+                header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
             
             # ربط الأحداث
             self.students_table.cellDoubleClicked.connect(self.edit_student)
@@ -262,7 +230,7 @@ class StudentsPage(QWidget):
             raise
     
     def create_quick_stats(self, layout):
-        """إنشاء إحصائيات سريعة أسفل الجدول"""
+        """إنشاء إحصائيات سريعة"""
         try:
             stats_frame = QFrame()
             stats_frame.setObjectName("statsFrame")
@@ -270,38 +238,29 @@ class StudentsPage(QWidget):
             stats_layout = QHBoxLayout(stats_frame)
             stats_layout.setContentsMargins(15, 10, 15, 10)
             
-            # عدد الطلاب المعروضين
+            # عداد الطلاب المعروضين
             self.displayed_count_label = QLabel("عدد الطلاب المعروضين: 0")
-            self.displayed_count_label.setObjectName("statLabel")
+            self.displayed_count_label.setObjectName("countLabel")
             stats_layout.addWidget(self.displayed_count_label)
             
             stats_layout.addStretch()
             
-            # إجماليات سريعة
-            self.male_count_label = QLabel("ذكور: 0")
-            self.male_count_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.male_count_label)
-            
-            self.female_count_label = QLabel("إناث: 0")
-            self.female_count_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.female_count_label)
-            
-            self.active_count_label = QLabel("نشط: 0")
-            self.active_count_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.active_count_label)
+            # معلومات آخر تحديث
+            self.last_update_label = QLabel("آخر تحديث: --")
+            self.last_update_label.setObjectName("countLabel")
+            stats_layout.addWidget(self.last_update_label)
             
             layout.addWidget(stats_frame)
             
         except Exception as e:
-            logging.error(f"خطأ في إنشاء الإحصائيات السريعة: {e}")
+            logging.error(f"خطأ في إنشاء الإحصائيات: {e}")
+            raise
     
     def setup_connections(self):
         """ربط الإشارات والأحداث"""
         try:
             # ربط أزرار العمليات
             self.add_student_button.clicked.connect(self.add_student)
-            self.import_students_button.clicked.connect(self.import_students)
-            self.export_students_button.clicked.connect(self.export_students)
             self.refresh_button.clicked.connect(self.refresh)
             
             # ربط الفلاتر
@@ -325,7 +284,7 @@ class StudentsPage(QWidget):
             
             if schools:
                 for school in schools:
-                    self.school_combo.addItem(school[1], school[0])
+                    self.school_combo.addItem(school['name_ar'], school['id'])
             
             # تحميل الطلاب بعد تحميل المدارس
             self.refresh()
@@ -338,7 +297,7 @@ class StudentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT s.id, s.full_name, sc.name_ar as school_name,
+                SELECT s.id, s.name, sc.name_ar as school_name,
                        s.grade, s.section, s.gender,
                        s.phone, s.status, s.start_date
                 FROM students s
@@ -368,116 +327,124 @@ class StudentsPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (s.full_name LIKE ?)"
-                search_param = f"%{search_text}%"
-                params.append(search_param)
+                query += " AND s.name LIKE ?"
+                params.append(f"%{search_text}%")
             
-            query += " ORDER BY s.created_at DESC"
+            query += " ORDER BY s.name"
             
             # تنفيذ الاستعلام
-            students = db_manager.execute_query(query, params)
+            self.current_students = db_manager.execute_query(query, tuple(params))
             
-            self.current_students = students or []
-            self.populate_students_table()
+            # ملء الجدول
+            self.fill_students_table()
+            
+            # تحديث الإحصائيات
             self.update_stats()
             
         except Exception as e:
             logging.error(f"خطأ في تحميل الطلاب: {e}")
-            self.show_error_message("خطأ في التحميل", f"حدث خطأ في تحميل بيانات الطلاب: {str(e)}")
+            QMessageBox.warning(self, "خطأ", f"حدث خطأ في تحميل بيانات الطلاب:\\n{str(e)}")
     
-    def populate_students_table(self):
-        """ملء جدول الطلاب"""
+    def fill_students_table(self):
+        """ملء جدول الطلاب بالبيانات"""
         try:
-            self.students_table.setRowCount(len(self.current_students))
+            # تنظيف الجدول
+            self.students_table.setRowCount(0)
             
-            for row, student in enumerate(self.current_students):
-                # المعرف (مخفي)
-                self.students_table.setItem(row, 0, QTableWidgetItem(str(student[0])))
-                
-                # الاسم الكامل
-                self.students_table.setItem(row, 1, QTableWidgetItem(student[1] or ""))
-                
-                # المدرسة
-                self.students_table.setItem(row, 2, QTableWidgetItem(student[2] or "غير محدد"))
-                
-                # الصف
-                self.students_table.setItem(row, 3, QTableWidgetItem(student[3] or ""))
-                
-                # الشعبة
-                self.students_table.setItem(row, 4, QTableWidgetItem(student[4] or ""))
-                
-                # الجنس
-                self.students_table.setItem(row, 5, QTableWidgetItem(student[5] or ""))
-                
-                # الهاتف
-                self.students_table.setItem(row, 6, QTableWidgetItem(student[6] or ""))
-                
-                # الحالة
-                status_item = QTableWidgetItem(student[7] or "نشط")
-                if student[7] == "نشط":
-                    status_item.setBackground(Qt.green)
-                elif student[7] == "منقطع":
-                    status_item.setBackground(Qt.red)
-                elif student[7] == "متخرج":
-                    status_item.setBackground(Qt.blue)
-                self.students_table.setItem(row, 7, status_item)
-                
-                # تاريخ المباشرة
-                start_date = student[8]
-                if start_date:
-                    try:
-                        from datetime import datetime
-                        date_obj = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                    except:
-                        formatted_date = str(start_date)[:10]
-                else:
-                    formatted_date = ""
-                
-                self.students_table.setItem(row, 8, QTableWidgetItem(formatted_date))
+            if not self.current_students:
+                self.displayed_count_label.setText("عدد الطلاب المعروضين: 0")
+                return
             
-            # تحديث إحصائية العدد المعروض
+            # ملء الجدول
+            for row_idx, student in enumerate(self.current_students):
+                self.students_table.insertRow(row_idx)
+                
+                # البيانات الأساسية
+                items = [
+                    str(student['id']),
+                    student['name'] or "",
+                    student['school_name'] or "",
+                    student['grade'] or "",
+                    student['section'] or "",
+                    student['gender'] or "",
+                    student['phone'] or "",
+                    student['status'] or ""
+                ]
+                
+                for col_idx, item_text in enumerate(items):
+                    item = QTableWidgetItem(item_text)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    self.students_table.setItem(row_idx, col_idx, item)
+                
+                # أزرار الإجراءات
+                actions_widget = self.create_actions_widget(student['id'])
+                self.students_table.setCellWidget(row_idx, 8, actions_widget)
+            
+            # تحديث العداد
             self.displayed_count_label.setText(f"عدد الطلاب المعروضين: {len(self.current_students)}")
             
         except Exception as e:
             logging.error(f"خطأ في ملء جدول الطلاب: {e}")
+    
+    def create_actions_widget(self, student_id):
+        """إنشاء ويدجت الإجراءات لكل صف"""
+        try:
+            widget = QWidget()
+            layout = QHBoxLayout(widget)
+            layout.setContentsMargins(5, 2, 5, 2)
+            layout.setSpacing(5)
+            
+            # زر التعديل
+            edit_btn = QPushButton("تعديل")
+            edit_btn.setObjectName("editButton")
+            edit_btn.setMaximumSize(80, 30)
+            edit_btn.clicked.connect(lambda: self.edit_student_by_id(student_id))
+            layout.addWidget(edit_btn)
+            
+            # زر الحذف
+            delete_btn = QPushButton("حذف")
+            delete_btn.setObjectName("deleteButton")
+            delete_btn.setMaximumSize(80, 30)
+            delete_btn.clicked.connect(lambda: self.delete_student(student_id))
+            layout.addWidget(delete_btn)
+            
+            # زر التفاصيل
+            details_btn = QPushButton("تفاصيل")
+            details_btn.setObjectName("detailsButton")
+            details_btn.setMaximumSize(80, 30)
+            details_btn.clicked.connect(lambda: self.show_student_details(student_id))
+            layout.addWidget(details_btn)
+            
+            return widget
+            
+        except Exception as e:
+            logging.error(f"خطأ في إنشاء ويدجت الإجراءات: {e}")
+            return QWidget()
     
     def update_stats(self):
         """تحديث الإحصائيات"""
         try:
             # إحصائيات عامة
             total_query = "SELECT COUNT(*) FROM students"
-            total_count = db_manager.execute_query(total_query)
-            total_count = total_count[0] if total_count else 0
+            total_result = db_manager.execute_query(total_query)
+            total_count = total_result[0][0] if total_result else 0
             
             active_query = "SELECT COUNT(*) FROM students WHERE status = 'نشط'"
-            active_count = db_manager.execute_query(active_query)
-            active_count = active_count[0] if active_count else 0
+            active_result = db_manager.execute_query(active_query)
+            active_count = active_result[0][0] if active_result else 0
             
             self.total_students_label.setText(f"إجمالي الطلاب: {total_count}")
             self.active_students_label.setText(f"الطلاب النشطون: {active_count}")
             
-            # إحصائيات الطلاب المعروضين حالياً
-            if self.current_students:
-                # حساب الجنس (سيحتاج لحقل الجنس في قاعدة البيانات)
-                male_count = 0
-                female_count = 0
-                active_displayed = 0
-                
-                for student in self.current_students:
-                    if student[8] == "نشط":
-                        active_displayed += 1
-                
-                self.male_count_label.setText(f"ذكور: {male_count}")
-                self.female_count_label.setText(f"إناث: {female_count}")
-                self.active_count_label.setText(f"نشط: {active_displayed}")
-            else:
-                self.male_count_label.setText("ذكور: 0")
-                self.female_count_label.setText("إناث: 0")
-                self.active_count_label.setText("نشط: 0")
+            # تحديث وقت آخر تحديث
+            from datetime import datetime
+            self.last_update_label.setText(f"آخر تحديث: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
             
         except Exception as e:
             logging.error(f"خطأ في تحديث الإحصائيات: {e}")
+            # تعيين قيم افتراضية في حالة الخطأ
+            self.total_students_label.setText("إجمالي الطلاب: --")
+            self.active_students_label.setText("الطلاب النشطون: --")
     
     def apply_filters(self):
         """تطبيق الفلاتر وإعادة تحميل البيانات"""
@@ -499,202 +466,23 @@ class StudentsPage(QWidget):
     def show_context_menu(self, position):
         """عرض قائمة السياق للجدول"""
         try:
-            if self.students_table.itemAt(position):
-                menu = QMenu()
-                
-                edit_action = QAction("تعديل الطالب", self)
-                edit_action.triggered.connect(lambda: self.edit_selected_student())
-                menu.addAction(edit_action)
-                
-                view_action = QAction("عرض تفاصيل الطالب", self)
-                view_action.triggered.connect(lambda: self.view_student_details())
-                menu.addAction(view_action)
-                
-                menu.addSeparator()
-                
-                deactivate_action = QAction("إيقاف الطالب", self)
-                deactivate_action.triggered.connect(lambda: self.change_student_status("منقطع"))
-                menu.addAction(deactivate_action)
-                
-                graduate_action = QAction("تخريج الطالب", self)
-                graduate_action.triggered.connect(lambda: self.change_student_status("متخرج"))
-                menu.addAction(graduate_action)
-                
-                menu.addSeparator()
-                
-                delete_action = QAction("حذف الطالب", self)
-                delete_action.triggered.connect(lambda: self.delete_selected_student())
-                menu.addAction(delete_action)
-                
-                menu.exec_(self.students_table.mapToGlobal(position))
+            if self.students_table.itemAt(position) is None:
+                return
+            
+            menu = QMenu(self)
+            
+            edit_action = QAction("تعديل", self)
+            edit_action.triggered.connect(lambda: self.edit_student(self.students_table.currentRow()))
+            menu.addAction(edit_action)
+            
+            delete_action = QAction("حذف", self)
+            delete_action.triggered.connect(lambda: self.delete_student_by_row(self.students_table.currentRow()))
+            menu.addAction(delete_action)
+            
+            menu.exec_(self.students_table.mapToGlobal(position))
             
         except Exception as e:
             logging.error(f"خطأ في عرض قائمة السياق: {e}")
-    
-    def add_student(self):
-        """إضافة طالب جديد"""
-        try:
-            dialog = AddStudentDialog(self)
-            dialog.student_added.connect(self.refresh)
-            dialog.exec_()
-            log_user_action("طلب إضافة طالب جديد")
-            
-        except Exception as e:
-            logging.error(f"خطأ في إضافة طالب: {e}")
-            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة الطالب:\n{str(e)}")
-    
-    def edit_student(self, row, column):
-        """تعديل طالب عند الضغط المزدوج"""
-        try:
-            if row >= 0:
-                student_id = int(self.students_table.item(row, 0).text())
-                self.edit_student_by_id(student_id)
-                
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الطالب: {e}")
-    
-    def edit_selected_student(self):
-        """تعديل الطالب المحدد"""
-        try:
-            current_row = self.students_table.currentRow()
-            if current_row >= 0:
-                student_id = int(self.students_table.item(current_row, 0).text())
-                self.edit_student_by_id(student_id)
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الطالب المحدد: {e}")
-    
-    def edit_student_by_id(self, student_id: int):
-        """تعديل طالب بالمعرف"""
-        try:
-            dialog = EditStudentDialog(student_id, self)
-            dialog.student_updated.connect(self.refresh)
-            dialog.exec_()
-            log_user_action("طلب تعديل طالب", f"المعرف: {student_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الطالب {student_id}: {e}")
-            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة تعديل الطالب:\n{str(e)}")
-    
-    def view_student_details(self):
-        """عرض تفاصيل الطالب"""
-        try:
-            current_row = self.students_table.currentRow()
-            if current_row >= 0:
-                student_id = int(self.students_table.item(current_row, 0).text())
-                self.show_info_message("قيد التطوير", f"نافذة تفاصيل الطالب {student_id} قيد التطوير")
-                log_user_action("طلب عرض تفاصيل طالب", f"المعرف: {student_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في عرض تفاصيل الطالب: {e}")
-    
-    def change_student_status(self, new_status):
-        """تغيير حالة الطالب"""
-        try:
-            current_row = self.students_table.currentRow()
-            if current_row >= 0:
-                student_id = int(self.students_table.item(current_row, 0).text())
-                student_name = self.students_table.item(current_row, 1).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد التغيير",
-                    f"هل تريد تغيير حالة الطالب '{student_name}' إلى '{new_status}'؟",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    update_query = "UPDATE students SET status = ? WHERE id = ?"
-                    success = db_manager.execute_query(update_query, (new_status, student_id))
-                    
-                    if success:
-                        log_database_operation("تحديث", "students", f"تغيير حالة الطالب {student_name} إلى {new_status}")
-                        log_user_action("تغيير حالة طالب", f"{student_name} -> {new_status}")
-                        self.refresh()
-                        self.show_info_message("تم التحديث", f"تم تغيير حالة الطالب إلى '{new_status}' بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في تغيير حالة الطالب")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تغيير حالة الطالب: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في تغيير حالة الطالب: {str(e)}")
-    
-    def delete_selected_student(self):
-        """حذف الطالب المحدد"""
-        try:
-            current_row = self.students_table.currentRow()
-            if current_row >= 0:
-                student_id = int(self.students_table.item(current_row, 0).text())
-                student_name = self.students_table.item(current_row, 1).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد الحذف",
-                    f"هل تريد حذف الطالب '{student_name}' نهائياً؟\n\nتحذير: هذا الإجراء لا يمكن التراجع عنه!",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    delete_query = "DELETE FROM students WHERE id = ?"
-                    success = db_manager.execute_query(delete_query, (student_id,))
-                    
-                    if success:
-                        log_database_operation("حذف", "students", f"حذف الطالب: {student_name}")
-                        log_user_action("حذف طالب", student_name)
-                        self.refresh()
-                        self.show_info_message("تم الحذف", f"تم حذف الطالب '{student_name}' بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في حذف الطالب")
-            
-        except Exception as e:
-            logging.error(f"خطأ في حذف الطالب: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في حذف الطالب: {str(e)}")
-    
-    def import_students(self):
-        """استيراد قائمة طلاب"""
-        try:
-            self.show_info_message("قيد التطوير", "ميزة استيراد الطلاب قيد التطوير")
-            log_user_action("طلب استيراد قائمة طلاب")
-            
-        except Exception as e:
-            logging.error(f"خطأ في استيراد الطلاب: {e}")
-    
-    def export_students(self):
-        """تصدير قائمة الطلاب"""
-        try:
-            self.show_info_message("قيد التطوير", "ميزة تصدير الطلاب قيد التطوير")
-            log_user_action("طلب تصدير قائمة طلاب")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تصدير الطلاب: {e}")
-    
-    def show_info_message(self, title: str, message: str):
-        """عرض رسالة معلومات"""
-        try:
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setWindowTitle(title)
-            msg_box.setText(message)
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec_()
-            
-        except Exception as e:
-            logging.error(f"خطأ في عرض رسالة المعلومات: {e}")
-    
-    def show_error_message(self, title: str, message: str):
-        """عرض رسالة خطأ"""
-        try:
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Critical)
-            msg_box.setWindowTitle(title)
-            msg_box.setText(message)
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec_()
-            
-        except Exception as e:
-            logging.error(f"خطأ في عرض رسالة الخطأ: {e}")
     
     def setup_styles(self):
         """إعداد تنسيقات الصفحة"""
@@ -704,78 +492,74 @@ class StudentsPage(QWidget):
                 QWidget {
                     background-color: #F8F9FA;
                     font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 12px;
+                    font-size: 24px;
                 }
                 
                 /* رأس الصفحة */
                 #headerFrame {
                     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
                         stop:0 #3498DB, stop:1 #2980B9);
-                    border-radius: 10px;
+                    border-radius: 15px;
                     color: white;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
+                    padding: 20px;
                 }
                 
                 #pageTitle {
-                    font-size: 24px;
+                    font-size: 32px;
                     font-weight: bold;
                     color: white;
-                    margin-bottom: 5px;
+                    margin-bottom: 8px;
                 }
                 
                 #pageDesc {
-                    font-size: 14px;
+                    font-size: 24px;
                     color: #E8F4FD;
                 }
                 
                 #quickStat {
-                    font-size: 13px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: white;
                     background-color: rgba(255, 255, 255, 0.2);
-                    padding: 5px 10px;
-                    border-radius: 15px;
-                    margin: 0 5px;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    margin: 0 10px;
                 }
                 
                 /* شريط الأدوات */
                 #toolbarFrame {
                     background-color: white;
-                    border: 1px solid #E9ECEF;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
+                    border: 2px solid #E9ECEF;
+                    border-radius: 12px;
+                    margin-bottom: 15px;
+                    padding: 20px;
                 }
                 
                 #filterLabel {
                     font-weight: bold;
                     color: #2C3E50;
-                    margin-right: 5px;
+                    margin-right: 10px;
+                    font-size: 24px;
                 }
                 
                 #filterCombo {
-                    padding: 6px 10px;
-                    border: 1px solid #BDC3C7;
-                    border-radius: 4px;
+                    padding: 12px 20px;
+                    border: 2px solid #BDC3C7;
+                    border-radius: 8px;
                     background-color: white;
-                    min-width: 100px;
-                }
-                
-                #filterCombo:focus {
-                    border-color: #3498DB;
-                    outline: none;
+                    min-width: 150px;
+                    font-size: 24px;
+                    margin: 5px;
                 }
                 
                 #searchInput {
-                    padding: 8px 12px;
+                    padding: 15px 20px;
                     border: 2px solid #3498DB;
-                    border-radius: 6px;
-                    font-size: 13px;
+                    border-radius: 10px;
+                    font-size: 24px;
                     background-color: white;
-                }
-                
-                #searchInput:focus {
-                    border-color: #2980B9;
-                    outline: none;
+                    margin: 5px;
                 }
                 
                 /* الأزرار */
@@ -783,124 +567,276 @@ class StudentsPage(QWidget):
                     background-color: #27AE60;
                     color: white;
                     border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
+                    padding: 15px 30px;
+                    border-radius: 8px;
                     font-weight: bold;
-                    min-width: 100px;
+                    min-width: 150px;
+                    font-size: 24px;
+                    margin: 5px;
                 }
                 
                 #primaryButton:hover {
                     background-color: #229954;
                 }
                 
-                #secondaryButton {
-                    background-color: #3498DB;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    font-weight: bold;
-                    min-width: 100px;
-                }
-                
-                #secondaryButton:hover {
-                    background-color: #2980B9;
-                }
-                
                 #refreshButton {
-                    background-color: #95A5A6;
+                    background-color: #F39C12;
                     color: white;
                     border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
+                    padding: 15px 30px;
+                    border-radius: 8px;
                     font-weight: bold;
+                    min-width: 120px;
+                    font-size: 24px;
+                    margin: 5px;
                 }
                 
                 #refreshButton:hover {
-                    background-color: #7F8C8D;
+                    background-color: #E67E22;
                 }
                 
-                /* إطار الجدول */
-                #tableFrame {
-                    background-color: white;
-                    border: 1px solid #E9ECEF;
-                    border-radius: 8px;
+                #editButton, #deleteButton, #detailsButton {
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    border: none;
+                    margin: 2px;
+                }
+                
+                #editButton {
+                    background-color: #3498DB;
+                    color: white;
+                }
+                
+                #deleteButton {
+                    background-color: #E74C3C;
+                    color: white;
+                }
+                
+                #detailsButton {
+                    background-color: #9B59B6;
+                    color: white;
                 }
                 
                 /* الجدول */
-                #dataTable {
+                QTableWidget {
                     background-color: white;
-                    border: none;
-                    border-radius: 6px;
+                    border: 2px solid #E9ECEF;
+                    border-radius: 12px;
                     gridline-color: #E9ECEF;
+                    font-size: 24px;
+                    margin: 10px 0px;
                 }
                 
-                #dataTable::item {
-                    padding: 8px;
-                    border-bottom: 1px solid #F1F2F6;
+                QTableWidget::item {
+                    padding: 15px 10px;
+                    border-bottom: 1px solid #E9ECEF;
+                    font-size: 24px;
                 }
                 
-                #dataTable::item:selected {
+                QTableWidget::item:selected {
                     background-color: #E3F2FD;
                     color: #1976D2;
                 }
                 
-                #dataTable::item:alternate {
-                    background-color: #FAFAFA;
-                }
-                
                 QHeaderView::section {
-                    background-color: #34495E;
+                    background-color: #3498DB;
                     color: white;
-                    padding: 10px 8px;
-                    border: none;
+                    padding: 15px 10px;
                     font-weight: bold;
-                    font-size: 12px;
+                    font-size: 24px;
+                    border: none;
+                    border-right: 1px solid #2980B9;
                 }
                 
-                QHeaderView::section:hover {
-                    background-color: #2C3E50;
-                }
-                
-                /* إطار الإحصائيات */
+                /* إحصائيات */
                 #statsFrame {
                     background-color: white;
-                    border: 1px solid #E9ECEF;
-                    border-radius: 8px;
-                    margin-top: 10px;
+                    border: 2px solid #E9ECEF;
+                    border-radius: 12px;
+                    margin-top: 15px;
+                    padding: 20px;
                 }
                 
-                #statLabel {
-                    font-size: 12px;
+                #countLabel {
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
-                    margin: 0 10px;
-                }
-                
-                /* أشرطة التمرير */
-                QScrollBar:vertical {
-                    background-color: #F1F2F6;
-                    width: 12px;
-                    border-radius: 6px;
-                }
-                
-                QScrollBar::handle:vertical {
-                    background-color: #BDC3C7;
-                    border-radius: 6px;
-                    min-height: 20px;
-                }
-                
-                QScrollBar::handle:vertical:hover {
-                    background-color: #95A5A6;
-                }
-                
-                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                    border: none;
-                    background: none;
+                    margin: 5px;
                 }
             """
             
             self.setStyleSheet(style)
             
         except Exception as e:
-            logging.error(f"خطأ في إعداد تنسيقات صفحة الطلاب: {e}")
+            logging.error(f"خطأ في إعداد الستايل: {e}")
+    
+    def add_student(self):
+        """إضافة طالب جديد"""
+        try:
+            dialog = AddStudentDialog(self)
+            if dialog.exec_() == QDialog.Accepted:
+                self.refresh()
+                log_user_action("إضافة طالب جديد", "نجح")
+                
+        except Exception as e:
+            logging.error(f"خطأ في إضافة طالب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة الطالب:\\n{str(e)}")
+    
+    def edit_student(self, row):
+        """تعديل بيانات طالب"""
+        try:
+            if row < 0 or row >= self.students_table.rowCount():
+                return
+            
+            # الحصول على ID الطالب من الصف المحدد
+            student_id_item = self.students_table.item(row, 0)
+            if not student_id_item:
+                return
+            
+            student_id = int(student_id_item.text())
+            self.edit_student_by_id(student_id)
+                
+        except Exception as e:
+            logging.error(f"خطأ في تعديل الطالب: {e}")
+    
+    def edit_student_by_id(self, student_id):
+        """تعديل طالب بواسطة المعرف"""
+        try:
+            dialog = EditStudentDialog(student_id, self)
+            if dialog.exec_() == QDialog.Accepted:
+                self.refresh()
+                log_user_action(f"تعديل بيانات الطالب {student_id}", "نجح")
+                
+        except Exception as e:
+            logging.error(f"خطأ في تعديل الطالب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في تعديل الطالب:\\n{str(e)}")
+    
+    def delete_student(self, student_id):
+        """حذف طالب"""
+        try:
+            # تأكيد الحذف
+            reply = QMessageBox.question(
+                self, "تأكيد الحذف",
+                "هل أنت متأكد من حذف هذا الطالب؟\\nسيتم حذف جميع البيانات المرتبطة به.",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                # حذف الطالب من قاعدة البيانات
+                query = "DELETE FROM students WHERE id = ?"
+                affected_rows = db_manager.execute_update(query, (student_id,))
+                
+                if affected_rows > 0:
+                    QMessageBox.information(self, "نجح", "تم حذف الطالب بنجاح")
+                    self.refresh()
+                    log_user_action(f"حذف الطالب {student_id}", "نجح")
+                else:
+                    QMessageBox.warning(self, "خطأ", "لم يتم العثور على الطالب")
+                    
+        except Exception as e:
+            logging.error(f"خطأ في حذف الطالب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في حذف الطالب:\\n{str(e)}")
+    
+    def delete_student_by_row(self, row):
+        """حذف طالب بواسطة رقم الصف"""
+        try:
+            if row < 0 or row >= self.students_table.rowCount():
+                return
+            
+            student_id_item = self.students_table.item(row, 0)
+            if not student_id_item:
+                return
+            
+            student_id = int(student_id_item.text())
+            self.delete_student(student_id)
+            
+        except Exception as e:
+            logging.error(f"خطأ في حذف الطالب: {e}")
+    
+    def show_student_details(self, student_id):
+        """عرض تفاصيل الطالب"""
+        try:
+            from PyQt5.QtWidgets import QTextEdit
+            
+            dialog = QDialog(self)
+            dialog.setWindowTitle("تفاصيل الطالب")
+            dialog.setModal(True)
+            dialog.resize(700, 600)
+            
+            layout = QVBoxLayout(dialog)
+            
+            # جلب بيانات الطالب
+            query = """
+                SELECT s.*, sc.name_ar as school_name
+                FROM students s
+                LEFT JOIN schools sc ON s.school_id = sc.id
+                WHERE s.id = ?
+            """
+            result = db_manager.execute_query(query, (student_id,))
+            
+            if result:
+                student = result[0]
+                
+                # عرض التفاصيل
+                details_text = f"""
+الاسم: {student['name'] or 'غير محدد'}
+الرقم الوطني: {student['national_id_number'] or 'غير محدد'}
+المدرسة: {student['school_name'] or 'غير محدد'}
+الصف: {student['grade'] or 'غير محدد'}
+الشعبة: {student['section'] or 'غير محدد'}
+السنة الدراسية: {student['academic_year'] or 'غير محدد'}
+الجنس: {student['gender'] or 'غير محدد'}
+الهاتف: {student['phone'] or 'غير محدد'}
+ولي الأمر: {student['guardian_name'] or 'غير محدد'}
+هاتف ولي الأمر: {student['guardian_phone'] or 'غير محدد'}
+الرسوم الإجمالية: {student['total_fee'] or 0} دينار
+تاريخ المباشرة: {student['start_date'] or 'غير محدد'}
+الحالة: {student['status'] or 'غير محدد'}
+تاريخ الإنشاء: {student['created_at'] or 'غير محدد'}
+                """
+                
+                details_label = QTextEdit()
+                details_label.setPlainText(details_text)
+                details_label.setReadOnly(True)
+                details_label.setStyleSheet("""
+                    QTextEdit {
+                        font-size: 24px;
+                        padding: 20px;
+                        border: 2px solid #BDC3C7;
+                        border-radius: 10px;
+                        background-color: white;
+                    }
+                """)
+                layout.addWidget(details_label)
+            
+            # زر الإغلاق
+            close_btn = QPushButton("إغلاق")
+            close_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #E74C3C;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #C0392B;
+                }
+            """)
+            close_btn.clicked.connect(dialog.accept)
+            
+            button_layout = QHBoxLayout()
+            button_layout.addStretch()
+            button_layout.addWidget(close_btn)
+            layout.addLayout(button_layout)
+            
+            dialog.exec_()
+            
+        except Exception as e:
+            logging.error(f"خطأ في عرض تفاصيل الطالب: {e}")
+            QMessageBox.warning(self, "خطأ", f"حدث خطأ في عرض التفاصيل: {str(e)}")

@@ -286,13 +286,6 @@ class SchoolsPage(QWidget):
             delete_btn.clicked.connect(lambda: self.delete_school_by_id(school_id))
             layout.addWidget(delete_btn)
             
-            # زر التفاصيل
-            details_btn = QPushButton("تفاصيل")
-            details_btn.setObjectName("detailsButton")
-            details_btn.setMaximumSize(60, 25)
-            details_btn.clicked.connect(lambda: self.show_school_details(school_id))
-            layout.addWidget(details_btn)
-            
             return widget
             
         except Exception as e:
