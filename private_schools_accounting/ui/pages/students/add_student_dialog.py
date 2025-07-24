@@ -455,31 +455,26 @@ class AddStudentDialog(QDialog):
             # إدراج البيانات الأساسية أولاً للحصول على ID
             insert_query = """
                 INSERT INTO students (
-                    first_name, first_name_en, last_name, last_name_en,
-                    birth_date, gender, national_id, school_id, grade,
-                    section, student_number, enrollment_year, status,
-                    guardian_name, guardian_phone, address, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    name, national_id_number, school_id, grade,
+                    section, academic_year, gender, phone,
+                    guardian_name, guardian_phone, total_fee, start_date, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             student_data = (
-                self.first_name_edit.text().strip(),
-                self.first_name_en_edit.text().strip(),
-                self.last_name_edit.text().strip(),
-                self.last_name_en_edit.text().strip(),
-                self.birth_date_edit.date().toString("yyyy-MM-dd"),
-                self.gender_combo.currentText(),
+                f"{self.first_name_edit.text().strip()} {self.last_name_edit.text().strip()}",
                 self.national_id_edit.text().strip(),
                 self.school_combo.currentData(),
                 self.grade_combo.currentText(),
                 self.section_edit.text().strip(),
-                self.student_number_edit.text().strip(),
-                self.enrollment_year_spin.value(),
-                self.status_combo.currentText(),
+                str(self.enrollment_year_spin.value()),
+                self.gender_combo.currentText(),
+                self.guardian_phone_edit.text().strip(),
                 self.guardian_name_edit.text().strip(),
                 self.guardian_phone_edit.text().strip(),
-                self.address_edit.toPlainText().strip(),
-                datetime.now().isoformat()
+                0.0,  # total_fee - يمكن تحديده لاحقاً
+                datetime.now().date().isoformat(),
+                self.status_combo.currentText()
             )
             
             cursor.execute(insert_query, student_data)
