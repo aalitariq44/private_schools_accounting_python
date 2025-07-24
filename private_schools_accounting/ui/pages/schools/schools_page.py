@@ -590,7 +590,7 @@ class SchoolsPage(QWidget):
                 }
                 
                 #pageTitle {
-                    font-size: 18px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
                 }
@@ -605,7 +605,7 @@ class SchoolsPage(QWidget):
                     padding: 8px 12px;
                     border: 1px solid #BDC3C7;
                     border-radius: 4px;
-                    font-size: 12px;
+                    font-size: 24px;
                     background-color: white;
                 }
                 
@@ -620,7 +620,7 @@ class SchoolsPage(QWidget):
                     border: none;
                     padding: 8px 16px;
                     border-radius: 4px;
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -634,7 +634,7 @@ class SchoolsPage(QWidget):
                     border: none;
                     padding: 8px 16px;
                     border-radius: 4px;
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -652,7 +652,7 @@ class SchoolsPage(QWidget):
                     border: none;
                     background-color: white;
                     gridline-color: #ECF0F1;
-                    font-size: 12px;
+                    font-size: 24px;
                 }
                 
                 #schoolsTable::item {
@@ -671,7 +671,7 @@ class SchoolsPage(QWidget):
                     padding: 8px;
                     border: none;
                     font-weight: bold;
-                    font-size: 12px;
+                    font-size: 24px;
                 }
                 
                 #editButton {
@@ -679,7 +679,7 @@ class SchoolsPage(QWidget):
                     color: white;
                     border: none;
                     border-radius: 3px;
-                    font-size: 10px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -692,7 +692,7 @@ class SchoolsPage(QWidget):
                     color: white;
                     border: none;
                     border-radius: 3px;
-                    font-size: 10px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -705,7 +705,7 @@ class SchoolsPage(QWidget):
                     color: white;
                     border: none;
                     border-radius: 3px;
-                    font-size: 10px;
+                    font-size: 24px;
                     font-weight: bold;
                 }
                 
@@ -721,7 +721,7 @@ class SchoolsPage(QWidget):
                 }
                 
                 #countLabel, #updateLabel {
-                    font-size: 11px;
+                    font-size: 24px;
                     color: #7F8C8D;
                 }
             """
