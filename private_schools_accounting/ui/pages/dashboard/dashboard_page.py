@@ -133,11 +133,11 @@ class DashboardPage(QWidget):
         try:
             card = QFrame()
             card.setObjectName("statCard")
-            card.setFixedHeight(100)
+            card.setFixedHeight(120)
             
             layout = QVBoxLayout(card)
             layout.setAlignment(Qt.AlignCenter)
-            layout.setContentsMargins(15, 15, 15, 15)
+            layout.setContentsMargins(20, 20, 20, 20)
             
             # القيمة
             value_label = QLabel(value)
@@ -155,17 +155,17 @@ class DashboardPage(QWidget):
             card.setStyleSheet(f"""
                 #statCard {{
                     background-color: {color};
-                    border-radius: 8px;
+                    border-radius: 12px;
                     border: none;
                 }}
                 #statValue {{
                     color: white;
-                    font-size: 24px;
+                    font-size: 28px;
                     font-weight: bold;
                 }}
                 #statTitle {{
-                    color: white;
-                    font-size: 24px;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 18px;
                     font-weight: bold;
                 }}
             """)
@@ -453,61 +453,61 @@ class DashboardPage(QWidget):
                 #welcomeFrame {
                     background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
                                               stop: 0 #3498DB, stop: 1 #2980B9);
-                    border-radius: 12px;
-                    margin-bottom: 10px;
+                    border-radius: 15px;
+                    margin-bottom: 20px;
                 }
                 
                 #welcomeTitle {
                     color: white;
-                    font-size: 24px;
+                    font-size: 28px;
                     font-weight: bold;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
                 }
                 
                 #welcomeText {
                     color: #ECF0F1;
-                    font-size: 24px;
-                    margin-bottom: 10px;
+                    font-size: 20px;
+                    margin-bottom: 15px;
                 }
                 
                 #statsFrame, #actionsFrame, #infoFrame {
                     background-color: white;
                     border: 1px solid #E9ECEF;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
+                    border-radius: 12px;
+                    margin-bottom: 20px;
                 }
                 
                 #sectionTitle {
-                    font-size: 24px;
+                    font-size: 22px;
                     font-weight: bold;
                     color: #2C3E50;
-                    margin-bottom: 15px;
-                    padding-bottom: 10px;
+                    margin-bottom: 20px;
+                    padding-bottom: 12px;
                     border-bottom: 2px solid #ECF0F1;
                 }
                 
                 #actionButton {
-                    background-color: #3498DB;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3498DB, stop: 1 #2980B9);
                     color: white;
                     border: none;
-                    padding: 12px 20px;
-                    border-radius: 6px;
-                    font-size: 24px;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    font-size: 18px;
                     font-weight: bold;
-                    min-width: 150px;
+                    min-width: 180px;
                 }
                 
                 #actionButton:hover {
-                    background-color: #2980B9;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2980B9, stop: 1 #2573A7);
                 }
                 
                 #actionButton:pressed {
-                    background-color: #21618C;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #21618C, stop: 1 #1E5A80);
                 }
                 
                 #infoLabel {
                     color: #7F8C8D;
-                    font-size: 24px;
+                    font-size: 16px;
                 }
             """
             

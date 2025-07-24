@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
             # إنشاء منطقة المحتوى
             self.create_content_area()
             
-            # إضافة المكونات للتخطيط
+            # إضافة المكونات للتخطيط (نص إلى اليمين)
             main_layout.addWidget(self.sidebar_frame)
             main_layout.addWidget(self.content_frame, 1)  # تمديد منطقة المحتوى
             
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
             # إطار القائمة الجانبية
             self.sidebar_frame = QFrame()
             self.sidebar_frame.setObjectName("sidebarFrame")
-            self.sidebar_frame.setFixedWidth(250)
+            self.sidebar_frame.setFixedWidth(300)  # زيادة العرض قليلاً
             
             sidebar_layout = QVBoxLayout(self.sidebar_frame)
             sidebar_layout.setContentsMargins(0, 0, 0, 0)
@@ -143,8 +143,8 @@ class MainWindow(QMainWindow):
             # ويدجت الأزرار
             buttons_widget = QWidget()
             buttons_layout = QVBoxLayout(buttons_widget)
-            buttons_layout.setContentsMargins(0, 0, 0, 0)
-            buttons_layout.setSpacing(2)
+            buttons_layout.setContentsMargins(0, 10, 0, 10)
+            buttons_layout.setSpacing(8)  # زيادة التباعد بين الأزرار
             
             # إنشاء أزرار القائمة
             self.create_sidebar_buttons(buttons_layout)
@@ -165,11 +165,11 @@ class MainWindow(QMainWindow):
             # إطار الرأس
             header_frame = QFrame()
             header_frame.setObjectName("sidebarHeader")
-            header_frame.setFixedHeight(80)
+            header_frame.setFixedHeight(100)
             
             header_layout = QVBoxLayout(header_frame)
             header_layout.setAlignment(Qt.AlignCenter)
-            header_layout.setContentsMargins(15, 10, 15, 10)
+            header_layout.setContentsMargins(20, 15, 20, 15)
             
             # عنوان التطبيق
             title_label = QLabel("حسابات المدارس")
@@ -236,11 +236,15 @@ class MainWindow(QMainWindow):
             button = QPushButton(text)
             button.setObjectName("menuButton")
             button.setCheckable(True)
-            button.setFixedHeight(45)
+            button.setFixedHeight(55)  # زيادة الارتفاع
             
             # إضافة خصائص للزر
             button.setProperty("page_name", name)
             button.setProperty("active", active)
+            
+            # تحسين محاذاة النص إلى اليمين
+            button.setLayoutDirection(Qt.RightToLeft)
+            button.setStyleSheet("text-align: right; padding-right: 25px;")
             
             # ربط الإشارة
             if active:
@@ -287,10 +291,10 @@ class MainWindow(QMainWindow):
             # إطار شريط العنوان
             header_frame = QFrame()
             header_frame.setObjectName("contentHeader")
-            header_frame.setFixedHeight(60)
+            header_frame.setFixedHeight(70)
             
             header_layout = QHBoxLayout(header_frame)
-            header_layout.setContentsMargins(0, 10, 0, 10)
+            header_layout.setContentsMargins(20, 15, 20, 15)
             
             # عنوان الصفحة
             self.page_title = QLabel("لوحة التحكم")
@@ -317,7 +321,7 @@ class MainWindow(QMainWindow):
             user_frame.setObjectName("userInfo")
             
             user_layout = QHBoxLayout(user_frame)
-            user_layout.setContentsMargins(10, 5, 10, 5)
+            user_layout.setContentsMargins(15, 8, 15, 8)
             
             # اسم المستخدم
             user_label = QLabel("المدير")
@@ -703,24 +707,27 @@ class MainWindow(QMainWindow):
                 
                 /* القائمة الجانبية */
                 #sidebarFrame {
-                    background-color: #2C3E50;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #2C3E50, stop: 1 #1a2530);
                     border-right: 1px solid #34495E;
                 }
                 
                 #sidebarHeader {
                     background-color: #34495E;
                     border-bottom: 1px solid #2C3E50;
+                    padding: 10px;
                 }
                 
                 #appTitle {
                     color: white;
-                    font-size: 24px;
+                    font-size: 26px;
                     font-weight: bold;
+                    text-align: center;
                 }
                 
                 #appVersion {
                     color: #BDC3C7;
-                    font-size: 24px;
+                    font-size: 16px;
+                    text-align: center;
                 }
                 
                 #sidebarScrollArea {
@@ -733,9 +740,10 @@ class MainWindow(QMainWindow):
                     border: none;
                     color: #BDC3C7;
                     text-align: right;
-                    padding: 12px 20px;
-                    font-size: 24px;
-                    border-radius: 0;
+                    padding: 15px 25px;
+                    font-size: 18px;
+                    border-radius: 8px;
+                    margin: 5px 10px;
                 }
                 
                 #menuButton:hover {
@@ -744,7 +752,7 @@ class MainWindow(QMainWindow):
                 }
                 
                 #menuButton:checked {
-                    background-color: #3498DB;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #3498DB, stop: 1 #2980B9);
                     color: white;
                     font-weight: bold;
                 }
@@ -756,7 +764,9 @@ class MainWindow(QMainWindow):
                 
                 #menuSeparator {
                     color: #34495E;
-                    margin: 5px 15px;
+                    margin: 10px 20px;
+                    height: 1px;
+                    background-color: #34495E;
                 }
                 
                 /* منطقة المحتوى */
@@ -768,6 +778,7 @@ class MainWindow(QMainWindow):
                     background-color: white;
                     border-bottom: 1px solid #E9ECEF;
                     border-radius: 8px 8px 0 0;
+                    padding: 15px 20px;
                 }
                 
                 #pageTitle {
@@ -779,12 +790,12 @@ class MainWindow(QMainWindow):
                 #userInfo {
                     background-color: #ECF0F1;
                     border-radius: 20px;
-                    padding: 5px 10px;
+                    padding: 8px 15px;
                 }
                 
                 #userName {
                     color: #2C3E50;
-                    font-size: 24px;
+                    font-size: 16px;
                     font-weight: bold;
                 }
                 
@@ -792,9 +803,10 @@ class MainWindow(QMainWindow):
                     background-color: #E74C3C;
                     color: white;
                     border: none;
-                    padding: 5px 10px;
+                    padding: 8px 15px;
                     border-radius: 4px;
-                    font-size: 24px;
+                    font-size: 16px;
+                    font-weight: bold;
                 }
                 
                 #logoutButton:hover {

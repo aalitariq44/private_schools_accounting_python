@@ -428,15 +428,15 @@ class SchoolsPage(QWidget):
             result = db_manager.execute_query(query, (school_id,))
             if result:
                 school_data = {
-                    'id': result[0],
-                    'name_ar': result[1],
-                    'name_en': result[2],
-                    'principal_name': result[3],
-                    'phone': result[4],
-                    'address': result[5],
-                    'school_types': result[6],
-                    'logo_path': result[7],
-                    'created_at': result[8]
+                    'id': result[0]['id'],
+                    'name_ar': result[0]['name_ar'],
+                    'name_en': result[0]['name_en'],
+                    'principal_name': result[0]['principal_name'],
+                    'phone': result[0]['phone'],
+                    'address': result[0]['address'],
+                    'school_types': result[0]['school_types'],
+                    'logo_path': result[0]['logo_path'],
+                    'created_at': result[0]['created_at']
                 }
                 
                 # فتح نافذة التعديل
@@ -585,8 +585,8 @@ class SchoolsPage(QWidget):
                 #toolbarFrame {
                     background-color: white;
                     border: 1px solid #E9ECEF;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
+                    border-radius: 12px;
+                    margin-bottom: 15px;
                 }
                 
                 #pageTitle {
@@ -596,17 +596,18 @@ class SchoolsPage(QWidget):
                 }
                 
                 #searchLabel {
-                    font-size: 12px;
+                    font-size: 14px;
                     color: #7F8C8D;
-                    margin-right: 5px;
+                    margin-right: 8px;
                 }
                 
                 #searchInput {
-                    padding: 8px 12px;
+                    padding: 10px 15px;
                     border: 1px solid #BDC3C7;
-                    border-radius: 4px;
-                    font-size: 24px;
+                    border-radius: 6px;
+                    font-size: 16px;
                     background-color: white;
+                    min-width: 250px;
                 }
                 
                 #searchInput:focus {
@@ -615,48 +616,49 @@ class SchoolsPage(QWidget):
                 }
                 
                 #addButton {
-                    background-color: #27AE60;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #27AE60, stop: 1 #229954);
                     color: white;
                     border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    font-size: 24px;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 16px;
                     font-weight: bold;
                 }
                 
                 #addButton:hover {
-                    background-color: #229954;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #229954, stop: 1 #1E8449);
                 }
                 
                 #refreshButton {
-                    background-color: #3498DB;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3498DB, stop: 1 #2980B9);
                     color: white;
                     border: none;
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    font-size: 24px;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 16px;
                     font-weight: bold;
                 }
                 
                 #refreshButton:hover {
-                    background-color: #2980B9;
+                    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2980B9, stop: 1 #2573A7);
                 }
                 
                 #tableFrame {
                     background-color: white;
                     border: 1px solid #E9ECEF;
-                    border-radius: 8px;
+                    border-radius: 12px;
                 }
                 
                 #schoolsTable {
                     border: none;
                     background-color: white;
                     gridline-color: #ECF0F1;
-                    font-size: 24px;
+                    font-size: 16px;
+                    selection-background-color: #D5DBDB;
                 }
                 
                 #schoolsTable::item {
-                    padding: 8px;
+                    padding: 12px 8px;
                     border-bottom: 1px solid #ECF0F1;
                 }
                 
@@ -668,19 +670,21 @@ class SchoolsPage(QWidget):
                 #schoolsTable QHeaderView::section {
                     background-color: #34495E;
                     color: white;
-                    padding: 8px;
+                    padding: 12px 8px;
                     border: none;
                     font-weight: bold;
-                    font-size: 24px;
+                    font-size: 16px;
                 }
                 
                 #editButton {
                     background-color: #F39C12;
                     color: white;
                     border: none;
-                    border-radius: 3px;
-                    font-size: 24px;
+                    border-radius: 4px;
+                    font-size: 14px;
                     font-weight: bold;
+                    padding: 5px 10px;
+                    min-width: 70px;
                 }
                 
                 #editButton:hover {
@@ -691,9 +695,11 @@ class SchoolsPage(QWidget):
                     background-color: #E74C3C;
                     color: white;
                     border: none;
-                    border-radius: 3px;
-                    font-size: 24px;
+                    border-radius: 4px;
+                    font-size: 14px;
                     font-weight: bold;
+                    padding: 5px 10px;
+                    min-width: 70px;
                 }
                 
                 #deleteButton:hover {
@@ -704,9 +710,11 @@ class SchoolsPage(QWidget):
                     background-color: #9B59B6;
                     color: white;
                     border: none;
-                    border-radius: 3px;
-                    font-size: 24px;
+                    border-radius: 4px;
+                    font-size: 14px;
                     font-weight: bold;
+                    padding: 5px 10px;
+                    min-width: 70px;
                 }
                 
                 #detailsButton:hover {
@@ -716,12 +724,13 @@ class SchoolsPage(QWidget):
                 #statusFrame {
                     background-color: #ECF0F1;
                     border: 1px solid #BDC3C7;
-                    border-radius: 4px;
-                    margin-top: 10px;
+                    border-radius: 6px;
+                    margin-top: 15px;
+                    padding: 10px 15px;
                 }
                 
                 #countLabel, #updateLabel {
-                    font-size: 24px;
+                    font-size: 16px;
                     color: #7F8C8D;
                 }
             """
