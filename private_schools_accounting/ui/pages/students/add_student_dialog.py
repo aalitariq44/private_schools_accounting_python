@@ -6,18 +6,19 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QGroupBox, QSpinBox)
 from PyQt5.QtCore import Qt, QDate, pyqtSignal
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-import sqlite3
 import shutil
 import uuid
 from datetime import datetime
 import logging
+
+# Import the database manager
+from core.database.connection import db_manager
 
 class AddStudentDialog(QDialog):
     student_added = pyqtSignal()
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'database', 'private_schools.db')
         self.photo_path = None
         self.setup_ui()
         self.load_schools()
@@ -330,18 +331,13 @@ class AddStudentDialog(QDialog):
     def load_schools(self):
         """تحميل قائمة المدارس"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute("SELECT id, arabic_name FROM schools ORDER BY arabic_name")
-            schools = cursor.fetchall()
+            query = "SELECT id, name_ar FROM schools ORDER BY name_ar"
+            schools = db_manager.execute_query(query)
             
             self.school_combo.clear()
-            for school_id, school_name in schools:
-                self.school_combo.addItem(school_name, school_id)
+            for school in schools:
+                self.school_combo.addItem(school[1], school[0])
                 
-            conn.close()
-            
         except Exception as e:
             logging.error(f"خطأ في تحميل المدارس: {e}")
             QMessageBox.warning(self, "خطأ", f"حدث خطأ في تحميل المدارس:\n{str(e)}")
@@ -441,18 +437,14 @@ class AddStudentDialog(QDialog):
             return
         
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
             # التحقق من عدم تكرار رقم الهوية
-            cursor.execute("SELECT id FROM students WHERE national_id = ?", 
-                         (self.national_id_edit.text().strip(),))
-            if cursor.fetchone():
+            query = "SELECT id FROM students WHERE national_id_number = ?"
+            existing_student = db_manager.execute_query(query, (self.national_id_edit.text().strip(),))
+            if existing_student:
                 QMessageBox.warning(self, "خطأ", "رقم الهوية موجود مسبقاً")
-                conn.close()
                 return
             
-            # إدراج البيانات الأساسية أولاً للحصول على ID
+            # إدراج البيانات الأساسية
             insert_query = """
                 INSERT INTO students (
                     name, national_id_number, school_id, grade,
@@ -477,17 +469,13 @@ class AddStudentDialog(QDialog):
                 self.status_combo.currentText()
             )
             
-            cursor.execute(insert_query, student_data)
-            student_id = cursor.lastrowid
+            student_id = db_manager.execute_insert(insert_query, student_data)
             
             # حفظ الصورة إذا تم اختيارها
             photo_filename = self.save_photo(student_id)
             if photo_filename:
-                cursor.execute("UPDATE students SET photo = ? WHERE id = ?", 
-                             (photo_filename, student_id))
-            
-            conn.commit()
-            conn.close()
+                update_query = "UPDATE students SET photo = ? WHERE id = ?"
+                db_manager.execute_update(update_query, (photo_filename, student_id))
             
             QMessageBox.information(self, "نجح", "تم إضافة الطالب بنجاح!")
             self.student_added.emit()

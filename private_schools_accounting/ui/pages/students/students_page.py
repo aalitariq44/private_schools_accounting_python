@@ -539,7 +539,7 @@ class StudentsPage(QWidget):
         """إضافة طالب جديد"""
         try:
             dialog = AddStudentDialog(self)
-            dialog.student_added.connect(self.refresh_students_table)
+            dialog.student_added.connect(self.refresh)
             dialog.exec_()
             log_user_action("طلب إضافة طالب جديد")
             
@@ -572,7 +572,7 @@ class StudentsPage(QWidget):
         """تعديل طالب بالمعرف"""
         try:
             dialog = EditStudentDialog(student_id, self)
-            dialog.student_updated.connect(self.refresh_students_table)
+            dialog.student_updated.connect(self.refresh)
             dialog.exec_()
             log_user_action("طلب تعديل طالب", f"المعرف: {student_id}")
             

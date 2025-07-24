@@ -6,11 +6,13 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QGroupBox, QSpinBox)
 from PyQt5.QtCore import Qt, QDate, pyqtSignal
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-import sqlite3
 import shutil
 import uuid
 from datetime import datetime
 import logging
+
+# Import the database manager
+from core.database.connection import db_manager
 
 class EditStudentDialog(QDialog):
     student_updated = pyqtSignal()
@@ -18,7 +20,6 @@ class EditStudentDialog(QDialog):
     def __init__(self, student_id, parent=None):
         super().__init__(parent)
         self.student_id = student_id
-        self.db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'database', 'private_schools.db')
         self.photo_path = None
         self.current_photo = None
         self.setup_ui()
@@ -323,18 +324,13 @@ class EditStudentDialog(QDialog):
     def load_schools(self):
         """تحميل قائمة المدارس"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute("SELECT id, arabic_name FROM schools ORDER BY arabic_name")
-            schools = cursor.fetchall()
+            query = "SELECT id, name_ar FROM schools ORDER BY name_ar"
+            schools = db_manager.execute_query(query)
             
             self.school_combo.clear()
-            for school_id, school_name in schools:
-                self.school_combo.addItem(school_name, school_id)
+            for school in schools:
+                self.school_combo.addItem(school[1], school[0])
                 
-            conn.close()
-            
         except Exception as e:
             logging.error(f"خطأ في تحميل المدارس: {e}")
             QMessageBox.warning(self, "خطأ", f"حدث خطأ في تحميل المدارس:\n{str(e)}")
@@ -342,71 +338,70 @@ class EditStudentDialog(QDialog):
     def load_student_data(self):
         """تحميل بيانات الطالب الحالية"""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                SELECT first_name, first_name_en, last_name, last_name_en,
-                       birth_date, gender, national_id, school_id, grade,
-                       section, student_number, enrollment_year, status,
-                       guardian_name, guardian_phone, address, photo
+            query = """
+                SELECT name, national_id_number, school_id, grade,
+                       section, academic_year, gender, phone,
+                       guardian_name, guardian_phone, photo, status
                 FROM students WHERE id = ?
-            """, (self.student_id,))
+            """
             
-            student = cursor.fetchone()
-            conn.close()
+            students = db_manager.execute_query(query, (self.student_id,))
             
-            if student:
-                # ملء الحقول بالبيانات الحالية
-                self.first_name_edit.setText(student[0] or "")
-                self.first_name_en_edit.setText(student[1] or "")
-                self.last_name_edit.setText(student[2] or "")
-                self.last_name_en_edit.setText(student[3] or "")
+            if students:
+                student = students[0]
                 
-                # تاريخ الميلاد
-                if student[4]:
-                    self.birth_date_edit.setDate(QDate.fromString(student[4], "yyyy-MM-dd"))
+                # Parse the full name to first and last name
+                name_parts = (student[0] or "").split(" ", 1)
+                first_name = name_parts[0] if name_parts else ""
+                last_name = name_parts[1] if len(name_parts) > 1 else ""
+                
+                # ملء الحقول بالبيانات الحالية
+                self.first_name_edit.setText(first_name)
+                self.last_name_edit.setText(last_name)
                 
                 # الجنس
-                if student[5]:
-                    index = self.gender_combo.findText(student[5])
+                if student[6]:
+                    index = self.gender_combo.findText(student[6])
                     if index >= 0:
                         self.gender_combo.setCurrentIndex(index)
                 
-                self.national_id_edit.setText(student[6] or "")
+                self.national_id_edit.setText(student[1] or "")
                 
                 # المدرسة
-                if student[7]:
+                if student[2]:
                     for i in range(self.school_combo.count()):
-                        if self.school_combo.itemData(i) == student[7]:
+                        if self.school_combo.itemData(i) == student[2]:
                             self.school_combo.setCurrentIndex(i)
                             break
                 
                 # الصف
-                if student[8]:
-                    index = self.grade_combo.findText(student[8])
+                if student[3]:
+                    index = self.grade_combo.findText(student[3])
                     if index >= 0:
                         self.grade_combo.setCurrentIndex(index)
                 
-                self.section_edit.setText(student[9] or "")
-                self.student_number_edit.setText(student[10] or "")
+                self.section_edit.setText(student[4] or "")
+                self.student_number_edit.setText("")  # Not in database schema
                 
-                if student[11]:
-                    self.enrollment_year_spin.setValue(student[11])
+                if student[5]:
+                    try:
+                        year = int(student[5])
+                        self.enrollment_year_spin.setValue(year)
+                    except:
+                        self.enrollment_year_spin.setValue(datetime.now().year)
                 
                 # الحالة
-                if student[12]:
-                    index = self.status_combo.findText(student[12])
+                if student[11]:
+                    index = self.status_combo.findText(student[11])
                     if index >= 0:
                         self.status_combo.setCurrentIndex(index)
                 
-                self.guardian_name_edit.setText(student[13] or "")
-                self.guardian_phone_edit.setText(student[14] or "")
-                self.address_edit.setPlainText(student[15] or "")
+                self.guardian_name_edit.setText(student[8] or "")
+                self.guardian_phone_edit.setText(student[9] or "")
                 
                 # الصورة
-                if student[16]:
-                    self.current_photo = student[16]
+                if student[10]:
+                    self.current_photo = student[10]
                     self.load_current_photo()
                     
         except Exception as e:
@@ -525,33 +520,28 @@ class EditStudentDialog(QDialog):
             return
         
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
             # التحقق من عدم تكرار رقم الهوية (باستثناء الطالب الحالي)
-            cursor.execute("SELECT id FROM students WHERE national_id = ? AND id != ?", 
-                         (self.national_id_edit.text().strip(), self.student_id))
-            if cursor.fetchone():
+            query = "SELECT id FROM students WHERE national_id_number = ? AND id != ?"
+            existing_student = db_manager.execute_query(query, (self.national_id_edit.text().strip(), self.student_id))
+            if existing_student:
                 QMessageBox.warning(self, "خطأ", "رقم الهوية موجود مسبقاً لطالب آخر")
-                conn.close()
                 return
             
             # معالجة الصورة
             photo_filename = self.save_photo()
-            if not photo_filename and not self.current_photo:
-                photo_filename = None
+            if not photo_filename and self.current_photo:
+                photo_filename = self.current_photo
             
             # تحديث البيانات
             update_query = """
                 UPDATE students SET
                     name = ?, national_id_number = ?, school_id = ?, grade = ?,
                     section = ?, academic_year = ?, gender = ?, phone = ?,
-                    guardian_name = ?, guardian_phone = ?, total_fee = ?, start_date = ?, status = ?,
-                    updated_at = ?
-                WHERE id = ?
+                    guardian_name = ?, guardian_phone = ?, status = ?,
+                    updated_at = CURRENT_TIMESTAMP
             """
             
-            student_data = (
+            params = [
                 f"{self.first_name_edit.text().strip()} {self.last_name_edit.text().strip()}",
                 self.national_id_edit.text().strip(),
                 self.school_combo.currentData(),
@@ -562,16 +552,18 @@ class EditStudentDialog(QDialog):
                 self.guardian_phone_edit.text().strip(),
                 self.guardian_name_edit.text().strip(),
                 self.guardian_phone_edit.text().strip(),
-                float(self.total_fee_edit.text() or 0),
-                self.start_date_edit.date().toString("yyyy-MM-dd"),
-                self.status_combo.currentText(),
-                datetime.now().isoformat(),
-                self.student_id
-            )
+                self.status_combo.currentText()
+            ]
             
-            cursor.execute(update_query, student_data)
-            conn.commit()
-            conn.close()
+            # إضافة الصورة للتحديث إذا تم تغييرها
+            if photo_filename is not None:
+                update_query += ", photo = ?"
+                params.append(photo_filename)
+            
+            update_query += " WHERE id = ?"
+            params.append(self.student_id)
+            
+            db_manager.execute_update(update_query, params)
             
             QMessageBox.information(self, "نجح", "تم تحديث بيانات الطالب بنجاح!")
             self.student_updated.emit()
