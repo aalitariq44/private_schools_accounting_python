@@ -492,7 +492,7 @@ class StudentsPage(QWidget):
                 QWidget {
                     background-color: #F8F9FA;
                     font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 24px;
+                    font-size: 18px;
                 }
                 
                 /* رأس الصفحة */
@@ -506,19 +506,19 @@ class StudentsPage(QWidget):
                 }
                 
                 #pageTitle {
-                    font-size: 32px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: white;
                     margin-bottom: 8px;
                 }
                 
                 #pageDesc {
-                    font-size: 24px;
+                    font-size: 18px;
                     color: #E8F4FD;
                 }
                 
                 #quickStat {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: white;
                     background-color: rgba(255, 255, 255, 0.2);
@@ -540,7 +540,7 @@ class StudentsPage(QWidget):
                     font-weight: bold;
                     color: #2C3E50;
                     margin-right: 10px;
-                    font-size: 24px;
+                    font-size: 18px;
                 }
                 
                 #filterCombo {
@@ -549,7 +549,7 @@ class StudentsPage(QWidget):
                     border-radius: 8px;
                     background-color: white;
                     min-width: 150px;
-                    font-size: 24px;
+                    font-size: 18px;
                     margin: 5px;
                 }
                 
@@ -557,7 +557,7 @@ class StudentsPage(QWidget):
                     padding: 15px 20px;
                     border: 2px solid #3498DB;
                     border-radius: 10px;
-                    font-size: 24px;
+                    font-size: 18px;
                     background-color: white;
                     margin: 5px;
                 }
@@ -571,7 +571,7 @@ class StudentsPage(QWidget):
                     border-radius: 8px;
                     font-weight: bold;
                     min-width: 150px;
-                    font-size: 24px;
+                    font-size: 18px;
                     margin: 5px;
                 }
                 
@@ -587,7 +587,7 @@ class StudentsPage(QWidget):
                     border-radius: 8px;
                     font-weight: bold;
                     min-width: 120px;
-                    font-size: 24px;
+                    font-size: 18px;
                     margin: 5px;
                 }
                 
@@ -625,14 +625,14 @@ class StudentsPage(QWidget):
                     border: 2px solid #E9ECEF;
                     border-radius: 12px;
                     gridline-color: #E9ECEF;
-                    font-size: 24px;
+                    font-size: 18px;
                     margin: 10px 0px;
                 }
                 
                 QTableWidget::item {
                     padding: 15px 10px;
                     border-bottom: 1px solid #E9ECEF;
-                    font-size: 24px;
+                    font-size: 18px;
                 }
                 
                 QTableWidget::item:selected {
@@ -645,7 +645,7 @@ class StudentsPage(QWidget):
                     color: white;
                     padding: 15px 10px;
                     font-weight: bold;
-                    font-size: 24px;
+                    font-size: 18px;
                     border: none;
                     border-right: 1px solid #2980B9;
                 }
@@ -660,7 +660,7 @@ class StudentsPage(QWidget):
                 }
                 
                 #countLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin: 5px;
@@ -803,7 +803,7 @@ class StudentsPage(QWidget):
                 details_label.setReadOnly(True)
                 details_label.setStyleSheet("""
                     QTextEdit {
-                        font-size: 24px;
+                        font-size: 18px;
                         padding: 20px;
                         border: 2px solid #BDC3C7;
                         border-radius: 10px;
@@ -821,7 +821,7 @@ class StudentsPage(QWidget):
                     border: none;
                     padding: 15px 30px;
                     border-radius: 8px;
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                 }
                 QPushButton:hover {

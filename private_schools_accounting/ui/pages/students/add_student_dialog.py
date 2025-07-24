@@ -7,7 +7,7 @@ import json
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, 
                             QLabel, QLineEdit, QComboBox, QDateEdit, QTextEdit,
                             QPushButton, QFrame, QMessageBox, QFileDialog,
-                            QGroupBox, QSpinBox, QScrollArea)
+                            QGroupBox, QSpinBox, QScrollArea, QWidget)
 from PyQt5.QtCore import Qt, QDate, pyqtSignal
 from PyQt5.QtGui import QFont, QPixmap, QIcon
 import shutil
