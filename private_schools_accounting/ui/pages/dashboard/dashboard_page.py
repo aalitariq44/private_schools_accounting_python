@@ -165,7 +165,7 @@ class DashboardPage(QWidget):
                 }}
                 #statTitle {{
                     color: white;
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                 }}
             """)
@@ -466,7 +466,7 @@ class DashboardPage(QWidget):
                 
                 #welcomeText {
                     color: #ECF0F1;
-                    font-size: 14px;
+                    font-size: 24px;
                     margin-bottom: 10px;
                 }
                 
@@ -478,7 +478,7 @@ class DashboardPage(QWidget):
                 }
                 
                 #sectionTitle {
-                    font-size: 18px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 15px;
@@ -492,7 +492,7 @@ class DashboardPage(QWidget):
                     border: none;
                     padding: 12px 20px;
                     border-radius: 6px;
-                    font-size: 13px;
+                    font-size: 24px;
                     font-weight: bold;
                     min-width: 150px;
                 }
@@ -507,7 +507,7 @@ class DashboardPage(QWidget):
                 
                 #infoLabel {
                     color: #7F8C8D;
-                    font-size: 12px;
+                    font-size: 24px;
                 }
             """
             

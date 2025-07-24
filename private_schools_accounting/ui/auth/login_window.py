@@ -251,14 +251,14 @@ class LoginWindow(QDialog):
                 }
                 
                 #titleLabel {
-                    font-size: 20px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin: 10px 0 5px 0;
                 }
                 
                 #subtitleLabel {
-                    font-size: 12px;
+                    font-size: 24px;
                     color: #7F8C8D;
                     margin-bottom: 10px;
                 }
@@ -271,7 +271,7 @@ class LoginWindow(QDialog):
                 }
                 
                 #fieldLabel {
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 5px;
@@ -281,7 +281,7 @@ class LoginWindow(QDialog):
                     padding: 12px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 24px;
                     background-color: white;
                 }
                 
@@ -291,14 +291,14 @@ class LoginWindow(QDialog):
                 }
                 
                 #showPasswordCheckbox {
-                    font-size: 11px;
+                    font-size: 24px;
                     color: #7F8C8D;
                     margin-top: 5px;
                 }
                 
                 #errorLabel {
                     color: #E74C3C;
-                    font-size: 12px;
+                    font-size: 24px;
                     font-weight: bold;
                     margin-top: 10px;
                     padding: 8px;
@@ -313,7 +313,7 @@ class LoginWindow(QDialog):
                     border: none;
                     padding: 12px 24px;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 24px;
                     font-weight: bold;
                     min-width: 120px;
                 }
@@ -332,7 +332,7 @@ class LoginWindow(QDialog):
                     border: none;
                     padding: 12px 24px;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 24px;
                     font-weight: bold;
                     min-width: 80px;
                 }

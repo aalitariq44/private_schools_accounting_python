@@ -37,7 +37,7 @@ class AddAdditionalFeeDialog(QDialog):
             QLabel {
                 color: #2c3e50;
                 font-weight: bold;
-                font-size: 11px;
+                font-size: 24px;
             }
             
             QLineEdit, QComboBox, QDateEdit, QDoubleSpinBox, QTextEdit {
@@ -45,7 +45,7 @@ class AddAdditionalFeeDialog(QDialog):
                 border: 2px solid #bdc3c7;
                 border-radius: 8px;
                 background-color: white;
-                font-size: 11px;
+                font-size: 24px;
                 min-height: 20px;
             }
             
@@ -67,7 +67,7 @@ class AddAdditionalFeeDialog(QDialog):
                 padding: 12px 24px;
                 border-radius: 8px;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 24px;
                 min-width: 100px;
             }
             
@@ -105,7 +105,7 @@ class AddAdditionalFeeDialog(QDialog):
             
             QGroupBox {
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 24px;
                 color: #2c3e50;
                 border: 2px solid #bdc3c7;
                 border-radius: 10px;
@@ -148,7 +148,7 @@ class AddAdditionalFeeDialog(QDialog):
             }
             
             QCheckBox {
-                font-size: 11px;
+                font-size: 24px;
                 color: #2c3e50;
             }
             
@@ -186,7 +186,7 @@ class AddAdditionalFeeDialog(QDialog):
                 color: white;
                 padding: 15px;
                 border-radius: 10px;
-                font-size: 18px;
+                font-size: 24px;
                 font-weight: bold;
             }
         """)
@@ -287,7 +287,7 @@ class AddAdditionalFeeDialog(QDialog):
                 border-radius: 5px;
                 padding: 8px;
                 color: #6c757d;
-                font-size: 10px;
+                font-size: 24px;
             }
         """)
         students_layout.addWidget(self.selected_info_label)
