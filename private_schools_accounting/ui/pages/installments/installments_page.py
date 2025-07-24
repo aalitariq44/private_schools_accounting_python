@@ -12,13 +12,16 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QPushButton, QLabel, QLineEdit,
     QFrame, QMessageBox, QHeaderView, QAbstractItemView,
     QMenu, QComboBox, QDateEdit, QSpinBox, QDoubleSpinBox,
-    QCheckBox, QProgressBar
+    QCheckBox, QProgressBar, QAction
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
+
+# استيراد نافذة إضافة القسط
+from .add_installment_dialog import AddInstallmentDialog
 
 
 class InstallmentsPage(QWidget):
@@ -716,11 +719,14 @@ class InstallmentsPage(QWidget):
     def add_installment(self):
         """إضافة قسط جديد"""
         try:
-            self.show_info_message("قيد التطوير", "نافذة إضافة الأقساط قيد التطوير")
+            dialog = AddInstallmentDialog(self)
+            dialog.installment_added.connect(self.refresh_installments_table)
+            dialog.exec_()
             log_user_action("طلب إضافة قسط جديد")
             
         except Exception as e:
             logging.error(f"خطأ في إضافة قسط: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة القسط:\n{str(e)}")
     
     def edit_installment(self, row, column):
         """تعديل قسط عند الضغط المزدوج"""

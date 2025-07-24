@@ -12,13 +12,16 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QPushButton, QLabel, QLineEdit,
     QFrame, QMessageBox, QHeaderView, QAbstractItemView,
     QMenu, QComboBox, QDateEdit, QSpinBox, QDoubleSpinBox,
-    QCheckBox, QTextEdit
+    QCheckBox, QTextEdit, QAction
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
+
+# استيراد نافذة إضافة الرسم الإضافي
+from .add_additional_fee_dialog import AddAdditionalFeeDialog
 
 
 class AdditionalFeesPage(QWidget):
@@ -719,11 +722,14 @@ class AdditionalFeesPage(QWidget):
     def add_fee(self):
         """إضافة رسم جديد"""
         try:
-            self.show_info_message("قيد التطوير", "نافذة إضافة الرسوم الإضافية قيد التطوير")
+            dialog = AddAdditionalFeeDialog(self)
+            dialog.fee_added.connect(self.refresh_fees_table)
+            dialog.exec_()
             log_user_action("طلب إضافة رسم إضافي")
             
         except Exception as e:
             logging.error(f"خطأ في إضافة رسم: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة الرسم:\n{str(e)}")
     
     def edit_fee(self, row, column):
         """تعديل رسم عند الضغط المزدوج"""

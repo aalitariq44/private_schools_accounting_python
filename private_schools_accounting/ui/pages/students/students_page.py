@@ -10,13 +10,17 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, 
     QTableWidgetItem, QPushButton, QLabel, QLineEdit,
     QFrame, QMessageBox, QHeaderView, QAbstractItemView,
-    QMenu, QComboBox, QDateEdit, QSpinBox
+    QMenu, QComboBox, QDateEdit, QSpinBox, QAction
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
+
+# استيراد نوافذ إدارة الطلاب
+from .add_student_dialog import AddStudentDialog
+from .edit_student_dialog import EditStudentDialog
 
 
 class StudentsPage(QWidget):
@@ -534,11 +538,14 @@ class StudentsPage(QWidget):
     def add_student(self):
         """إضافة طالب جديد"""
         try:
-            self.show_info_message("قيد التطوير", "نافذة إضافة الطلاب قيد التطوير")
+            dialog = AddStudentDialog(self)
+            dialog.student_added.connect(self.refresh_students_table)
+            dialog.exec_()
             log_user_action("طلب إضافة طالب جديد")
             
         except Exception as e:
             logging.error(f"خطأ في إضافة طالب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة الطالب:\n{str(e)}")
     
     def edit_student(self, row, column):
         """تعديل طالب عند الضغط المزدوج"""
@@ -564,11 +571,14 @@ class StudentsPage(QWidget):
     def edit_student_by_id(self, student_id: int):
         """تعديل طالب بالمعرف"""
         try:
-            self.show_info_message("قيد التطوير", f"نافذة تعديل الطالب {student_id} قيد التطوير")
+            dialog = EditStudentDialog(student_id, self)
+            dialog.student_updated.connect(self.refresh_students_table)
+            dialog.exec_()
             log_user_action("طلب تعديل طالب", f"المعرف: {student_id}")
             
         except Exception as e:
             logging.error(f"خطأ في تعديل الطالب {student_id}: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة تعديل الطالب:\n{str(e)}")
     
     def view_student_details(self):
         """عرض تفاصيل الطالب"""
