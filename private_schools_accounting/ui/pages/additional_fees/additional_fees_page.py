@@ -82,10 +82,12 @@ class AdditionalFeesPage(QWidget):
             
             title_label = QLabel("إدارة الرسوم الإضافية")
             title_label.setObjectName("pageTitle")
+            title_label.setStyleSheet("color: black;")
             text_layout.addWidget(title_label)
             
             desc_label = QLabel("إدارة الرسوم الإضافية مثل الكتب والنشاطات والخدمات الأخرى")
             desc_label.setObjectName("pageDesc")
+            desc_label.setStyleSheet("color: black;")
             text_layout.addWidget(desc_label)
             
             header_layout.addLayout(text_layout)
