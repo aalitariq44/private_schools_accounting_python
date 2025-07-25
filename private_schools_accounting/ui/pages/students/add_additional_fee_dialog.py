@@ -303,6 +303,8 @@ class AddAdditionalFeeDialog(QDialog):
             if result is not None:
                 # تسجيل العملية
                 log_database_operation(
+                    "إضافة",
+                    "additional_fees",
                     f"إضافة رسم إضافي جديد - الطالب: {self.student_id}, "
                     f"النوع: {fee_type}, المبلغ: {amount}"
                 )
