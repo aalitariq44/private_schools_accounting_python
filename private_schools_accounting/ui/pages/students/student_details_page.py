@@ -664,67 +664,6 @@ class StudentDetailsPage(QWidget):
         except Exception as e:
             logging.error(f"خطأ في تحديث جدول الرسوم الإضافية: {e}")
     
-    def update_financial_summary(self):
-        """تحديث الملخص المالي"""
-        try:
-            if not self.student_data:
-                return
-            
-            # حساب المبلغ المدفوع
-            total_paid = sum(float(installment[1]) for installment in self.installments_data)
-            
-            # القسط الكلي
-            total_fee = float(self.student_data[7])
-            
-            # المتبقي
-            remaining = total_fee - total_paid
-            
-            # عدد الدفعات
-            installments_count = len(self.installments_data)
-            
-            # تحديث التسميات
-            self.total_fee_label.setText(f"القسط الكلي: {total_fee:,.0f} د.ع")
-            self.paid_amount_label.setText(f"المدفوع: {total_paid:,.0f} د.ع")
-            self.remaining_amount_label.setText(f"المتبقي: {remaining:,.0f} د.ع")
-            self.installments_count_label.setText(f"عدد الدفعات: {installments_count}")
-            
-            # تلوين المتبقي
-            if remaining > 0:
-                self.remaining_amount_label.setStyleSheet("color: #E74C3C; font-weight: bold;")
-            else:
-                self.remaining_amount_label.setStyleSheet("color: #27AE60; font-weight: bold;")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تحديث الملخص المالي: {e}")
-    
-    def add_installment(self):
-        """إضافة قسط جديد"""
-        try:
-            if not self.student_data:
-                return
-            
-            # حساب المتبقي
-            total_paid = 0
-            for installment in self.installments_data:
-                # استخدام المبلغ المدفوع إذا كان موجود، وإلا استخدم المبلغ الكامل
-                paid_amount = installment[6] if installment[6] else installment[1]
-                total_paid += float(paid_amount)
-            
-            total_fee = float(self.student_data[7])
-            remaining = total_fee - total_paid
-            
-            if remaining <= 0:
-                QMessageBox.information(self, "تنبيه", "تم دفع القسط بالكامل")
-                return
-            
-            dialog = AddInstallmentDialog(self.student_id, remaining, self)
-            if dialog.exec_() == QDialog.Accepted:
-                self.refresh_data()
-                self.student_updated.emit()
-                
-        except Exception as e:
-            logging.error(f"خطأ في إضافة قسط: {e}")
-            QMessageBox.critical(self, "خطأ", f"خطأ في إضافة القسط: {str(e)}")
     
     def add_additional_fee(self):
         """إضافة رسم إضافي"""
