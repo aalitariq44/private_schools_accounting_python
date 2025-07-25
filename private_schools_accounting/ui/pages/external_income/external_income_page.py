@@ -256,11 +256,12 @@ class ExternalIncomePage(QWidget):
             table_frame.setObjectName("tableFrame")
 
             table_layout = QVBoxLayout(table_frame)
-            table_layout.setContentsMargins(0, 0, 0, 0)
+            table_layout.setContentsMargins(0, 0, 0, 0)  # إزالة الهوامش تمامًا
 
             # الجدول
             self.income_table = QTableWidget()
             self.income_table.setObjectName("dataTable")
+            self.income_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
 
             # إعداد أعمدة الجدول
             columns = ["المعرف", "العنوان", "المبلغ", "المصدر", "الفئة", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]

@@ -271,11 +271,12 @@ class ExpensesPage(QWidget):
             table_frame.setObjectName("tableFrame")
 
             table_layout = QVBoxLayout(table_frame)
-            table_layout.setContentsMargins(0, 0, 0, 0)
+            table_layout.setContentsMargins(0, 0, 0, 0)  # إزالة الهوامش تمامًا
 
             # الجدول
             self.expenses_table = QTableWidget()
             self.expenses_table.setObjectName("dataTable")
+            self.expenses_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
 
             # إعداد أعمدة الجدول
             columns = ["المعرف", "العنوان", "المبلغ", "الفئة", "المورد", "طريقة الدفع", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]

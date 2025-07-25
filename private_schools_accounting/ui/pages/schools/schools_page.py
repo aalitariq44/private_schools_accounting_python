@@ -114,11 +114,12 @@ class SchoolsPage(QWidget):
             table_frame.setObjectName("tableFrame")
             
             table_layout = QVBoxLayout(table_frame)
-            table_layout.setContentsMargins(0, 0, 0, 0)
-            
+            table_layout.setContentsMargins(0, 0, 0, 0)  # إزالة الهوامش تمامًا
+
             # إنشاء الجدول
             self.schools_table = QTableWidget()
             self.schools_table.setObjectName("schoolsTable")
+            self.schools_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
             
             # إعداد أعمدة الجدول
             columns = ["المعرف", "الاسم بالعربية", "الاسم بالإنجليزية", "نوع المدرسة", "المدير", "الهاتف", "الإجراءات"]
