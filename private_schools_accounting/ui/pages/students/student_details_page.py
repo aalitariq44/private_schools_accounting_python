@@ -111,6 +111,7 @@ class StudentDetailsPage(QWidget):
             self.page_title = QLabel("تفاصيل الطالب")
             self.page_title.setObjectName("pageTitle")
             self.page_title.setAlignment(Qt.AlignCenter)
+            self.page_title.setStyleSheet("color: black;")
             toolbar_layout.addWidget(self.page_title)
             
             # زر التحديث
@@ -784,8 +785,8 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #backButton {
-                    background-color: rgba(255, 255, 255, 0.2);
-                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    background-color: #2980B9; /* لون أزرق داكن */
+                    border: 2px solid #2471A3; /* حدود أغمق قليلاً */
                     color: white;
                     padding: 8px 16px;
                     border-radius: 6px;
@@ -794,8 +795,8 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #backButton:hover {
-                    background-color: rgba(255, 255, 255, 0.3);
-                    border-color: rgba(255, 255, 255, 0.5);
+                    background-color: #2471A3; /* لون أغمق عند التحويم */
+                    border-color: #1F618D; /* حدود أغمق عند التحويم */
                 }
                 
                 #pageTitle {
@@ -805,8 +806,8 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #refreshButton {
-                    background-color: rgba(255, 255, 255, 0.2);
-                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    background-color: #2980B9; /* لون أزرق داكن */
+                    border: 2px solid #2471A3; /* حدود أغمق قليلاً */
                     color: white;
                     padding: 8px 16px;
                     border-radius: 6px;
@@ -815,8 +816,8 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #refreshButton:hover {
-                    background-color: rgba(255, 255, 255, 0.3);
-                    border-color: rgba(255, 255, 255, 0.5);
+                    background-color: #2471A3; /* لون أغمق عند التحويم */
+                    border-color: #1F618D; /* حدود أغمق عند التحويم */
                 }
                 
                 /* قسم معلومات الطالب */
