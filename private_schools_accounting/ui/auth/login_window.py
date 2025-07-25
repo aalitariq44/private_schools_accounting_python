@@ -217,7 +217,7 @@ class LoginWindow(QDialog):
                 }}
                 
                 #titleLabel {{
-                    font-size: 32px; /* حجم أكبر للعنوان الرئيسي */
+                    font-size: 18px; /* حجم أكبر للعنوان الرئيسي */
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 20px;
@@ -259,7 +259,7 @@ class LoginWindow(QDialog):
                 
                 #errorLabel {{
                     color: #E74C3C;
-                    font-size: 16px; /* حجم أصغر لرسالة الخطأ */
+                    font-size: 18px; /* حجم أصغر لرسالة الخطأ */
                     font-weight: bold;
                     margin-top: 10px;
                     padding: 8px;
