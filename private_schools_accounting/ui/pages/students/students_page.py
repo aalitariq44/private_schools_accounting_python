@@ -268,14 +268,12 @@ class StudentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                query = """
                 SELECT s.id, s.name, sc.name_ar as school_name,
                        s.grade, s.section, s.gender,
                        s.phone, s.status, s.start_date, s.total_fee
                 FROM students s
                 LEFT JOIN schools sc ON s.school_id = sc.id
                 WHERE 1=1
-            """
             """
             params = []
             
