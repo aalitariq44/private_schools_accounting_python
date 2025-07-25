@@ -26,10 +26,10 @@ class EditStudentDialog(QDialog):
         self.student_id = student_id
         self.photo_path = None # Not used in this version, but kept for consistency
         self.setup_ui()
-        self.load_schools()
-        self.load_student_data() # Load student data after UI setup and schools loaded
-        self.update_grades_for_school() # Call after loading schools to populate grades initially
-        self.setup_connections()
+        self.setup_connections() # Connect signals first
+        self.load_schools() # Load schools, which might trigger update_grades_for_school
+        self.load_student_data() # Load student data and populate fields
+        # self.update_grades_for_school() # This call is now redundant as load_student_data handles it
         
     def setup_ui(self):
         self.setWindowTitle("تعديل بيانات الطالب")
@@ -295,7 +295,8 @@ class EditStudentDialog(QDialog):
                 if index != -1:
                     self.gender_combo.setCurrentIndex(index)
                 
-                # Set school
+                # Set school and grade, blocking signals to prevent premature updates
+                self.school_combo.blockSignals(True)
                 school_id = student['school_id']
                 for i in range(self.school_combo.count()):
                     school_data = self.school_combo.itemData(i)
@@ -303,14 +304,12 @@ class EditStudentDialog(QDialog):
                         self.school_combo.setCurrentIndex(i)
                         break
                 
-                # Set grade (this will be handled by update_grades_for_school after school is set)
-                # We need to ensure update_grades_for_school is called and then set the grade
-                self.school_combo.currentTextChanged.disconnect(self.update_grades_for_school) # Disconnect temporarily
-                self.update_grades_for_school() # Populate grades based on selected school
+                # Populate grades based on selected school after setting the school
+                self.update_grades_for_school() 
                 index = self.grade_combo.findText(student['grade'])
                 if index != -1:
                     self.grade_combo.setCurrentIndex(index)
-                self.school_combo.currentTextChanged.connect(self.update_grades_for_school) # Reconnect
+                self.school_combo.blockSignals(False)
                 
                 # Set section
                 index = self.section_combo.findText(student['section'])
