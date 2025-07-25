@@ -900,7 +900,7 @@ class AdditionalFeesPage(QWidget):
                 QWidget {
                     background-color: #F8F9FA;
                     font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 24px;
+                    font-size: 18px;
                 }
                 
                 /* رأس الصفحة */
@@ -913,19 +913,19 @@ class AdditionalFeesPage(QWidget):
                 }
                 
                 #pageTitle {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: white;
                     margin-bottom: 5px;
                 }
                 
                 #pageDesc {
-                    font-size: 24px;
+                    font-size: 18px;
                     color: #E8DAEF;
                 }
                 
                 #quickStat {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: white;
                     background-color: rgba(255, 255, 255, 0.2);
@@ -965,7 +965,7 @@ class AdditionalFeesPage(QWidget):
                     padding: 8px 12px;
                     border: 2px solid #9B59B6;
                     border-radius: 6px;
-                    font-size: 24px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -1065,7 +1065,7 @@ class AdditionalFeesPage(QWidget):
                     padding: 10px 8px;
                     border: none;
                     font-weight: bold;
-                    font-size: 24px;
+                    font-size: 18px;
                 }
                 
                 QHeaderView::section:hover {
@@ -1081,42 +1081,42 @@ class AdditionalFeesPage(QWidget):
                 }
                 
                 #summaryTitle {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 10px;
                 }
                 
                 #summaryLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #7F8C8D;
                     text-align: center;
                 }
                 
                 #summaryValue {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     text-align: center;
                 }
                 
                 #summaryValueSuccess {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #27AE60;
                     text-align: center;
                 }
                 
                 #summaryValueWarning {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #F39C12;
                     text-align: center;
                 }
                 
                 #statLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin: 2px 0;
