@@ -9,7 +9,7 @@ from datetime import datetime, date
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, 
     QPushButton, QLineEdit, QDateEdit, QTextEdit, QComboBox,
-    QMessageBox, QFrame, QDoubleSpinBox, QCheckBox
+    QMessageBox, QFrame, QDoubleSpinBox, QCheckBox, QGroupBox, QScrollArea, QWidget
 )
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QFont
@@ -37,22 +37,44 @@ class AddAdditionalFeeDialog(QDialog):
         try:
             self.setWindowTitle("إضافة رسم إضافي")
             self.setModal(True)
-            self.setFixedSize(450, 400)
+            self.resize(800, 900) # Adjusted size to match add_student_dialog
             
             # التخطيط الرئيسي
-            layout = QVBoxLayout()
-            layout.setContentsMargins(20, 20, 20, 20)
-            layout.setSpacing(15)
+            main_layout = QVBoxLayout(self)
+            main_layout.setContentsMargins(10, 10, 10, 10)
             
-            # العنوان
+            # إضافة scroll area للشاشات الصغيرة
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            
+            # المحتوى الرئيسي داخل scroll area
+            content_widget = QWidget()
+            content_layout = QVBoxLayout(content_widget)
+            content_layout.setSpacing(20)
+            content_layout.setContentsMargins(25, 25, 25, 25)
+            
+            # عنوان النافذة
             title_label = QLabel("إضافة رسم إضافي جديد")
-            title_label.setObjectName("dialogTitle")
             title_label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(title_label)
+            title_label.setStyleSheet("""
+                QLabel {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                        stop:0 #3498db, stop:1 #2980b9);
+                    color: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+            """)
+            content_layout.addWidget(title_label)
             
-            # نموذج الإدخال
-            form_layout = QFormLayout()
-            form_layout.setSpacing(12)
+            # مجموعة معلومات الرسم
+            fee_info_group = QGroupBox("معلومات الرسم")
+            fee_layout = QFormLayout(fee_info_group)
+            fee_layout.setSpacing(15)
             
             # نوع الرسم
             self.fee_type_combo = QComboBox()
@@ -67,14 +89,14 @@ class AddAdditionalFeeDialog(QDialog):
                 "رسوم الامتحانات",
                 "رسم مخصص"
             ])
-            form_layout.addRow("نوع الرسم:", self.fee_type_combo)
+            fee_layout.addRow("نوع الرسم:", self.fee_type_combo)
             
             # رسم مخصص
             self.custom_fee_input = QLineEdit()
             self.custom_fee_input.setObjectName("customFeeInput")
             self.custom_fee_input.setPlaceholderText("أدخل نوع الرسم المخصص...")
             self.custom_fee_input.setVisible(False)
-            form_layout.addRow("النوع المخصص:", self.custom_fee_input)
+            fee_layout.addRow("النوع المخصص:", self.custom_fee_input)
             
             # مبلغ الرسم
             self.amount_input = QDoubleSpinBox()
@@ -84,19 +106,19 @@ class AddAdditionalFeeDialog(QDialog):
             self.amount_input.setDecimals(0)
             self.amount_input.setSuffix(" د.ع")
             self.amount_input.setValue(50000.0)
-            form_layout.addRow("مبلغ الرسم:", self.amount_input)
+            fee_layout.addRow("مبلغ الرسم:", self.amount_input)
             
             # تاريخ الاستحقاق
             self.due_date = QDateEdit()
             self.due_date.setObjectName("dateInput")
             self.due_date.setCalendarPopup(True)
             self.due_date.setDisplayFormat("yyyy-MM-dd")
-            form_layout.addRow("تاريخ الاستحقاق:", self.due_date)
+            fee_layout.addRow("تاريخ الاستحقاق:", self.due_date)
             
             # حالة الدفع
             self.paid_checkbox = QCheckBox("تم الدفع")
             self.paid_checkbox.setObjectName("paidCheckbox")
-            form_layout.addRow("حالة الدفع:", self.paid_checkbox)
+            fee_layout.addRow("حالة الدفع:", self.paid_checkbox)
             
             # تاريخ الدفع
             self.payment_date = QDateEdit()
@@ -104,19 +126,20 @@ class AddAdditionalFeeDialog(QDialog):
             self.payment_date.setCalendarPopup(True)
             self.payment_date.setDisplayFormat("yyyy-MM-dd")
             self.payment_date.setEnabled(False)
-            form_layout.addRow("تاريخ الدفع:", self.payment_date)
+            fee_layout.addRow("تاريخ الدفع:", self.payment_date)
             
             # الملاحظات
             self.notes_input = QTextEdit()
             self.notes_input.setObjectName("notesInput")
             self.notes_input.setMaximumHeight(80)
             self.notes_input.setPlaceholderText("أدخل أي ملاحظات إضافية...")
-            form_layout.addRow("الملاحظات:", self.notes_input)
+            fee_layout.addRow("الملاحظات:", self.notes_input)
             
-            layout.addLayout(form_layout)
+            content_layout.addWidget(fee_info_group)
             
             # أزرار العمليات
             buttons_layout = QHBoxLayout()
+            buttons_layout.addStretch()
             
             self.save_button = QPushButton("حفظ الرسم")
             self.save_button.setObjectName("saveButton")
@@ -126,10 +149,11 @@ class AddAdditionalFeeDialog(QDialog):
             self.cancel_button.setObjectName("cancelButton")
             buttons_layout.addWidget(self.cancel_button)
             
-            layout.addLayout(buttons_layout)
+            content_layout.addLayout(buttons_layout)
             
-            self.setLayout(layout)
-            
+            # إضافة المحتوى إلى scroll area
+            scroll_area.setWidget(content_widget)
+            main_layout.addWidget(scroll_area)
         except Exception as e:
             logging.error(f"خطأ في إعداد واجهة نافذة إضافة الرسم الإضافي: {e}")
             raise
@@ -299,170 +323,117 @@ class AddAdditionalFeeDialog(QDialog):
         """إعداد التنسيقات"""
         try:
             style = """
-                /* النافذة الرئيسية */
                 QDialog {
-                    background-color: #F8F9FA;
-                    font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 14px;
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #f8f9ff, stop:1 #e8f0ff);
+                    font-family: 'Segoe UI', Arial, sans-serif;
                 }
                 
-                /* العنوان */
-                #dialogTitle {
-                    font-size: 18px;
+                QLabel {
+                    color: #2c3e50;
                     font-weight: bold;
-                    color: #2C3E50;
-                    padding: 10px;
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
-                        stop:0 #8E44AD, stop:1 #9B59B6);
+                    font-size:18px;
+                    margin: 5px 0px;
+                }
+                
+                QLineEdit, QComboBox, QDateEdit, QTextEdit, QSpinBox, QDoubleSpinBox {
+                    padding: 12px 15px;
+                    border: 2px solid #bdc3c7;
+                    border-radius: 10px;
+                    background-color: white;
+                    font-size: 18px;
+                    min-height: 30px;
+                    margin: 5px 0px;
+                }
+                
+                QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+                    border-color: #3498db;
+                    background-color: #f8fbff;
+                }
+                
+                QComboBox::drop-down {
+                    border: none;
+                    width: 30px;
+                }
+                
+                QPushButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #3498db, stop:1 #2980b9);
                     color: white;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    font-size: 18px;
+                    min-width: 120px;
+                    margin: 8px 4px;
                 }
                 
-                /* حقول الإدخال */
-                #feeTypeCombo {
-                    border: 2px solid #BDC3C7;
+                QPushButton:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #5dade2, stop:1 #3498db);
+                }
+                
+                QPushButton:pressed {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #2980b9, stop:1 #1f618d);
+                }
+                
+                QPushButton#cancelButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #e74c3c, stop:1 #c0392b);
+                }
+                
+                QGroupBox {
+                    font-weight: bold;
+                    font-size: 18px;
+                    color: #2c3e50;
+                    border: 2px solid #bdc3c7;
+                    border-radius: 12px;
+                    margin: 15px 0px;
+                    padding-top: 20px;
+                }
+                
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    left: 20px;
+                    padding: 0 10px 0 10px;
+                    background-color: #3498db;
+                    color: white;
                     border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
+                    padding: 8px 15px;
+                    font-size: 18px;
                 }
                 
-                #feeTypeCombo:focus {
-                    border-color: #8E44AD;
-                    background-color: #F4F0F8;
-                }
-                
-                #customFeeInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #customFeeInput:focus {
-                    border-color: #8E44AD;
-                    background-color: #F4F0F8;
-                }
-                
-                #amountInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #amountInput:focus {
-                    border-color: #8E44AD;
-                    background-color: #F4F0F8;
-                }
-                
-                #dateInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #dateInput:focus {
-                    border-color: #8E44AD;
-                    background-color: #F4F0F8;
-                }
-                
-                #dateInput:disabled {
-                    background-color: #F0F0F0;
-                    color: #888888;
-                }
-                
-                #notesInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #notesInput:focus {
-                    border-color: #8E44AD;
-                    background-color: #F4F0F8;
+                QScrollArea {
+                    border: none;
+                    background-color: transparent;
                 }
                 
                 /* صندوق الاختيار */
                 #paidCheckbox {
-                    font-size: 14px;
+                    font-size: 18px; /* Increased font size */
                     font-weight: bold;
                     color: #27AE60;
+                    margin: 5px 0px; /* Added margin for consistency */
                 }
                 
                 #paidCheckbox::indicator {
-                    width: 18px;
-                    height: 18px;
+                    width: 22px; /* Slightly larger indicator */
+                    height: 22px;
                 }
                 
                 #paidCheckbox::indicator:unchecked {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 4px;
+                    border: 2px solid #bdc3c7; /* Consistent border color */
+                    border-radius: 6px; /* More rounded corners */
                     background-color: white;
                 }
                 
                 #paidCheckbox::indicator:checked {
                     border: 2px solid #27AE60;
-                    border-radius: 4px;
+                    border-radius: 6px;
                     background-color: #27AE60;
-                    image: url(:/icons/check.png);
-                }
-                
-                /* التسميات */
-                QLabel {
-                    color: #2C3E50;
-                    font-weight: bold;
-                    font-size: 14px;
-                }
-                
-                /* الأزرار */
-                #saveButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #8E44AD, stop:1 #9B59B6);
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    font-size: 14px;
-                }
-                
-                #saveButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #9B59B6, stop:1 #A569BD);
-                }
-                
-                #saveButton:pressed {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #7D3C98, stop:1 #884EA0);
-                }
-                
-                #cancelButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #95A5A6, stop:1 #7F8C8D);
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    font-size: 14px;
-                }
-                
-                #cancelButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #7F8C8D, stop:1 #566769);
-                }
-                
-                #cancelButton:pressed {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #566769, stop:1 #2C3E50);
+                    image: url(:/icons/check.png); /* Assuming this path is correct */
                 }
             """
             
