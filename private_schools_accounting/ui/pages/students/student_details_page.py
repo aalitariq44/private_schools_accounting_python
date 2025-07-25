@@ -317,7 +317,7 @@ class StudentDetailsPage(QWidget):
             self.fees_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
             
             # إعداد أعمدة الجدول
-            columns = ["النوع", "المبلغ", "الاستحقاق", "الحالة", "تاريخ الدفع", "إجراءات"]
+            columns = ["النوع", "المبلغ", "الحالة", "تاريخ الدفع", "إجراءات"]
             self.fees_table.setColumnCount(len(columns))
             self.fees_table.setHorizontalHeaderLabels(columns)
             
@@ -330,10 +330,9 @@ class StudentDetailsPage(QWidget):
             header = self.fees_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # النوع
             header.setSectionResizeMode(1, QHeaderView.ResizeToContents)  # المبلغ
-            header.setSectionResizeMode(2, QHeaderView.ResizeToContents)  # الاستحقاق
-            header.setSectionResizeMode(3, QHeaderView.ResizeToContents)  # الحالة
-            header.setSectionResizeMode(4, QHeaderView.ResizeToContents)  # تاريخ الدفع
-            header.setSectionResizeMode(5, QHeaderView.ResizeToContents)  # الإجراءات
+            header.setSectionResizeMode(2, QHeaderView.ResizeToContents)  # الحالة
+            header.setSectionResizeMode(3, QHeaderView.ResizeToContents)  # تاريخ الدفع
+            header.setSectionResizeMode(4, QHeaderView.ResizeToContents)  # الإجراءات
             
             fees_layout.addWidget(self.fees_table)
             
@@ -627,21 +626,17 @@ class StudentDetailsPage(QWidget):
                 amount_item = QTableWidgetItem(f"{float(fee[2]):,.0f} د.ع")
                 self.fees_table.setItem(row, 1, amount_item)
                 
-                # تاريخ الاستحقاق
-                due_date_item = QTableWidgetItem(str(fee[3] or "--"))
-                self.fees_table.setItem(row, 2, due_date_item)
-                
                 # الحالة (إما من حقل paid أو status)
                 if len(fee) > 7 and fee[7]:  # إذا كان هناك حقل status
                     status = fee[7]
                 else:
                     status = "مدفوع" if fee[4] else "غير مدفوع"
                 status_item = QTableWidgetItem(status)
-                self.fees_table.setItem(row, 3, status_item)
+                self.fees_table.setItem(row, 2, status_item)
                 
                 # تاريخ الدفع
                 payment_date_item = QTableWidgetItem(str(fee[5] or "--"))
-                self.fees_table.setItem(row, 4, payment_date_item)
+                self.fees_table.setItem(row, 3, payment_date_item)
                 
                 # أزرار الإجراءات
                 actions_layout = QHBoxLayout()
@@ -661,7 +656,7 @@ class StudentDetailsPage(QWidget):
                 actions_layout.addWidget(delete_btn)
                 
                 actions_widget.setLayout(actions_layout)
-                self.fees_table.setCellWidget(row, 5, actions_widget)
+                self.fees_table.setCellWidget(row, 4, actions_widget)
             
         except Exception as e:
             logging.error(f"خطأ في تحديث جدول الرسوم الإضافية: {e}")
