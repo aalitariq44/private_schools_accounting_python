@@ -260,6 +260,7 @@ class StudentDetailsPage(QWidget):
             # جدول الأقساط
             self.installments_table = QTableWidget()
             self.installments_table.setObjectName("dataTable")
+            self.installments_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
             
             # إعداد أعمدة الجدول
             columns = ["المبلغ", "التاريخ", "الملاحظات", "إجراءات"]
@@ -312,6 +313,7 @@ class StudentDetailsPage(QWidget):
             # جدول الرسوم الإضافية
             self.fees_table = QTableWidget()
             self.fees_table.setObjectName("dataTable")
+            self.fees_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
             
             # إعداد أعمدة الجدول
             columns = ["النوع", "المبلغ", "الاستحقاق", "الحالة", "تاريخ الدفع", "إجراءات"]
