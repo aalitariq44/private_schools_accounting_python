@@ -263,7 +263,7 @@ class StudentDetailsPage(QWidget):
             self.installments_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
             
             # إعداد أعمدة الجدول
-            columns = ["المبلغ", "التاريخ", "الملاحظات", "إجراءات"]
+            columns = ["المبلغ", "التاريخ", "وقت الدفع", "الملاحظات", "إجراءات"]
             self.installments_table.setColumnCount(len(columns))
             self.installments_table.setHorizontalHeaderLabels(columns)
             
@@ -276,8 +276,9 @@ class StudentDetailsPage(QWidget):
             header = self.installments_table.horizontalHeader()
             header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # المبلغ
             header.setSectionResizeMode(1, QHeaderView.ResizeToContents)  # التاريخ
-            header.setSectionResizeMode(2, QHeaderView.Stretch)          # الملاحظات
-            header.setSectionResizeMode(3, QHeaderView.ResizeToContents)  # الإجراءات
+            header.setSectionResizeMode(2, QHeaderView.ResizeToContents)  # وقت الدفع
+            header.setSectionResizeMode(3, QHeaderView.Stretch)          # الملاحظات
+            header.setSectionResizeMode(4, QHeaderView.ResizeToContents)  # الإجراءات
             
             installments_layout.addWidget(self.installments_table)
             
@@ -454,7 +455,7 @@ class StudentDetailsPage(QWidget):
         """تحميل الأقساط المدفوعة"""
         try:
             query = """
-                SELECT id, amount, payment_date, notes, status, paid_amount
+                SELECT id, amount, payment_date, payment_time, notes, status, paid_amount
                 FROM installments 
                 WHERE student_id = ?
                 ORDER BY payment_date DESC
@@ -472,7 +473,7 @@ class StudentDetailsPage(QWidget):
             
             for row, installment in enumerate(self.installments_data):
                 # المبلغ المدفوع (إذا كان موجود) أو المبلغ الكامل
-                paid_amount = installment[5] if len(installment) > 5 and installment[5] else installment[1]
+                paid_amount = installment[6] if len(installment) > 6 and installment[6] else installment[1]
                 amount_item = QTableWidgetItem(f"{float(paid_amount):,.0f} د.ع")
                 self.installments_table.setItem(row, 0, amount_item)
                 
@@ -480,9 +481,13 @@ class StudentDetailsPage(QWidget):
                 date_item = QTableWidgetItem(str(installment[2]))
                 self.installments_table.setItem(row, 1, date_item)
                 
+                # وقت الدفع
+                time_item = QTableWidgetItem(str(installment[3] or "--"))
+                self.installments_table.setItem(row, 2, time_item)
+                
                 # الملاحظات
-                notes_item = QTableWidgetItem(str(installment[3] or ""))
-                self.installments_table.setItem(row, 2, notes_item)
+                notes_item = QTableWidgetItem(str(installment[4] or ""))
+                self.installments_table.setItem(row, 3, notes_item)
                 
                 # أزرار الإجراءات
                 actions_layout = QHBoxLayout()
@@ -494,7 +499,7 @@ class StudentDetailsPage(QWidget):
                 actions_layout.addWidget(delete_btn)
                 
                 actions_widget.setLayout(actions_layout)
-                self.installments_table.setCellWidget(row, 3, actions_widget)
+                self.installments_table.setCellWidget(row, 4, actions_widget)
             
         except Exception as e:
             logging.error(f"خطأ في تحديث جدول الأقساط: {e}")
@@ -515,7 +520,7 @@ class StudentDetailsPage(QWidget):
             for installment in self.installments_data:
                 try:
                     # استخدام المبلغ المدفوع إذا كان موجود، وإلا استخدم المبلغ الكامل
-                    paid_amount = installment[5] if len(installment) > 5 and installment[5] else installment[1]
+                    paid_amount = installment[6] if len(installment) > 6 and installment[6] else installment[1]
                     total_paid += float(paid_amount)
                 except (ValueError, TypeError, IndexError):
                     logging.warning(f"تجاهل قسط غير صحيح: {installment}")
@@ -566,7 +571,7 @@ class StudentDetailsPage(QWidget):
             for installment in self.installments_data:
                 try:
                     # استخدام المبلغ المدفوع إذا كان موجود، وإلا استخدم المبلغ الكامل
-                    paid_amount = installment[5] if len(installment) > 5 and installment[5] else installment[1]
+                    paid_amount = installment[6] if len(installment) > 6 and installment[6] else installment[1]
                     total_paid += float(paid_amount)
                 except (ValueError, TypeError, IndexError):
                     continue
