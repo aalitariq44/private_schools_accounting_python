@@ -130,9 +130,7 @@ class StudentsPage(QWidget):
             self.add_student_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_student_button)
             
-            self.refresh_button = QPushButton("تحديث")
-            self.refresh_button.setObjectName("refreshButton")
-            actions_layout.addWidget(self.refresh_button)
+            
             
             toolbar_layout.addLayout(actions_layout)
             
@@ -217,6 +215,11 @@ class StudentsPage(QWidget):
             self.last_update_label = QLabel("آخر تحديث: --")
             self.last_update_label.setObjectName("countLabel")
             stats_layout.addWidget(self.last_update_label)
+
+            # زر التحديث
+            self.refresh_button = QPushButton("تحديث")
+            self.refresh_button.setObjectName("refreshButton")
+            stats_layout.addWidget(self.refresh_button)
             
             layout.addWidget(stats_frame)
             

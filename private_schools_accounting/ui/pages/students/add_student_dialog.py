@@ -45,7 +45,7 @@ class AddStudentDialog(QDialog):
             QLabel {
                 color: #2c3e50;
                 font-weight: bold;
-                font-size: 24px;
+                font-size:18px;
                 margin: 5px 0px;
             }
             
@@ -54,7 +54,7 @@ class AddStudentDialog(QDialog):
                 border: 2px solid #bdc3c7;
                 border-radius: 10px;
                 background-color: white;
-                font-size: 24px;
+                font-size: 18px;
                 min-height: 30px;
                 margin: 5px 0px;
             }
@@ -77,7 +77,7 @@ class AddStudentDialog(QDialog):
                 padding: 15px 30px;
                 border-radius: 10px;
                 font-weight: bold;
-                font-size: 24px;
+                font-size: 18px;
                 min-width: 120px;
                 margin: 8px 4px;
             }
@@ -105,7 +105,7 @@ class AddStudentDialog(QDialog):
             
             QGroupBox {
                 font-weight: bold;
-                font-size: 24px;
+                font-size: 18px;
                 color: #2c3e50;
                 border: 2px solid #bdc3c7;
                 border-radius: 12px;
@@ -121,7 +121,7 @@ class AddStudentDialog(QDialog):
                 color: white;
                 border-radius: 6px;
                 padding: 8px 15px;
-                font-size: 24px;
+                font-size: 18px;
             }
             
             QScrollArea {
@@ -156,7 +156,7 @@ class AddStudentDialog(QDialog):
                 color: white;
                 padding: 15px;
                 border-radius: 10px;
-                font-size: 28px;
+                font-size: 18px;
                 font-weight: bold;
             }
         """)
