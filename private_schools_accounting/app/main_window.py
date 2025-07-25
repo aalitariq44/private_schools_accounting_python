@@ -294,10 +294,11 @@ class MainWindow(QMainWindow):
             # إطار شريط العنوان
             header_frame = QFrame()
             header_frame.setObjectName("contentHeader")
-            header_frame.setFixedHeight(100)
+            header_frame.setFixedHeight(60)
             
             header_layout = QHBoxLayout(header_frame)
-            header_layout.setContentsMargins(20, 15, 20, 15)
+            header_layout.setContentsMargins(20, 5, 20, 5) # Reduced vertical margins
+            header_layout.setAlignment(Qt.AlignVCenter) # Align content vertically in the center
             
             # عنوان الصفحة
             self.page_title = QLabel("لوحة التحكم")
@@ -766,7 +767,7 @@ class MainWindow(QMainWindow):
                     background-color: white;
                     border-bottom: 1px solid #E9ECEF;
                     border-radius: 8px 8px 0 0;
-                    padding: 15px 20px;
+                    padding: 5px 20px; /* Reduced vertical padding */
                 }
                 
                 #pageTitle {
