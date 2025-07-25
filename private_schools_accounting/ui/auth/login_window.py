@@ -209,7 +209,7 @@ class LoginWindow(QDialog):
     def setup_styles(self):
         """إعداد تنسيقات النافذة"""
         try:
-            font_size = "24px"
+            font_size = "18px"
             style = f"""
                 QDialog {{
                     background-color: #ECF0F1;
