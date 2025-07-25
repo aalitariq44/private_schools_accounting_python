@@ -155,7 +155,7 @@ class StudentsPage(QWidget):
             self.students_table.setObjectName("dataTable")
 
             # إعداد أعمدة الجدول
-            columns = ["المعرف", "الاسم", "المدرسة", "الصف", "الشعبة", "الجنس", "الهاتف", "الحالة", "الإجراءات"]
+            columns = ["المعرف", "الاسم", "المدرسة", "الصف", "الشعبة", "الجنس", "الهاتف", "الحالة", "الرسوم الدراسية", "الإجراءات"]
             self.students_table.setColumnCount(len(columns))
             self.students_table.setHorizontalHeaderLabels(columns)
 
@@ -268,12 +268,14 @@ class StudentsPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
+                query = """
                 SELECT s.id, s.name, sc.name_ar as school_name,
                        s.grade, s.section, s.gender,
-                       s.phone, s.status, s.start_date
+                       s.phone, s.status, s.start_date, s.total_fee
                 FROM students s
                 LEFT JOIN schools sc ON s.school_id = sc.id
                 WHERE 1=1
+            """
             """
             params = []
             
@@ -339,7 +341,8 @@ class StudentsPage(QWidget):
                     student['section'] or "",
                     student['gender'] or "",
                     student['phone'] or "",
-                    student['status'] or ""
+                    student['status'] or "",
+                    str(student['total_fee']) if student['total_fee'] else "0"
                 ]
                 
                 for col_idx, item_text in enumerate(items):
@@ -349,7 +352,7 @@ class StudentsPage(QWidget):
                 
                 # أزرار الإجراءات
                 actions_widget = self.create_actions_widget(student['id'])
-                self.students_table.setCellWidget(row_idx, 8, actions_widget)
+                self.students_table.setCellWidget(row_idx, 9, actions_widget)
             
             # تحديث العداد
             self.displayed_count_label.setText(f"عدد الطلاب المعروضين: {len(self.current_students)}")

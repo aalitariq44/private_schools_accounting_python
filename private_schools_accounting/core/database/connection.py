@@ -222,6 +222,17 @@ class DatabaseManager:
         except Exception as e:
             logging.error(f"خطأ في تنفيذ الاستعلام: {e}")
             raise
+
+    def execute_fetch_one(self, query: str, params: tuple = ()) -> Optional[sqlite3.Row]:
+        """تنفيذ استعلام SELECT وإرجاع صف واحد"""
+        try:
+            with self.get_cursor() as cursor:
+                cursor.execute(query, params)
+                return cursor.fetchone()
+                
+        except Exception as e:
+            logging.error(f"خطأ في تنفيذ الاستعلام (fetch_one): {e}")
+            raise
     
     def execute_update(self, query: str, params: tuple = ()) -> int:
         """تنفيذ استعلام INSERT/UPDATE/DELETE وإرجاع عدد الصفوف المتأثرة"""
