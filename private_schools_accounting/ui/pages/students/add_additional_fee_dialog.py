@@ -86,7 +86,6 @@ class AddAdditionalFeeDialog(QDialog):
                 "القرطاسية",
                 "رسوم النقل",
                 "رسوم الأنشطة",
-                "رسوم الامتحانات",
                 "رسم مخصص"
             ])
             fee_layout.addRow("نوع الرسم:", self.fee_type_combo)
