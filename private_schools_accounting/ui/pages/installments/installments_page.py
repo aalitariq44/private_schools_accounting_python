@@ -20,8 +20,7 @@ from PyQt5.QtGui import QFont, QPixmap, QIcon
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
 
-# استيراد نافذة إضافة القسط
-from .add_installment_dialog import AddInstallmentDialog
+
 
 
 class InstallmentsPage(QWidget):
@@ -188,14 +187,6 @@ class InstallmentsPage(QWidget):
             actions_layout.addStretch()
             
             # أزرار العمليات
-            self.add_installment_button = QPushButton("إضافة قسط")
-            self.add_installment_button.setObjectName("primaryButton")
-            actions_layout.addWidget(self.add_installment_button)
-            
-            self.record_payment_button = QPushButton("تسجيل دفع")
-            self.record_payment_button.setObjectName("successButton")
-            actions_layout.addWidget(self.record_payment_button)
-            
             self.generate_report_button = QPushButton("تقرير مالي")
             self.generate_report_button.setObjectName("secondaryButton")
             actions_layout.addWidget(self.generate_report_button)
@@ -262,7 +253,7 @@ class InstallmentsPage(QWidget):
             self.installments_table.setColumnHidden(0, True)
             
             # ربط الأحداث
-            self.installments_table.cellDoubleClicked.connect(self.edit_installment)
+            
             self.installments_table.setContextMenuPolicy(Qt.CustomContextMenu)
             self.installments_table.customContextMenuRequested.connect(self.show_context_menu)
             
@@ -385,8 +376,6 @@ class InstallmentsPage(QWidget):
         """ربط الإشارات والأحداث"""
         try:
             # ربط أزرار العمليات
-            self.add_installment_button.clicked.connect(self.add_installment)
-            self.record_payment_button.clicked.connect(self.record_payment)
             self.generate_report_button.clicked.connect(self.generate_report)
             self.refresh_button.clicked.connect(self.refresh)
             
@@ -693,155 +682,32 @@ class InstallmentsPage(QWidget):
             if self.installments_table.itemAt(position):
                 menu = QMenu()
                 
-                edit_action = QAction("تعديل القسط", self)
-                edit_action.triggered.connect(lambda: self.edit_selected_installment())
-                menu.addAction(edit_action)
                 
-                payment_action = QAction("تسجيل دفع", self)
-                payment_action.triggered.connect(lambda: self.record_payment_for_selected())
-                menu.addAction(payment_action)
+                
+                
                 
                 menu.addSeparator()
                 
-                cancel_action = QAction("إلغاء القسط", self)
-                cancel_action.triggered.connect(lambda: self.cancel_installment())
-                menu.addAction(cancel_action)
                 
-                delete_action = QAction("حذف القسط", self)
-                delete_action.triggered.connect(lambda: self.delete_selected_installment())
-                menu.addAction(delete_action)
+                
+                
                 
                 menu.exec_(self.installments_table.mapToGlobal(position))
             
         except Exception as e:
             logging.error(f"خطأ في عرض قائمة السياق: {e}")
     
-    def add_installment(self):
-        """إضافة قسط جديد"""
-        try:
-            dialog = AddInstallmentDialog(self)
-            dialog.installment_added.connect(self.refresh_installments_table)
-            dialog.exec_()
-            log_user_action("طلب إضافة قسط جديد")
-            
-        except Exception as e:
-            logging.error(f"خطأ في إضافة قسط: {e}")
-            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة القسط:\n{str(e)}")
     
-    def edit_installment(self, row, column):
-        """تعديل قسط عند الضغط المزدوج"""
-        try:
-            if row >= 0:
-                installment_id = int(self.installments_table.item(row, 0).text())
-                self.edit_installment_by_id(installment_id)
-                
-        except Exception as e:
-            logging.error(f"خطأ في تعديل القسط: {e}")
     
-    def edit_selected_installment(self):
-        """تعديل القسط المحدد"""
-        try:
-            current_row = self.installments_table.currentRow()
-            if current_row >= 0:
-                installment_id = int(self.installments_table.item(current_row, 0).text())
-                self.edit_installment_by_id(installment_id)
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل القسط المحدد: {e}")
     
-    def edit_installment_by_id(self, installment_id: int):
-        """تعديل قسط بالمعرف"""
-        try:
-            self.show_info_message("قيد التطوير", f"نافذة تعديل القسط {installment_id} قيد التطوير")
-            log_user_action("طلب تعديل قسط", f"المعرف: {installment_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل القسط {installment_id}: {e}")
     
-    def record_payment(self):
-        """تسجيل دفع عام"""
-        try:
-            self.show_info_message("قيد التطوير", "نافذة تسجيل الدفع قيد التطوير")
-            log_user_action("طلب تسجيل دفع")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تسجيل الدفع: {e}")
     
-    def record_payment_for_selected(self):
-        """تسجيل دفع للقسط المحدد"""
-        try:
-            current_row = self.installments_table.currentRow()
-            if current_row >= 0:
-                installment_id = int(self.installments_table.item(current_row, 0).text())
-                self.show_info_message("قيد التطوير", f"نافذة تسجيل دفع للقسط {installment_id} قيد التطوير")
-                log_user_action("طلب تسجيل دفع لقسط محدد", f"المعرف: {installment_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تسجيل دفع للقسط المحدد: {e}")
     
-    def cancel_installment(self):
-        """إلغاء القسط"""
-        try:
-            current_row = self.installments_table.currentRow()
-            if current_row >= 0:
-                installment_id = int(self.installments_table.item(current_row, 0).text())
-                student_name = self.installments_table.item(current_row, 1).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد الإلغاء",
-                    f"هل تريد إلغاء القسط للطالب '{student_name}'؟",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    update_query = "UPDATE installments SET status = 'ملغي' WHERE id = ?"
-                    success = db_manager.execute_query(update_query, (installment_id,))
-                    
-                    if success:
-                        log_database_operation("تحديث", "installments", f"إلغاء قسط للطالب {student_name}")
-                        log_user_action("إلغاء قسط", f"{student_name}")
-                        self.refresh()
-                        self.show_info_message("تم الإلغاء", "تم إلغاء القسط بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في إلغاء القسط")
-            
-        except Exception as e:
-            logging.error(f"خطأ في إلغاء القسط: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في إلغاء القسط: {str(e)}")
     
-    def delete_selected_installment(self):
-        """حذف القسط المحدد"""
-        try:
-            current_row = self.installments_table.currentRow()
-            if current_row >= 0:
-                installment_id = int(self.installments_table.item(current_row, 0).text())
-                student_name = self.installments_table.item(current_row, 1).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد الحذف",
-                    f"هل تريد حذف القسط للطالب '{student_name}' نهائياً؟\n\nتحذير: هذا الإجراء لا يمكن التراجع عنه!",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    delete_query = "DELETE FROM installments WHERE id = ?"
-                    success = db_manager.execute_query(delete_query, (installment_id,))
-                    
-                    if success:
-                        log_database_operation("حذف", "installments", f"حذف قسط للطالب: {student_name}")
-                        log_user_action("حذف قسط", student_name)
-                        self.refresh()
-                        self.show_info_message("تم الحذف", "تم حذف القسط بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في حذف القسط")
-            
-        except Exception as e:
-            logging.error(f"خطأ في حذف القسط: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في حذف القسط: {str(e)}")
+    
+    
+    
+    
     
     def generate_report(self):
         """إنتاج تقرير مالي"""
