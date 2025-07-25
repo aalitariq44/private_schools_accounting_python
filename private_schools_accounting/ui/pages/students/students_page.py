@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, 
     QTableWidgetItem, QPushButton, QLabel, QLineEdit,
     QFrame, QMessageBox, QHeaderView, QAbstractItemView,
-    QMenu, QComboBox, QDateEdit, QSpinBox, QAction, QDialog
+    QMenu, QComboBox, QDateEdit, QSpinBox, QAction, QDialog,
+    QSizePolicy
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
@@ -147,39 +148,42 @@ class StudentsPage(QWidget):
             # إطار الجدول
             table_frame = QFrame()
             table_frame.setObjectName("tableFrame")
-            
+
             table_layout = QVBoxLayout(table_frame)
-            table_layout.setContentsMargins(0, 0, 0, 0)
-            
+            table_layout.setContentsMargins(0, 0, 0, 0)  # إزالة الهوامش تمامًا
+
             # الجدول
             self.students_table = QTableWidget()
             self.students_table.setObjectName("dataTable")
-            
+
             # إعداد أعمدة الجدول
             columns = ["المعرف", "الاسم", "المدرسة", "الصف", "الشعبة", "الجنس", "الهاتف", "الحالة", "الإجراءات"]
             self.students_table.setColumnCount(len(columns))
             self.students_table.setHorizontalHeaderLabels(columns)
-            
+
             # إعداد خصائص الجدول
             self.students_table.setSelectionBehavior(QAbstractItemView.SelectRows)
             self.students_table.setSelectionMode(QAbstractItemView.SingleSelection)
             self.students_table.setAlternatingRowColors(True)
             self.students_table.setSortingEnabled(True)
-            
+
             # إعداد حجم الأعمدة
             header = self.students_table.horizontalHeader()
             header.setStretchLastSection(True)
             for i in range(len(columns) - 1):
                 header.setSectionResizeMode(i, QHeaderView.ResizeToContents)
-            
+
+            # إزالة الحشوات داخل الصفوف
+            self.students_table.setStyleSheet("QTableWidget::item { padding: 0px; }")
+
             # ربط الأحداث
             self.students_table.cellDoubleClicked.connect(self.edit_student)
             self.students_table.setContextMenuPolicy(Qt.CustomContextMenu)
             self.students_table.customContextMenuRequested.connect(self.show_context_menu)
-            
+
             table_layout.addWidget(self.students_table)
             layout.addWidget(table_frame)
-            
+
         except Exception as e:
             logging.error(f"خطأ في إنشاء جدول الطلاب: {e}")
             raise
@@ -355,32 +359,32 @@ class StudentsPage(QWidget):
         try:
             widget = QWidget()
             layout = QHBoxLayout(widget)
-            layout.setContentsMargins(5, 2, 5, 2)
-            layout.setSpacing(5)
-            
+            layout.setContentsMargins(0, 0, 0, 0)  # إزالة الهوامش لتحسين استخدام المساحة
+            layout.setSpacing(10)  # تقليل التباعد بين الأزرار
+
             # زر التعديل
             edit_btn = QPushButton("تعديل")
             edit_btn.setObjectName("editButton")
-            edit_btn.setMaximumSize(80, 30)
+            edit_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
             edit_btn.clicked.connect(lambda: self.edit_student_by_id(student_id))
             layout.addWidget(edit_btn)
-            
+
             # زر الحذف
             delete_btn = QPushButton("حذف")
             delete_btn.setObjectName("deleteButton")
-            delete_btn.setMaximumSize(80, 30)
+            delete_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
             delete_btn.clicked.connect(lambda: self.delete_student(student_id))
             layout.addWidget(delete_btn)
-            
+
             # زر التفاصيل
             details_btn = QPushButton("تفاصيل")
             details_btn.setObjectName("detailsButton")
-            details_btn.setMaximumSize(80, 30)
+            details_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
             details_btn.clicked.connect(lambda: self.show_student_details(student_id))
             layout.addWidget(details_btn)
-            
+
             return widget
-            
+
         except Exception as e:
             logging.error(f"خطأ في إنشاء ويدجت الإجراءات: {e}")
             return QWidget()
@@ -461,7 +465,7 @@ class StudentsPage(QWidget):
                 
                 /* رأس الصفحة */
                 #headerFrame {
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2=1, 
                         stop:0 #3498DB, stop:1 #2980B9);
                     border-radius: 15px;
                     color: white;
