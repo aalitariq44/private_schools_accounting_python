@@ -639,7 +639,7 @@ class StudentDetailsPage(QWidget):
                 actions_widget = QWidget()
                 
                 # إذا كان غير مدفوع، أضف زر الدفع
-                is_paid = fee[4] if isinstance(fee[4], bool) else (fee[4] == 1 if fee[4] is not None else False)
+                is_paid = fee[3] if isinstance(fee[3], bool) else (fee[3] == 1 if fee[3] is not None else False)
                 if not is_paid:
                     pay_btn = QPushButton("دفع")
                     pay_btn.setObjectName("payButton")
