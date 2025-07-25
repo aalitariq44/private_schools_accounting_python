@@ -5,14 +5,14 @@
 """
 
 import logging
-from datetime import datetime, date, time
+from datetime import date
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, 
-    QPushButton, QLineEdit, QDateEdit, QTimeEdit, QTextEdit,
-    QMessageBox, QFrame, QSpinBox, QDoubleSpinBox
+    QPushButton, QDateEdit, QTextEdit, QMessageBox, 
+    QDoubleSpinBox, QGroupBox, QScrollArea, QWidget
 )
-from PyQt5.QtCore import Qt, QDate, QTime
-from PyQt5.QtGui import QFont, QDoubleValidator
+from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtGui import QFont
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
@@ -38,38 +38,45 @@ class AddInstallmentDialog(QDialog):
         try:
             self.setWindowTitle("إضافة قسط جديد")
             self.setModal(True)
-            self.setFixedSize(400, 350)
+            self.resize(800, 600)
+
+            main_layout = QVBoxLayout(self)
+            main_layout.setContentsMargins(10, 10, 10, 10)
             
-            # التخطيط الرئيسي
-            layout = QVBoxLayout()
-            layout.setContentsMargins(20, 20, 20, 20)
-            layout.setSpacing(15)
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             
-            # العنوان
+            content_widget = QWidget()
+            content_layout = QVBoxLayout(content_widget)
+            content_layout.setSpacing(20)
+            content_layout.setContentsMargins(25, 25, 25, 25)
+            
             title_label = QLabel("إضافة قسط جديد")
-            title_label.setObjectName("dialogTitle")
             title_label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(title_label)
+            title_label.setStyleSheet("""
+                QLabel {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                        stop:0 #3498db, stop:1 #2980b9);
+                    color: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+            """)
+            content_layout.addWidget(title_label)
             
-            # معلومات المبلغ المتبقي
-            info_frame = QFrame()
-            info_frame.setObjectName("infoFrame")
-            info_layout = QHBoxLayout(info_frame)
+            installment_info_group = QGroupBox("معلومات القسط")
+            form_layout = QFormLayout(installment_info_group)
+            form_layout.setSpacing(15)
             
-            info_label = QLabel(f"المبلغ المتبقي: {self.max_amount:,.0f} د.ع")
-            info_label.setObjectName("infoLabel")
+            info_label = QLabel(f"المبلغ المتبقي: <span style='color: #27AE60;'>{self.max_amount:,.0f} د.ع</span>")
             info_label.setAlignment(Qt.AlignCenter)
-            info_layout.addWidget(info_label)
+            form_layout.addRow(info_label)
             
-            layout.addWidget(info_frame)
-            
-            # نموذج الإدخال
-            form_layout = QFormLayout()
-            form_layout.setSpacing(12)
-            
-            # مبلغ القسط
             self.amount_input = QDoubleSpinBox()
-            self.amount_input.setObjectName("amountInput")
             self.amount_input.setMinimum(1.0)
             self.amount_input.setMaximum(self.max_amount)
             self.amount_input.setDecimals(0)
@@ -77,30 +84,20 @@ class AddInstallmentDialog(QDialog):
             self.amount_input.setValue(self.max_amount)
             form_layout.addRow("مبلغ القسط:", self.amount_input)
             
-            # تاريخ الدفعة
             self.payment_date = QDateEdit()
-            self.payment_date.setObjectName("dateInput")
             self.payment_date.setCalendarPopup(True)
             self.payment_date.setDisplayFormat("yyyy-MM-dd")
             form_layout.addRow("تاريخ الدفعة:", self.payment_date)
             
-            # وقت الدفعة
-            self.payment_time = QTimeEdit()
-            self.payment_time.setObjectName("timeInput")
-            self.payment_time.setDisplayFormat("HH:mm:ss")
-            form_layout.addRow("وقت الدفعة:", self.payment_time)
-            
-            # الملاحظات
             self.notes_input = QTextEdit()
-            self.notes_input.setObjectName("notesInput")
             self.notes_input.setMaximumHeight(80)
             self.notes_input.setPlaceholderText("أدخل أي ملاحظات إضافية...")
             form_layout.addRow("الملاحظات:", self.notes_input)
             
-            layout.addLayout(form_layout)
+            content_layout.addWidget(installment_info_group)
             
-            # أزرار العمليات
             buttons_layout = QHBoxLayout()
+            buttons_layout.addStretch()
             
             self.save_button = QPushButton("حفظ القسط")
             self.save_button.setObjectName("saveButton")
@@ -110,9 +107,10 @@ class AddInstallmentDialog(QDialog):
             self.cancel_button.setObjectName("cancelButton")
             buttons_layout.addWidget(self.cancel_button)
             
-            layout.addLayout(buttons_layout)
+            content_layout.addLayout(buttons_layout)
             
-            self.setLayout(layout)
+            scroll_area.setWidget(content_widget)
+            main_layout.addWidget(scroll_area)
             
         except Exception as e:
             logging.error(f"خطأ في إعداد واجهة نافذة إضافة القسط: {e}")
@@ -123,27 +121,16 @@ class AddInstallmentDialog(QDialog):
         try:
             self.save_button.clicked.connect(self.save_installment)
             self.cancel_button.clicked.connect(self.reject)
-            
-            # التحقق من صحة المبلغ عند التغيير
             self.amount_input.valueChanged.connect(self.validate_amount)
-            
         except Exception as e:
             logging.error(f"خطأ في ربط الإشارات: {e}")
     
     def setup_defaults(self):
         """إعداد القيم الافتراضية"""
         try:
-            # تعيين التاريخ والوقت الحاليين
-            current_date = QDate.currentDate()
-            current_time = QTime.currentTime()
-            
-            self.payment_date.setDate(current_date)
-            self.payment_time.setTime(current_time)
-            
-            # تركيز على حقل المبلغ
+            self.payment_date.setDate(QDate.currentDate())
             self.amount_input.setFocus()
             self.amount_input.selectAll()
-            
         except Exception as e:
             logging.error(f"خطأ في إعداد القيم الافتراضية: {e}")
     
@@ -151,7 +138,6 @@ class AddInstallmentDialog(QDialog):
         """التحقق من صحة المبلغ"""
         try:
             amount = self.amount_input.value()
-            
             if amount > self.max_amount:
                 self.amount_input.setValue(self.max_amount)
                 QMessageBox.warning(
@@ -160,15 +146,12 @@ class AddInstallmentDialog(QDialog):
                 )
             elif amount <= 0:
                 self.amount_input.setValue(1)
-                QMessageBox.warning(self, "تحذير", "يجب أن يكون المبلغ أكبر من صفر")
-            
         except Exception as e:
             logging.error(f"خطأ في التحقق من المبلغ: {e}")
     
     def validate_input(self):
         """التحقق من صحة البيانات المدخلة"""
         try:
-            # التحقق من المبلغ
             amount = self.amount_input.value()
             if amount <= 0:
                 QMessageBox.warning(self, "خطأ", "يجب إدخال مبلغ صحيح")
@@ -183,7 +166,6 @@ class AddInstallmentDialog(QDialog):
                 self.amount_input.setFocus()
                 return False
             
-            # التحقق من التاريخ
             payment_date = self.payment_date.date().toPyDate()
             if payment_date > date.today():
                 reply = QMessageBox.question(
@@ -197,7 +179,6 @@ class AddInstallmentDialog(QDialog):
                     return False
             
             return True
-            
         except Exception as e:
             logging.error(f"خطأ في التحقق من البيانات: {e}")
             QMessageBox.critical(self, "خطأ", f"خطأ في التحقق من البيانات: {str(e)}")
@@ -209,34 +190,35 @@ class AddInstallmentDialog(QDialog):
             if not self.validate_input():
                 return
             
-            # جمع البيانات
             amount = self.amount_input.value()
             payment_date = self.payment_date.date().toString("yyyy-MM-dd")
-            payment_time = self.payment_time.time().toString("HH:mm:ss")
             notes = self.notes_input.toPlainText().strip()
             
-            # إدراج القسط في قاعدة البيانات مع البنية الجديدة
+            # الحصول على الوقت الحالي
+            from datetime import datetime
+            current_time = datetime.now().strftime("%H:%M:%S")
+            
             query = """
-                INSERT INTO installments (student_id, amount, payment_date, payment_time, paid_amount, status, notes)
+                INSERT INTO installments (student_id, amount, payment_date, payment_time, notes, status, paid_amount)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """
             params = (
                 self.student_id, 
                 amount, 
-                payment_date, 
-                payment_time, 
-                amount,  # المبلغ المدفوع = المبلغ الكامل
-                'مدفوع',  # الحالة
-                notes if notes else None
+                payment_date,
+                current_time,
+                notes if notes else None,
+                'مدفوع',
+                amount
             )
             
             result = db_manager.execute_query(query, params)
             
             if result is not None:
-                # تسجيل العملية
                 log_database_operation(
-                    f"إضافة قسط جديد - الطالب: {self.student_id}, "
-                    f"المبلغ: {amount}, التاريخ: {payment_date}"
+                    "إضافة",
+                    "installments",
+                    f"إضافة قسط جديد - الطالب: {self.student_id}, المبلغ: {amount}"
                 )
                 log_user_action(f"إضافة قسط بمبلغ {amount:,.0f} د.ع للطالب: {self.student_id}")
                 
@@ -244,7 +226,6 @@ class AddInstallmentDialog(QDialog):
                 self.accept()
             else:
                 QMessageBox.critical(self, "خطأ", "فشل في حفظ القسط")
-            
         except Exception as e:
             logging.error(f"خطأ في حفظ القسط: {e}")
             QMessageBox.critical(self, "خطأ", f"خطأ في حفظ القسط: {str(e)}")
@@ -253,132 +234,88 @@ class AddInstallmentDialog(QDialog):
         """إعداد التنسيقات"""
         try:
             style = """
-                /* النافذة الرئيسية */
                 QDialog {
-                    background-color: #F8F9FA;
-                    font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 14px;
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #f8f9ff, stop:1 #e8f0ff);
+                    font-family: 'Segoe UI', Arial, sans-serif;
                 }
                 
-                /* العنوان */
-                #dialogTitle {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #2C3E50;
-                    padding: 10px;
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
-                        stop:0 #3498DB, stop:1 #2980B9);
-                    color: white;
-                    border-radius: 8px;
-                    margin-bottom: 10px;
-                }
-                
-                /* إطار المعلومات */
-                #infoFrame {
-                    background-color: #E8F5E8;
-                    border: 2px solid #27AE60;
-                    border-radius: 8px;
-                    padding: 8px;
-                }
-                
-                #infoLabel {
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #27AE60;
-                }
-                
-                /* حقول الإدخال */
-                #amountInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #amountInput:focus {
-                    border-color: #3498DB;
-                    background-color: #F0F8FF;
-                }
-                
-                #dateInput, #timeInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #dateInput:focus, #timeInput:focus {
-                    border-color: #3498DB;
-                    background-color: #F0F8FF;
-                }
-                
-                #notesInput {
-                    border: 2px solid #BDC3C7;
-                    border-radius: 6px;
-                    padding: 8px;
-                    font-size: 14px;
-                    background-color: white;
-                }
-                
-                #notesInput:focus {
-                    border-color: #3498DB;
-                    background-color: #F0F8FF;
-                }
-                
-                /* التسميات */
                 QLabel {
-                    color: #2C3E50;
+                    color: #2c3e50;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size:18px;
+                    margin: 5px 0px;
                 }
                 
-                /* الأزرار */
-                #saveButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #27AE60, stop:1 #229954);
+                QLineEdit, QComboBox, QDateEdit, QTextEdit, QSpinBox, QDoubleSpinBox {
+                    padding: 12px 15px;
+                    border: 2px solid #bdc3c7;
+                    border-radius: 10px;
+                    background-color: white;
+                    font-size: 18px;
+                    min-height: 30px;
+                    margin: 5px 0px;
+                }
+                
+                QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+                    border-color: #3498db;
+                    background-color: #f8fbff;
+                }
+                
+                QPushButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #3498db, stop:1 #2980b9);
                     color: white;
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
+                    padding: 15px 30px;
+                    border-radius: 10px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
+                    min-width: 120px;
+                    margin: 8px 4px;
                 }
                 
-                #saveButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #229954, stop:1 #1E8449);
+                QPushButton:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #5dade2, stop:1 #3498db);
                 }
                 
-                #saveButton:pressed {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #1E8449, stop:1 #186A3B);
+                QPushButton:pressed {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #2980b9, stop:1 #1f618d);
                 }
                 
-                #cancelButton {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #95A5A6, stop:1 #7F8C8D);
+                QPushButton#cancelButton {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #e74c3c, stop:1 #c0392b);
+                }
+                
+                QGroupBox {
+                    font-weight: bold;
+                    font-size: 18px;
+                    color: #2c3e50;
+                    border: 2px solid #bdc3c7;
+                    border-radius: 12px;
+                    margin: 15px 0px;
+                    padding-top: 20px;
+                }
+                
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    left: 20px;
+                    padding: 0 10px 0 10px;
+                    background-color: #3498db;
                     color: white;
+                    border-radius: 6px;
+                    padding: 8px 15px;
+                    font-size: 18px;
+                }
+                
+                QScrollArea {
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    font-size: 14px;
-                }
-                
-                #cancelButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #7F8C8D, stop:1 #566769);
-                }
-                
-                #cancelButton:pressed {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                        stop:0 #566769, stop:1 #2C3E50);
+                    background-color: transparent;
                 }
             """
-            
             self.setStyleSheet(style)
-            
         except Exception as e:
             logging.error(f"خطأ في إعداد التنسيقات: {e}")
