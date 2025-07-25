@@ -738,7 +738,7 @@ class StudentDetailsPage(QWidget):
                 # تحديث البيانات بالحقول الصحيحة
                 query = """
                     UPDATE additional_fees 
-                    SET paid = 1, payment_date = ?, status = 'محصل'
+                    SET paid = 1, payment_date = ?
                     WHERE id = ?
                 """
                 db_manager.execute_query(query, (current_date, fee_id))
