@@ -93,6 +93,9 @@ class LoginWindow(QDialog):
             self.password_input.setObjectName("passwordInput")
             self.password_input.setEchoMode(QLineEdit.Password)
             self.password_input.setPlaceholderText("أدخل كلمة المرور...")
+            # تعيين كلمة المرور الافتراضية للتطوير فقط
+            if config.DEBUG_MODE:
+                self.password_input.setText("123456")
             self.password_input.returnPressed.connect(self.login)
             form_layout.addWidget(self.password_input)
             

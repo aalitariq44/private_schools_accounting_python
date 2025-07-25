@@ -868,3 +868,36 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logging.error(f"خطأ في إغلاق النافذة: {e}")
             event.accept()
+    
+    def show_page_widget(self, widget):
+        """عرض ويدجت كصفحة مؤقتة"""
+        try:
+            # إضافة الويدجت للمكدس
+            self.pages_stack.addWidget(widget)
+            
+            # عرض الويدجت
+            self.pages_stack.setCurrentWidget(widget)
+            
+            # تحديث عنوان الصفحة
+            if hasattr(widget, 'windowTitle'):
+                title = widget.windowTitle()
+                if title:
+                    self.page_title.setText(title)
+                else:
+                    self.page_title.setText("تفاصيل الطالب")
+            else:
+                self.page_title.setText("تفاصيل الطالب")
+            
+            # إلغاء تفعيل أزرار الشريط الجانبي
+            self.update_sidebar_buttons("")
+            
+        except Exception as e:
+            logging.error(f"خطأ في عرض الويدجت: {e}")
+    
+    def show_students_page(self):
+        """العودة لصفحة الطلاب"""
+        try:
+            self.navigate_to_page("students")
+            
+        except Exception as e:
+            logging.error(f"خطأ في العودة لصفحة الطلاب: {e}")

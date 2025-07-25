@@ -728,86 +728,62 @@ class StudentsPage(QWidget):
             logging.error(f"خطأ في حذف الطالب: {e}")
     
     def show_student_details(self, student_id):
-        """عرض تفاصيل الطالب"""
+        """عرض صفحة تفاصيل الطالب الشاملة"""
         try:
-            from PyQt5.QtWidgets import QTextEdit
+            from .student_details_page import StudentDetailsPage
             
-            dialog = QDialog(self)
-            dialog.setWindowTitle("تفاصيل الطالب")
-            dialog.setModal(True)
-            dialog.resize(700, 600)
+            # إنشاء صفحة التفاصيل
+            details_page = StudentDetailsPage(student_id)
             
-            layout = QVBoxLayout(dialog)
+            # ربط إشارة الرجوع
+            details_page.back_requested.connect(lambda: self.close_details_page(details_page))
+            details_page.student_updated.connect(self.refresh)
             
-            # جلب بيانات الطالب
-            query = """
-                SELECT s.*, sc.name_ar as school_name
-                FROM students s
-                LEFT JOIN schools sc ON s.school_id = sc.id
-                WHERE s.id = ?
-            """
-            result = db_manager.execute_query(query, (student_id,))
-            
-            if result:
-                student = result[0]
+            # الحصول على النافذة الرئيسية وإضافة الصفحة
+            main_window = self.get_main_window()
+            if main_window:
+                # إخفاء الشريط الجانبي مؤقتاً لإعطاء مساحة أكبر
+                main_window.show_page_widget(details_page)
+            else:
+                # عرض في نافذة منفصلة إذا لم نجد النافذة الرئيسية
+                dialog = QDialog(self)
+                dialog.setWindowTitle(f"تفاصيل الطالب")
+                dialog.setModal(True)
+                dialog.resize(1200, 800)
                 
-                # عرض التفاصيل
-                details_text = f"""
-الاسم: {student['name'] or 'غير محدد'}
-الرقم الوطني: {student['national_id_number'] or 'غير محدد'}
-المدرسة: {student['school_name'] or 'غير محدد'}
-الصف: {student['grade'] or 'غير محدد'}
-الشعبة: {student['section'] or 'غير محدد'}
-السنة الدراسية: {student['academic_year'] or 'غير محدد'}
-الجنس: {student['gender'] or 'غير محدد'}
-الهاتف: {student['phone'] or 'غير محدد'}
-ولي الأمر: {student['guardian_name'] or 'غير محدد'}
-هاتف ولي الأمر: {student['guardian_phone'] or 'غير محدد'}
-الرسوم الإجمالية: {student['total_fee'] or 0} دينار
-تاريخ المباشرة: {student['start_date'] or 'غير محدد'}
-الحالة: {student['status'] or 'غير محدد'}
-تاريخ الإنشاء: {student['created_at'] or 'غير محدد'}
-                """
+                layout = QVBoxLayout(dialog)
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(details_page)
                 
-                details_label = QTextEdit()
-                details_label.setPlainText(details_text)
-                details_label.setReadOnly(True)
-                details_label.setStyleSheet("""
-                    QTextEdit {
-                        font-size: 18px;
-                        padding: 20px;
-                        border: 2px solid #BDC3C7;
-                        border-radius: 10px;
-                        background-color: white;
-                    }
-                """)
-                layout.addWidget(details_label)
-            
-            # زر الإغلاق
-            close_btn = QPushButton("إغلاق")
-            close_btn.setStyleSheet("""
-                QPushButton {
-                    background-color: #E74C3C;
-                    color: white;
-                    border: none;
-                    padding: 15px 30px;
-                    border-radius: 8px;
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #C0392B;
-                }
-            """)
-            close_btn.clicked.connect(dialog.accept)
-            
-            button_layout = QHBoxLayout()
-            button_layout.addStretch()
-            button_layout.addWidget(close_btn)
-            layout.addLayout(button_layout)
-            
-            dialog.exec_()
+                # ربط إشارة الرجوع لإغلاق النافذة
+                details_page.back_requested.connect(dialog.accept)
+                
+                dialog.exec_()
             
         except Exception as e:
             logging.error(f"خطأ في عرض تفاصيل الطالب: {e}")
-            QMessageBox.warning(self, "خطأ", f"حدث خطأ في عرض التفاصيل: {str(e)}")
+            QMessageBox.critical(self, "خطأ", f"خطأ في عرض تفاصيل الطالب: {str(e)}")
+    
+    def close_details_page(self, details_page):
+        """إغلاق صفحة التفاصيل والعودة لصفحة الطلاب"""
+        try:
+            main_window = self.get_main_window()
+            if main_window:
+                main_window.show_students_page()
+            
+        except Exception as e:
+            logging.error(f"خطأ في إغلاق صفحة التفاصيل: {e}")
+    
+    def get_main_window(self):
+        """الحصول على النافذة الرئيسية"""
+        try:
+            parent = self.parent()
+            while parent:
+                if hasattr(parent, 'show_page_widget'):
+                    return parent
+                parent = parent.parent()
+            return None
+            
+        except Exception as e:
+            logging.error(f"خطأ في الحصول على النافذة الرئيسية: {e}")
+            return None

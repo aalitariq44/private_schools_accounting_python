@@ -50,3 +50,6 @@ for directory in [DATA_DIR, DATABASE_DIR, UPLOADS_DIR, BACKUPS_DIR, EXPORTS_DIR,
 # إنشاء مجلدات فرعية للصادرات
 (EXPORTS_DIR / "reports").mkdir(exist_ok=True)
 (EXPORTS_DIR / "prints").mkdir(exist_ok=True)
+
+# وضع التطوير (True لتفعيل وضع التطوير، False للإنتاج)
+DEBUG_MODE = True
