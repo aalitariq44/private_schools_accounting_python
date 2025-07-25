@@ -20,8 +20,7 @@ from PyQt5.QtGui import QFont, QPixmap, QIcon
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
 
-# استيراد نافذة إضافة الرسم الإضافي
-from .add_additional_fee_dialog import AddAdditionalFeeDialog
+
 
 
 class AdditionalFeesPage(QWidget):
@@ -191,18 +190,6 @@ class AdditionalFeesPage(QWidget):
             actions_layout.addStretch()
             
             # أزرار العمليات
-            self.add_fee_button = QPushButton("إضافة رسم")
-            self.add_fee_button.setObjectName("primaryButton")
-            actions_layout.addWidget(self.add_fee_button)
-            
-            self.collect_fee_button = QPushButton("تحصيل رسم")
-            self.collect_fee_button.setObjectName("successButton")
-            actions_layout.addWidget(self.collect_fee_button)
-            
-            self.bulk_add_button = QPushButton("إضافة مجمعة")
-            self.bulk_add_button.setObjectName("secondaryButton")
-            actions_layout.addWidget(self.bulk_add_button)
-            
             self.export_fees_button = QPushButton("تصدير التقرير")
             self.export_fees_button.setObjectName("secondaryButton")
             actions_layout.addWidget(self.export_fees_button)
@@ -269,7 +256,7 @@ class AdditionalFeesPage(QWidget):
             self.fees_table.setColumnHidden(0, True)
             
             # ربط الأحداث
-            self.fees_table.cellDoubleClicked.connect(self.edit_fee)
+            
             self.fees_table.setContextMenuPolicy(Qt.CustomContextMenu)
             self.fees_table.customContextMenuRequested.connect(self.show_context_menu)
             
@@ -385,9 +372,6 @@ class AdditionalFeesPage(QWidget):
         """ربط الإشارات والأحداث"""
         try:
             # ربط أزرار العمليات
-            self.add_fee_button.clicked.connect(self.add_fee)
-            self.collect_fee_button.clicked.connect(self.collect_fee)
-            self.bulk_add_button.clicked.connect(self.bulk_add_fees)
             self.export_fees_button.clicked.connect(self.export_fees)
             self.refresh_button.clicked.connect(self.refresh)
             
@@ -696,166 +680,38 @@ class AdditionalFeesPage(QWidget):
             if self.fees_table.itemAt(position):
                 menu = QMenu()
                 
-                edit_action = QAction("تعديل الرسم", self)
-                edit_action.triggered.connect(lambda: self.edit_selected_fee())
-                menu.addAction(edit_action)
                 
-                collect_action = QAction("تحصيل الرسم", self)
-                collect_action.triggered.connect(lambda: self.collect_selected_fee())
-                menu.addAction(collect_action)
+                
+                
                 
                 menu.addSeparator()
                 
-                cancel_action = QAction("إلغاء الرسم", self)
-                cancel_action.triggered.connect(lambda: self.cancel_fee())
-                menu.addAction(cancel_action)
                 
-                delete_action = QAction("حذف الرسم", self)
-                delete_action.triggered.connect(lambda: self.delete_selected_fee())
-                menu.addAction(delete_action)
+                
+                
                 
                 menu.exec_(self.fees_table.mapToGlobal(position))
             
         except Exception as e:
             logging.error(f"خطأ في عرض قائمة السياق: {e}")
     
-    def add_fee(self):
-        """إضافة رسم جديد"""
-        try:
-            dialog = AddAdditionalFeeDialog(self)
-            dialog.fee_added.connect(self.refresh_fees_table)
-            dialog.exec_()
-            log_user_action("طلب إضافة رسم إضافي")
-            
-        except Exception as e:
-            logging.error(f"خطأ في إضافة رسم: {e}")
-            QMessageBox.critical(self, "خطأ", f"حدث خطأ في فتح نافذة إضافة الرسم:\n{str(e)}")
     
-    def edit_fee(self, row, column):
-        """تعديل رسم عند الضغط المزدوج"""
-        try:
-            if row >= 0:
-                fee_id = int(self.fees_table.item(row, 0).text())
-                self.edit_fee_by_id(fee_id)
-                
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الرسم: {e}")
     
-    def edit_selected_fee(self):
-        """تعديل الرسم المحدد"""
-        try:
-            current_row = self.fees_table.currentRow()
-            if current_row >= 0:
-                fee_id = int(self.fees_table.item(current_row, 0).text())
-                self.edit_fee_by_id(fee_id)
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الرسم المحدد: {e}")
     
-    def edit_fee_by_id(self, fee_id: int):
-        """تعديل رسم بالمعرف"""
-        try:
-            self.show_info_message("قيد التطوير", f"نافذة تعديل الرسم {fee_id} قيد التطوير")
-            log_user_action("طلب تعديل رسم إضافي", f"المعرف: {fee_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تعديل الرسم {fee_id}: {e}")
     
-    def collect_fee(self):
-        """تحصيل رسم عام"""
-        try:
-            self.show_info_message("قيد التطوير", "نافذة تحصيل الرسوم قيد التطوير")
-            log_user_action("طلب تحصيل رسم")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تحصيل الرسم: {e}")
     
-    def collect_selected_fee(self):
-        """تحصيل الرسم المحدد"""
-        try:
-            current_row = self.fees_table.currentRow()
-            if current_row >= 0:
-                fee_id = int(self.fees_table.item(current_row, 0).text())
-                self.show_info_message("قيد التطوير", f"نافذة تحصيل الرسم {fee_id} قيد التطوير")
-                log_user_action("طلب تحصيل رسم محدد", f"المعرف: {fee_id}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تحصيل الرسم المحدد: {e}")
     
-    def cancel_fee(self):
-        """إلغاء الرسم"""
-        try:
-            current_row = self.fees_table.currentRow()
-            if current_row >= 0:
-                fee_id = int(self.fees_table.item(current_row, 0).text())
-                student_name = self.fees_table.item(current_row, 1).text()
-                fee_description = self.fees_table.item(current_row, 4).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد الإلغاء",
-                    f"هل تريد إلغاء الرسم '{fee_description}' للطالب '{student_name}'؟",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    update_query = "UPDATE additional_fees SET status = 'ملغي' WHERE id = ?"
-                    success = db_manager.execute_query(update_query, (fee_id,))
-                    
-                    if success:
-                        log_database_operation("تحديث", "additional_fees", f"إلغاء رسم {fee_description} للطالب {student_name}")
-                        log_user_action("إلغاء رسم إضافي", f"{student_name} - {fee_description}")
-                        self.refresh()
-                        self.show_info_message("تم الإلغاء", "تم إلغاء الرسم بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في إلغاء الرسم")
-            
-        except Exception as e:
-            logging.error(f"خطأ في إلغاء الرسم: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في إلغاء الرسم: {str(e)}")
     
-    def delete_selected_fee(self):
-        """حذف الرسم المحدد"""
-        try:
-            current_row = self.fees_table.currentRow()
-            if current_row >= 0:
-                fee_id = int(self.fees_table.item(current_row, 0).text())
-                student_name = self.fees_table.item(current_row, 1).text()
-                fee_description = self.fees_table.item(current_row, 4).text()
-                
-                reply = QMessageBox.question(
-                    self,
-                    "تأكيد الحذف",
-                    f"هل تريد حذف الرسم '{fee_description}' للطالب '{student_name}' نهائياً؟\n\nتحذير: هذا الإجراء لا يمكن التراجع عنه!",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.Yes:
-                    delete_query = "DELETE FROM additional_fees WHERE id = ?"
-                    success = db_manager.execute_query(delete_query, (fee_id,))
-                    
-                    if success:
-                        log_database_operation("حذف", "additional_fees", f"حذف رسم {fee_description} للطالب: {student_name}")
-                        log_user_action("حذف رسم إضافي", f"{student_name} - {fee_description}")
-                        self.refresh()
-                        self.show_info_message("تم الحذف", "تم حذف الرسم بنجاح")
-                    else:
-                        self.show_error_message("خطأ", "فشل في حذف الرسم")
-            
-        except Exception as e:
-            logging.error(f"خطأ في حذف الرسم: {e}")
-            self.show_error_message("خطأ", f"حدث خطأ في حذف الرسم: {str(e)}")
     
-    def bulk_add_fees(self):
-        """إضافة رسوم مجمعة"""
-        try:
-            self.show_info_message("قيد التطوير", "ميزة الإضافة المجمعة للرسوم قيد التطوير")
-            log_user_action("طلب إضافة رسوم مجمعة")
-            
-        except Exception as e:
-            logging.error(f"خطأ في الإضافة المجمعة: {e}")
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     def export_fees(self):
         """تصدير تقرير الرسوم"""
