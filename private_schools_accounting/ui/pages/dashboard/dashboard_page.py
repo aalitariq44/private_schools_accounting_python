@@ -103,22 +103,24 @@ class DashboardPage(QWidget):
         try:
             card = QFrame()
             card.setObjectName("statCard")
-            card.setFixedHeight(40)
+            # Removed card.setFixedHeight(40)
             
-            layout = QVBoxLayout(card)
+            layout = QHBoxLayout(card)
             layout.setAlignment(Qt.AlignCenter)
-            layout.setContentsMargins(1, 1, 1, 1)
+            layout.setContentsMargins(10, 10, 10, 10)
             
             # القيمة
             value_label = QLabel(value)
             value_label.setObjectName("statValue")
-            value_label.setAlignment(Qt.AlignCenter)
+            value_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             layout.addWidget(value_label)
+            
+            layout.addSpacing(10)
             
             # العنوان
             title_label = QLabel(title)
             title_label.setObjectName("statTitle")
-            title_label.setAlignment(Qt.AlignCenter)
+            title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             layout.addWidget(title_label)
             
             # تطبيق اللون
@@ -131,12 +133,12 @@ class DashboardPage(QWidget):
                 }}
                 #statValue {{
                     color: white;
-                    font-size: 10px;
+                    font-size: 18px;
                     font-weight: bold;
                 }}
                 #statTitle {{
                     color: rgba(255, 255, 255, 0.9);
-                    font-size: 7px;
+                    font-size: 25px;
                     font-weight: bold;
                 }}
             """)
@@ -429,7 +431,7 @@ class DashboardPage(QWidget):
                 }
                 
                 #sectionTitle {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 10px;
@@ -443,7 +445,7 @@ class DashboardPage(QWidget):
                     border: none;
                     padding: 8px 15px;
                     border-radius: 5px;
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     min-width: 120px;
                 }
@@ -458,7 +460,7 @@ class DashboardPage(QWidget):
                 
                 #infoLabel {
                     color: #7F8C8D;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
             """
             
