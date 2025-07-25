@@ -200,9 +200,10 @@ class MainWindow(QMainWindow):
                 {"name": "installments", "text": "الأقساط", "icon": "installments.png", "active": True},
                 {"name": "additional_fees", "text": "الرسوم الإضافية", "icon": "fees.png", "active": True},
                 {"name": "separator1", "text": "---", "icon": None, "active": False},
+                {"name": "external_income", "text": "الواردات الخارجية", "icon": "income.png", "active": True},
+                {"name": "expenses", "text": "المصروفات", "icon": "expenses.png", "active": True},
+                {"name": "separator2", "text": "---", "icon": None, "active": False},
                 {"name": "reports", "text": "التقارير", "icon": "reports.png", "active": False},
-                {"name": "external_income", "text": "الواردات الخارجية", "icon": "income.png", "active": False},
-                {"name": "expenses", "text": "المصروفات", "icon": "expenses.png", "active": False},
                 {"name": "salaries", "text": "الرواتب", "icon": "salaries.png", "active": False},
                 {"name": "separator2", "text": "---", "icon": None, "active": False},
                 {"name": "settings", "text": "الإعدادات", "icon": "settings.png", "active": False},
@@ -347,6 +348,12 @@ class MainWindow(QMainWindow):
             # صفحة الرسوم الإضافية
             self.load_additional_fees_page()
             
+            # صفحة الواردات الخارجية
+            self.load_external_income_page()
+            
+            # صفحة المصروفات
+            self.load_expenses_page()
+            
             # الصفحات الشكلية
             self.load_placeholder_pages()
             
@@ -432,13 +439,43 @@ class MainWindow(QMainWindow):
             self.pages["additional_fees"] = placeholder
             self.pages_stack.addWidget(placeholder)
     
+    def load_external_income_page(self):
+        """تحميل صفحة الواردات الخارجية"""
+        try:
+            from ui.pages.external_income.external_income_page import ExternalIncomePage
+            
+            external_income = ExternalIncomePage()
+            self.pages["external_income"] = external_income
+            self.pages_stack.addWidget(external_income)
+            
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة الواردات الخارجية: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("الواردات الخارجية", "صفحة إدارة الواردات الخارجية")
+            self.pages["external_income"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
+    def load_expenses_page(self):
+        """تحميل صفحة المصروفات"""
+        try:
+            from ui.pages.expenses.expenses_page import ExpensesPage
+            
+            expenses = ExpensesPage()
+            self.pages["expenses"] = expenses
+            self.pages_stack.addWidget(expenses)
+            
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة المصروفات: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("المصروفات", "صفحة إدارة المصروفات")
+            self.pages["expenses"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
     def load_placeholder_pages(self):
         """تحميل الصفحات الشكلية"""
         try:
             placeholder_pages = [
                 ("reports", "التقارير"),
-                ("external_income", "الواردات الخارجية"),
-                ("expenses", "المصروفات"),
                 ("salaries", "الرواتب"),
                 ("settings", "الإعدادات")
             ]
