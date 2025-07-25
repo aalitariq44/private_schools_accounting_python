@@ -138,7 +138,7 @@ class DashboardPage(QWidget):
                 }}
                 #statTitle {{
                     color: rgba(255, 255, 255, 0.9);
-                    font-size: 25px;
+                    font-size: 18px;
                     font-weight: bold;
                 }}
             """)
