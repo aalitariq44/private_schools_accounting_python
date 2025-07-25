@@ -688,7 +688,7 @@ class StudentDetailsPage(QWidget):
                 query = "DELETE FROM installments WHERE id = ?"
                 db_manager.execute_query(query, (installment_id,))
                 
-                log_database_operation(f"حذف قسط - معرف القسط: {installment_id}")
+                log_database_operation(f"حذف قسط - معرف القسط: {installment_id}", "installments")
                 log_user_action(f"حذف قسط للطالب: {self.student_id}")
                 
                 self.refresh_data()
@@ -714,7 +714,7 @@ class StudentDetailsPage(QWidget):
                 query = "DELETE FROM additional_fees WHERE id = ?"
                 db_manager.execute_query(query, (fee_id,))
                 
-                log_database_operation(f"حذف رسم إضافي - معرف الرسم: {fee_id}")
+                log_database_operation(f"حذف رسم إضافي - معرف الرسم: {fee_id}", "additional_fees")
                 log_user_action(f"حذف رسم إضافي للطالب: {self.student_id}")
                 
                 self.refresh_data()
@@ -747,7 +747,7 @@ class StudentDetailsPage(QWidget):
                 """
                 db_manager.execute_query(query, (current_date, fee_id))
                 
-                log_database_operation(f"دفع رسم إضافي - معرف الرسم: {fee_id}")
+                log_database_operation(f"دفع رسم إضافي - معرف الرسم: {fee_id}", "additional_fees")
                 log_user_action(f"دفع رسم إضافي للطالب: {self.student_id}")
                 
                 self.refresh_data()
