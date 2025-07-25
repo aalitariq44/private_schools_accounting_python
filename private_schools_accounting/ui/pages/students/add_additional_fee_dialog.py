@@ -107,13 +107,6 @@ class AddAdditionalFeeDialog(QDialog):
             self.amount_input.setValue(50000.0)
             fee_layout.addRow("مبلغ الرسم:", self.amount_input)
             
-            # تاريخ الاستحقاق
-            self.due_date = QDateEdit()
-            self.due_date.setObjectName("dateInput")
-            self.due_date.setCalendarPopup(True)
-            self.due_date.setDisplayFormat("yyyy-MM-dd")
-            fee_layout.addRow("تاريخ الاستحقاق:", self.due_date)
-            
             # حالة الدفع
             self.paid_checkbox = QCheckBox("تم الدفع")
             self.paid_checkbox.setObjectName("paidCheckbox")
@@ -175,12 +168,8 @@ class AddAdditionalFeeDialog(QDialog):
     def setup_defaults(self):
         """إعداد القيم الافتراضية"""
         try:
-            # تعيين تاريخ الاستحقاق (شهر من الآن)
-            current_date = QDate.currentDate()
-            due_date = current_date.addDays(30)
-            self.due_date.setDate(due_date)
-            
             # تعيين تاريخ الدفع الحالي
+            current_date = QDate.currentDate()
             self.payment_date.setDate(current_date)
             
             # تركيز على نوع الرسم
@@ -232,19 +221,6 @@ class AddAdditionalFeeDialog(QDialog):
                 self.amount_input.setFocus()
                 return False
             
-            # التحقق من تاريخ الاستحقاق
-            due_date = self.due_date.date().toPyDate()
-            if due_date < date.today():
-                reply = QMessageBox.question(
-                    self, "تأكيد",
-                    "تاريخ الاستحقاق في الماضي. هل تريد المتابعة؟",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                if reply == QMessageBox.No:
-                    self.due_date.setFocus()
-                    return False
-            
             # التحقق من تاريخ الدفع إذا كان مدفوعاً
             if self.paid_checkbox.isChecked():
                 payment_date = self.payment_date.date().toPyDate()
@@ -278,7 +254,6 @@ class AddAdditionalFeeDialog(QDialog):
                 fee_type = self.custom_fee_input.text().strip()
             
             amount = self.amount_input.value()
-            due_date = self.due_date.date().toString("yyyy-MM-dd")
             paid = self.paid_checkbox.isChecked()
             payment_date = self.payment_date.date().toString("yyyy-MM-dd") if paid else None
             notes = self.notes_input.toPlainText().strip()
@@ -289,11 +264,11 @@ class AddAdditionalFeeDialog(QDialog):
             # إدراج الرسم في قاعدة البيانات مع الحقول الصحيحة
             query = """
                 INSERT INTO additional_fees 
-                (student_id, fee_type, amount, due_date, paid, payment_date, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (student_id, fee_type, amount, paid, payment_date, status, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """
             params = (
-                self.student_id, fee_type, amount, due_date, 
+                self.student_id, fee_type, amount, 
                 paid, payment_date, status, notes if notes else None
             )
             
