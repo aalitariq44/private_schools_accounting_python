@@ -63,19 +63,16 @@ class DatabaseManager:
     
     def initialize_database(self) -> bool:
         """تهيئة قاعدة البيانات وإنشاء الجداول"""
+        # التأكد من وجود مجلد قاعدة البيانات
         try:
-            # التأكد من وجود مجلد قاعدة البيانات
             config.DATABASE_DIR.mkdir(parents=True, exist_ok=True)
-            
-            # إنشاء الجداول
-            self.create_tables()
-            
-            logging.info("تم تهيئة قاعدة البيانات بنجاح")
-            return True
-            
         except Exception as e:
-            logging.error(f"خطأ في تهيئة قاعدة البيانات: {e}")
-            return False
+            logging.error(f"خطأ في إنشاء مجلد قاعدة البيانات: {e}")
+            raise
+        # إنشاء الجداول (أي أخطاء ستُنقِل إلى الأعلى)
+        self.create_tables()
+        logging.info("تم تهيئة قاعدة البيانات بنجاح")
+        return True
     
     def create_tables(self):
         """إنشاء جداول قاعدة البيانات"""
@@ -156,12 +153,9 @@ class DatabaseManager:
                         student_id INTEGER NOT NULL,
                         fee_type TEXT NOT NULL,
                         amount DECIMAL(10,2) NOT NULL,
-                        due_date DATE,
                         paid BOOLEAN DEFAULT FALSE,
                         payment_date DATE,
-                        collection_date DATE,
-                        collected_amount DECIMAL(10,2) DEFAULT 0,
-                        status TEXT DEFAULT 'غير محصل',
+                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         notes TEXT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -204,7 +198,7 @@ class DatabaseManager:
             # فهارس الرسوم الإضافية
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_additional_fees_student_id ON additional_fees(student_id)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_additional_fees_paid ON additional_fees(paid)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_additional_fees_due_date ON additional_fees(due_date)")
+            # تمت إزالة فهرسة العمود due_date لأنه لم يعد موجوداً بعد التعديل
             
             logging.info("تم إنشاء فهارس قاعدة البيانات بنجاح")
             

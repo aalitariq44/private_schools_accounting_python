@@ -264,12 +264,12 @@ class AddAdditionalFeeDialog(QDialog):
             # إدراج الرسم في قاعدة البيانات مع الحقول الصحيحة
             query = """
                 INSERT INTO additional_fees 
-                (student_id, fee_type, amount, paid, payment_date, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (student_id, fee_type, amount, paid, payment_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             params = (
-                self.student_id, fee_type, amount, 
-                paid, payment_date, status, notes if notes else None
+                self.student_id, fee_type, amount,
+                paid, payment_date, notes if notes else None
             )
             
             result = db_manager.execute_query(query, params)

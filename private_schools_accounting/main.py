@@ -98,11 +98,13 @@ class SchoolAccountingApp:
                 logging.info("تم إعداد قاعدة البيانات بنجاح")
                 return True
             else:
-                logging.error("فشل في إعداد قاعدة البيانات")
+                error_msg = "فشل في إنشاء جداول قاعدة البيانات"
+                logging.error(error_msg)
+                self.show_error_dialog("خطأ", error_msg)
                 return False
-                
         except Exception as e:
-            logging.error(f"خطأ في إعداد قاعدة البيانات: {e}")
+            logging.error(f"خطأ في إعداد قاعدة البيانات: {e}", exc_info=True)
+            self.show_error_dialog("خطأ", f"خطأ في إعداد قاعدة البيانات: {e}")
             return False
     
     def show_error_dialog(self, title, message):
