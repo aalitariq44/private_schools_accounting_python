@@ -839,7 +839,7 @@ class StudentDetailsPage(QWidget):
                 QWidget {
                     background-color: #F8F9FA;
                     font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
                 
                 /* شريط الرجوع */
@@ -858,7 +858,7 @@ class StudentDetailsPage(QWidget):
                     padding: 8px 16px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
                 
                 #backButton:hover {
@@ -879,7 +879,7 @@ class StudentDetailsPage(QWidget):
                     padding: 8px 16px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
                 
                 #refreshButton:hover {
@@ -911,7 +911,7 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #infoValue {
-                    font-size: 14px;
+                    font-size: 18px;
                     color: #34495E;
                     background-color: #F8F9FA;
                     padding: 4px 8px;
@@ -929,7 +929,7 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #totalFee {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     background-color: rgba(52, 152, 219, 0.1);
@@ -939,7 +939,7 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #paidAmount {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #27AE60;
                     background-color: rgba(39, 174, 96, 0.1);
@@ -949,7 +949,7 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #remainingAmount {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     background-color: rgba(231, 76, 60, 0.1);
                     padding: 6px 12px;
@@ -958,7 +958,7 @@ class StudentDetailsPage(QWidget):
                 }
                 
                 #installmentsCount {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #8E44AD;
                     background-color: rgba(142, 68, 173, 0.1);
@@ -973,7 +973,7 @@ class StudentDetailsPage(QWidget):
                     border: 1px solid #E0E0E0;
                     border-radius: 8px;
                     gridline-color: #F0F0F0;
-                    font-size: 13px;
+                    font-size: 16px;
                 }
                 
                 #dataTable::item {
@@ -993,7 +993,7 @@ class StudentDetailsPage(QWidget):
                     padding: 8px;
                     font-weight: bold;
                     color: #2C3E50;
-                    font-size: 13px;
+                    font-size: 16px;
                 }
                 
                 /* الأزرار */
@@ -1005,7 +1005,7 @@ class StudentDetailsPage(QWidget):
                     padding: 8px 16px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 13px;
+                    font-size: 16px;
                 }
                 
                 #addButton:hover {
@@ -1021,7 +1021,7 @@ class StudentDetailsPage(QWidget):
                     padding: 4px 8px;
                     border-radius: 4px;
                     font-weight: bold;
-                    font-size: 11px;
+                    font-size: 14px;
                 }
                 
                 #deleteButton:hover {
@@ -1037,7 +1037,7 @@ class StudentDetailsPage(QWidget):
                     padding: 4px 8px;
                     border-radius: 4px;
                     font-weight: bold;
-                    font-size: 11px;
+                    font-size: 14px;
                 }
                 
                 #payButton:hover {
