@@ -218,6 +218,10 @@ class ExpensesPage(QWidget):
             self.add_expense_button = QPushButton("إضافة مصروف")
             self.add_expense_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_expense_button)
+            # زر مسح التصفيات
+            self.clear_filters_button = QPushButton("مسح الفلاتر")
+            self.clear_filters_button.setObjectName("secondaryButton")
+            actions_layout.addWidget(self.clear_filters_button)
             
             self.export_button = QPushButton("تصدير التقرير")
             self.export_button.setObjectName("secondaryButton")
@@ -319,6 +323,8 @@ class ExpensesPage(QWidget):
             self.refresh_button.clicked.connect(self.refresh)
             self.export_button.clicked.connect(self.export_report)
             
+            # ربط زر مسح التصفيات
+            self.clear_filters_button.clicked.connect(self.clear_filters)
             # ربط الفلاتر
             self.school_combo.currentTextChanged.connect(self.apply_filters)
             self.category_combo.currentTextChanged.connect(self.apply_filters)
@@ -519,6 +525,20 @@ class ExpensesPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في تطبيق الفلاتر: {e}")
+    
+    def clear_filters(self):
+        """مسح جميع التصفيات والعودة للوضع الافتراضي"""
+        try:
+            # إعادة تعيين الفلاتر للقيم الافتراضية
+            self.school_combo.setCurrentIndex(0)
+            self.category_combo.setCurrentIndex(0)
+            self.start_date.setDate(QDate.currentDate().addMonths(-1))
+            self.end_date.setDate(QDate.currentDate())
+            self.search_input.clear()
+            # إعادة تحميل البيانات
+            self.load_expenses()
+        except Exception as e:
+            logging.error(f"خطأ في مسح التصفيات: {e}")
     
     def refresh(self):
         """تحديث البيانات"""
