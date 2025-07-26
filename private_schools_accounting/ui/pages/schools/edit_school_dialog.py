@@ -370,6 +370,11 @@ class EditSchoolDialog(QDialog):
             
             # التحقق الأولي من النموذج
             self.validate_form()
+
+            # تعطيل تعديل نوع المدرسة لمنع تغييره
+            self.primary_checkbox.setEnabled(False)
+            self.middle_checkbox.setEnabled(False)
+            self.high_checkbox.setEnabled(False)
             
         except Exception as e:
             logging.error(f"خطأ في تحميل بيانات المدرسة: {e}")
