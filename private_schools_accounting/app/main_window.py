@@ -764,7 +764,7 @@ class MainWindow(QMainWindow):
             style = """
                 QMainWindow {
                     background-color: #F8F9FA;
-                    font-family: 'Segoe UI', Tahoma, Arial;
+                    font-family: 'Cairo', 'Segoe UI', Tahoma, Arial;
                 }
                 
                 /* القائمة الجانبية */

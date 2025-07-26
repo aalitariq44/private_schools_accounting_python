@@ -15,7 +15,7 @@ sys.path.insert(0, str(project_root))
 
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import Qt, QDir, QTranslator, QLocale
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QFontDatabase
 
 # استيراد إعدادات المشروع
 import config
@@ -73,10 +73,15 @@ class SchoolAccountingApp:
     def setup_arabic_font(self):
         """إعداد الخط العربي"""
         try:
-            # تحديد خط عربي افتراضي
-            font = QFont("Segoe UI", 10)  # خط يدعم العربية
-            font.setFamily("Tahoma")  # خط بديل
-            self.app.setFont(font)
+            # تحميل خطوط التطبيق
+            font_db = QFontDatabase()
+            font_dir = config.RESOURCES_DIR / "fonts"
+            # إضافة الخطوط إلى قاعدة الخطوط
+            font_db.addApplicationFont(str(font_dir / "Cairo-Medium.ttf"))
+            font_db.addApplicationFont(str(font_dir / "Cairo-Bold.ttf"))
+            # ضبط الخط الافتراضي للتطبيق
+            app_font = QFont("Cairo", 10)
+            self.app.setFont(app_font)
             
         except Exception as e:
             logging.warning(f"تحذير: لم يتم تطبيق الخط العربي: {e}")
