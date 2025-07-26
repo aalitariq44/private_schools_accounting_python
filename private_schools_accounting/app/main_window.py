@@ -124,8 +124,8 @@ class MainWindow(QMainWindow):
             # إطار القائمة الجانبية
             self.sidebar_frame = QFrame()
             self.sidebar_frame.setObjectName("sidebarFrame")
-            self.sidebar_frame.setFixedWidth(300)  # زيادة العرض قليلاً
-            
+            self.sidebar_frame.setFixedWidth(280)
+
             sidebar_layout = QVBoxLayout(self.sidebar_frame)
             sidebar_layout.setContentsMargins(0, 0, 0, 0)
             sidebar_layout.setSpacing(0)
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
             buttons_widget = QWidget()
             buttons_layout = QVBoxLayout(buttons_widget)
             buttons_layout.setContentsMargins(0, 10, 0, 10)
-            buttons_layout.setSpacing(8)  # زيادة التباعد بين الأزرار
+            buttons_layout.setSpacing(5)
             
             # إنشاء أزرار القائمة
             self.create_sidebar_buttons(buttons_layout)
@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
             # إطار الرأس
             header_frame = QFrame()
             header_frame.setObjectName("sidebarHeader")
-            header_frame.setFixedHeight(10)
+            header_frame.setFixedHeight(120)
             
             header_layout = QVBoxLayout(header_frame)
             header_layout.setAlignment(Qt.AlignCenter)
@@ -240,15 +240,11 @@ class MainWindow(QMainWindow):
             button = QPushButton(text)
             button.setObjectName("menuButton")
             button.setCheckable(True)
-            button.setFixedHeight(55)  # زيادة الارتفاع
+            button.setFixedHeight(50)
             
             # إضافة خصائص للزر
             button.setProperty("page_name", name)
             button.setProperty("active", active)
-            
-            # تحسين محاذاة النص إلى اليمين
-            button.setLayoutDirection(Qt.RightToLeft)
-            button.setStyleSheet("text-align: right; padding-right: 25px;")
             
             # ربط الإشارة
             if name == "logout":
@@ -771,27 +767,25 @@ class MainWindow(QMainWindow):
                 
                 /* القائمة الجانبية */
                 #sidebarFrame {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #2C3E50, stop: 1 #1a2530);
-                    border-right: 1px solid #34495E;
+                    background-color: #1F2937; /* A modern dark blue-gray */
+                    border-right: 1px solid #2d3748;
                 }
                 
                 #sidebarHeader {
-                    background-color: #34495E;
-                    border-bottom: 1px solid #2C3E50;
-                    padding: 10px;
+                    background-color: transparent; /* Make it blend with the sidebar */
+                    border-bottom: 1px solid #2d3748;
+                    padding: 20px 10px; /* More vertical padding */
                 }
                 
                 #appTitle {
-                    color: white;
-                    font-size: 26px;
+                    color: #E5E7EB; /* Lighter text color */
+                    font-size: 24px; /* Slightly smaller */
                     font-weight: bold;
-                    text-align: center;
                 }
                 
                 #appVersion {
-                    color: #BDC3C7;
-                    font-size: 16px;
-                    text-align: center;
+                    color: #9CA3AF; /* Softer gray */
+                    font-size: 18px; /* Slightly smaller */
                 }
                 
                 #sidebarScrollArea {
@@ -802,35 +796,35 @@ class MainWindow(QMainWindow):
                 #menuButton {
                     background-color: transparent;
                     border: none;
-                    color: #BDC3C7;
-                    text-align: right;
-                    padding: 15px 25px;
-                    font-size: 18px;
-                    border-radius: 8px;
-                    margin: 5px 10px;
+                    color: #000000; /* Black text for sidebar sections */
+                    text-align: center; /* Center the text */
+                    padding: 0; /* Remove padding to prevent text cutoff */
+                    font-size: 18px; /* Adjust font size */
+                    border-radius: 0px; /* Softer corners */
+                    margin: 0px 0px; /* Adjust margin */
                 }
                 
                 #menuButton:hover {
-                    background-color: #34495E;
+                    background-color: #374151; /* A slightly lighter shade for hover */
                     color: white;
                 }
                 
                 #menuButton:checked {
-                    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #3498DB, stop: 1 #2980B9);
+                    background-color: #3B82F6; /* A modern blue for selected item */
                     color: white;
                     font-weight: bold;
                 }
                 
                 #menuButton[coming_soon="true"] {
-                    color: #7F8C8D;
+                    color: #6B7280; /* Adjusted for new palette */
                     font-style: italic;
                 }
                 
                 #menuSeparator {
-                    color: #34495E;
+                    background-color: #374151; /* Match the new palette */
                     margin: 10px 20px;
                     height: 1px;
-                    background-color: #34495E;
+                    border: none;
                 }
                 
                 /* منطقة المحتوى */
@@ -859,7 +853,7 @@ class MainWindow(QMainWindow):
                 
                 #userName {
                     color: #2C3E50;
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                 }
                 
@@ -912,7 +906,6 @@ class MainWindow(QMainWindow):
                     color: #2C3E50;
                 }
             """
-            
             self.setStyleSheet(style)
             
         except Exception as e:
