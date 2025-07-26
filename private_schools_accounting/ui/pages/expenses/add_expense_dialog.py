@@ -73,10 +73,12 @@ class AddExpenseDialog(QDialog):
             
             title_label = QLabel("إضافة مصروف جديد")
             title_label.setObjectName("dialogTitle")
+            title_label.setStyleSheet("color: black;")
             header_layout.addWidget(title_label)
             
             desc_label = QLabel("يرجى ملء جميع الحقول المطلوبة لإضافة المصروف")
             desc_label.setObjectName("dialogDesc")
+            desc_label.setStyleSheet("color: black;")
             header_layout.addWidget(desc_label)
             
             layout.addWidget(header_frame)
