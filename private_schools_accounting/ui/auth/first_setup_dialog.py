@@ -262,14 +262,14 @@ class FirstSetupDialog(QDialog):
                 }
                 
                 #welcomeLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin: 10px 0;
                 }
                 
                 #infoLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     color: #7F8C8D;
                     margin-bottom: 10px;
                 }
@@ -282,7 +282,7 @@ class FirstSetupDialog(QDialog):
                 }
                 
                 #fieldLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 5px;
@@ -292,7 +292,7 @@ class FirstSetupDialog(QDialog):
                     padding: 12px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 24px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -302,7 +302,7 @@ class FirstSetupDialog(QDialog):
                 }
                 
                 #validationLabel {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     margin-top: 5px;
                 }
@@ -313,7 +313,7 @@ class FirstSetupDialog(QDialog):
                     border: none;
                     padding: 12px 24px;
                     border-radius: 6px;
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     min-width: 150px;
                 }
@@ -333,7 +333,7 @@ class FirstSetupDialog(QDialog):
                     border: none;
                     padding: 12px 24px;
                     border-radius: 6px;
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     min-width: 100px;
                 }
