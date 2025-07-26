@@ -100,13 +100,7 @@ class InstallmentsPage(QWidget):
             self.total_installments_label.setObjectName("quickStat")
             stats_layout.addWidget(self.total_installments_label)
             
-            self.paid_amount_label = QLabel("المدفوع: 0 د.ع")
-            self.paid_amount_label.setObjectName("quickStat")
-            stats_layout.addWidget(self.paid_amount_label)
-            
-            self.pending_amount_label = QLabel("المستحق: 0 د.ع")
-            self.pending_amount_label.setObjectName("quickStat")
-            stats_layout.addWidget(self.pending_amount_label)
+            # ... سابقاً كان يعرض المدفوع والمستحق وتمت إزالته
             
             header_layout.addLayout(stats_layout)
             
@@ -269,92 +263,26 @@ class InstallmentsPage(QWidget):
             summary_title.setObjectName("summaryTitle")
             numbers_layout.addWidget(summary_title)
             
+            # لوحة الملخص: إجمالي الأقساط وعددها
             numbers_grid = QHBoxLayout()
-            
-            # إجمالي المبالغ
             total_layout = QVBoxLayout()
-            self.total_amount_label = QLabel("إجمالي المبالغ")
+            self.total_amount_label = QLabel("مجموع الأقساط:")
             self.total_amount_label.setObjectName("summaryLabel")
             total_layout.addWidget(self.total_amount_label)
-            
             self.total_amount_value = QLabel("0 د.ع")
             self.total_amount_value.setObjectName("summaryValue")
             total_layout.addWidget(self.total_amount_value)
             numbers_grid.addLayout(total_layout)
-            
-            # المبالغ المدفوعة
-            paid_layout = QVBoxLayout()
-            self.paid_label = QLabel("المدفوع")
-            self.paid_label.setObjectName("summaryLabel")
-            paid_layout.addWidget(self.paid_label)
-            
-            self.paid_value = QLabel("0 د.ع")
-            self.paid_value.setObjectName("summaryValueSuccess")
-            paid_layout.addWidget(self.paid_value)
-            numbers_grid.addLayout(paid_layout)
-            
-            # المبالغ المستحقة
-            pending_layout = QVBoxLayout()
-            self.pending_label = QLabel("المستحق")
-            self.pending_label.setObjectName("summaryLabel")
-            pending_layout.addWidget(self.pending_label)
-            
-            self.pending_value = QLabel("0 د.ع")
-            self.pending_value.setObjectName("summaryValueWarning")
-            pending_layout.addWidget(self.pending_value)
-            numbers_grid.addLayout(pending_layout)
-            
-            # المبالغ المتأخرة
-            overdue_layout = QVBoxLayout()
-            self.overdue_label = QLabel("متأخر")
-            self.overdue_label.setObjectName("summaryLabel")
-            overdue_layout.addWidget(self.overdue_label)
-            
-            self.overdue_value = QLabel("0 د.ع")
-            self.overdue_value.setObjectName("summaryValueDanger")
-            overdue_layout.addWidget(self.overdue_value)
-            numbers_grid.addLayout(overdue_layout)
-            
             numbers_layout.addLayout(numbers_grid)
             summary_layout.addLayout(numbers_layout)
-            
-            # شريط التقدم
-            progress_layout = QVBoxLayout()
-            
-            progress_title = QLabel("معدل التحصيل")
-            progress_title.setObjectName("summaryLabel")
-            progress_layout.addWidget(progress_title)
-            
-            self.collection_progress = QProgressBar()
-            self.collection_progress.setObjectName("progressBar")
-            self.collection_progress.setMinimum(0)
-            self.collection_progress.setMaximum(100)
-            self.collection_progress.setValue(0)
-            self.collection_progress.setFormat("%p%")
-            progress_layout.addWidget(self.collection_progress)
-            
-            self.collection_percentage_label = QLabel("0% من المبلغ الإجمالي")
-            self.collection_percentage_label.setObjectName("summaryLabel")
-            progress_layout.addWidget(self.collection_percentage_label)
-            
-            summary_layout.addLayout(progress_layout)
-            
-            # إحصائيات أخرى
-            stats_layout = QVBoxLayout()
-            
+            # عدد الأقساط المعروضة
             self.displayed_count_label = QLabel("عدد الأقساط المعروضة: 0")
             self.displayed_count_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.displayed_count_label)
+            summary_layout.addWidget(self.displayed_count_label)
             
-            self.overdue_count_label = QLabel("الأقساط المتأخرة: 0")
-            self.overdue_count_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.overdue_count_label)
+            # ... تمت إزالة شريط التقدم والإحصائيات المتفرعة
             
-            self.due_today_label = QLabel("تستحق اليوم: 0")
-            self.due_today_label.setObjectName("statLabel")
-            stats_layout.addWidget(self.due_today_label)
-            
-            summary_layout.addLayout(stats_layout)
+            # ... تمت إزالة إحصائيات الحالة بسبب حذف الأعمدة
             
             layout.addWidget(summary_frame)
             
@@ -485,7 +413,8 @@ class InstallmentsPage(QWidget):
             
             self.current_installments = installments or []
             self.populate_installments_table()
-            # update_financial_summary() skipped due to updated schema without status/due_date
+            # تحديث الملخص المالي بمجموع الأقساط
+            self.update_financial_summary()
             
         except Exception as e:
             logging.error(f"خطأ في تحميل الأقساط: {e}")
@@ -524,68 +453,12 @@ class InstallmentsPage(QWidget):
     
     def update_financial_summary(self):
         """تحديث الملخص المالي"""
-        try:
-            # حساب الإجماليات للأقساط المعروضة
-            total_amount = 0
-            paid_amount = 0
-            pending_amount = 0
-            overdue_amount = 0
-            overdue_count = 0
-            due_today_count = 0
-            
-            today = date.today()
-            
-            for installment in self.current_installments:
-                amount = installment[4] or 0
-                paid = installment[7] or 0
-                remaining = installment[8] or 0
-                status = installment[9] or "مستحق"
-                due_date_str = installment[5]
-                
-                total_amount += amount
-                paid_amount += paid
-                
-                if status == "مستحق":
-                    pending_amount += remaining
-                elif status == "متأخر":
-                    overdue_amount += remaining
-                    overdue_count += 1
-                
-                # التحقق من الأقساط المستحقة اليوم
-                if due_date_str:
-                    try:
-                        due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00')).date()
-                        if due_date == today and status in ["مستحق", "متأخر"]:
-                            due_today_count += 1
-                    except:
-                        pass
-            
-            # تحديث الملصقات
-            self.total_amount_value.setText(f"{total_amount:,.0f} د.ع")
-            self.paid_value.setText(f"{paid_amount:,.0f} د.ع")
-            self.pending_value.setText(f"{pending_amount:,.0f} د.ع")
-            self.overdue_value.setText(f"{overdue_amount:,.0f} د.ع")
-            
-            # تحديث ملصقات الرأس
-            self.total_installments_label.setText(f"إجمالي الأقساط: {len(self.current_installments)}")
-            self.paid_amount_label.setText(f"المدفوع: {paid_amount:,.0f} د.ع")
-            self.pending_amount_label.setText(f"المستحق: {pending_amount + overdue_amount:,.0f} د.ع")
-            
-            # حساب معدل التحصيل
-            if total_amount > 0:
-                collection_rate = (paid_amount / total_amount) * 100
-                self.collection_progress.setValue(int(collection_rate))
-                self.collection_percentage_label.setText(f"{collection_rate:.1f}% من المبلغ الإجمالي")
-            else:
-                self.collection_progress.setValue(0)
-                self.collection_percentage_label.setText("0% من المبلغ الإجمالي")
-            
-            # تحديث الإحصائيات الأخرى
-            self.overdue_count_label.setText(f"الأقساط المتأخرة: {overdue_count}")
-            self.due_today_label.setText(f"تستحق اليوم: {due_today_count}")
-            
-        except Exception as e:
-            logging.error(f"خطأ في تحديث الملخص المالي: {e}")
+        # تبسيط الملخص المالي: مجموع قيمة الأقساط وعددها
+        total_amount = sum((inst[3] or 0) for inst in self.current_installments)
+        # تحديث عرض المجموع
+        self.total_amount_value.setText(f"{total_amount:,.2f} د.ع")
+        # تحديث عدد الأقساط في رأس الصفحة
+        self.total_installments_label.setText(f"إجمالي الأقساط: {len(self.current_installments)}")
     
     def apply_filters(self):
         """تطبيق الفلاتر وإعادة تحميل البيانات"""
