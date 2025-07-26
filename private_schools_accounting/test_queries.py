@@ -29,9 +29,7 @@ def test_queries():
         print("\n=== اختبار استعلام الأقساط ===")
         installments_query = """
             SELECT i.id, s.name as student_name, sc.name_ar as school_name,
-                   i.type, i.amount, i.due_date, i.payment_date,
-                   i.paid_amount, (i.amount - COALESCE(i.paid_amount, 0)) as remaining,
-                   i.status, i.notes
+                   i.amount, i.payment_date, i.payment_time, i.notes
             FROM installments i
             LEFT JOIN students s ON i.student_id = s.id
             LEFT JOIN schools sc ON s.school_id = sc.id

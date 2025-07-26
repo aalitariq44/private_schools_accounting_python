@@ -199,17 +199,15 @@ class AddInstallmentDialog(QDialog):
             current_time = datetime.now().strftime("%H:%M:%S")
             
             query = """
-                INSERT INTO installments (student_id, amount, payment_date, payment_time, notes, status, paid_amount)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO installments (student_id, amount, payment_date, payment_time, notes)
+            VALUES (?, ?, ?, ?, ?)
             """
             params = (
-                self.student_id, 
-                amount, 
+                self.student_id,
+                amount,
                 payment_date,
                 current_time,
-                notes if notes else None,
-                'مدفوع',
-                amount
+                notes if notes else None
             )
             
             result = db_manager.execute_query(query, params)

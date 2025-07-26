@@ -455,7 +455,7 @@ class StudentDetailsPage(QWidget):
         """تحميل الأقساط المدفوعة"""
         try:
             query = """
-                SELECT id, amount, payment_date, payment_time, notes, status, paid_amount
+                SELECT id, amount, payment_date, payment_time, notes
                 FROM installments 
                 WHERE student_id = ?
                 ORDER BY payment_date DESC
@@ -472,13 +472,13 @@ class StudentDetailsPage(QWidget):
             self.installments_table.setRowCount(len(self.installments_data))
             
             for row, installment in enumerate(self.installments_data):
-                # المبلغ المدفوع (إذا كان موجود) أو المبلغ الكامل
-                paid_amount = installment[6] if len(installment) > 6 and installment[6] else installment[1]
-                amount_item = QTableWidgetItem(f"{float(paid_amount):,.0f} د.ع")
+                # المبلغ
+                amount_value = float(installment[1]) if installment and len(installment) > 1 else 0
+                amount_item = QTableWidgetItem(f"{amount_value:,.0f} د.ع")
                 self.installments_table.setItem(row, 0, amount_item)
                 
                 # التاريخ
-                date_item = QTableWidgetItem(str(installment[2]))
+                date_item = QTableWidgetItem(str(installment[2] or ""))
                 self.installments_table.setItem(row, 1, date_item)
                 
                 # وقت الدفع

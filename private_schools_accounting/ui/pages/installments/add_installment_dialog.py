@@ -473,18 +473,19 @@ class AddInstallmentDialog(QDialog):
                 
                 insert_query = """
                     INSERT INTO installments (
-                        student_id, description, amount, due_date, status, created_at, payment_time
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                        student_id, amount, payment_date, payment_time, notes
+                    ) VALUES (?, ?, ?, ?, ?)
                 """
-                
+                # Use current date/time for each installment
+                from datetime import datetime
+                payment_date = datetime.now().strftime("%Y-%m-%d")
+                payment_time = datetime.now().strftime("%H:%M:%S")
                 cursor.execute(insert_query, (
                     student_id,
-                    installment_description,
                     installment_amount,
-                    current_date.strftime("%Y-%m-%d"),
-                    "مستحق",
-                    datetime.now().isoformat(),
-                    "00:00:00"  # Default time since this is for future due dates
+                    payment_date,
+                    payment_time,
+                    installment_description
                 ))
                 
                 current_date += timedelta(days=interval_days)

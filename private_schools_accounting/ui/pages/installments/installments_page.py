@@ -219,11 +219,10 @@ class InstallmentsPage(QWidget):
             self.installments_table = QTableWidget()
             self.installments_table.setObjectName("dataTable")
             
-            # إعداد الأعمدة
+            # إعداد الأعمدة بناءً على المخطط الجديد
             columns = [
-                "المعرف", "الطالب", "المدرسة", "نوع القسط", "المبلغ",
-                "تاريخ الاستحقاق", "تاريخ الدفع", "المبلغ المدفوع", 
-                "المتبقي", "الحالة", "ملاحظات"
+                "المعرف", "الطالب", "المدرسة", "المبلغ",
+                "تاريخ الدفع", "وقت الدفع", "ملاحظات"
             ]
             
             self.installments_table.setColumnCount(len(columns))
@@ -243,13 +242,10 @@ class InstallmentsPage(QWidget):
             header.resizeSection(0, 80)   # المعرف
             header.resizeSection(1, 160)  # الطالب
             header.resizeSection(2, 130)  # المدرسة
-            header.resizeSection(3, 120)  # نوع القسط
-            header.resizeSection(4, 100)  # المبلغ
-            header.resizeSection(5, 110)  # تاريخ الاستحقاق
-            header.resizeSection(6, 110)  # تاريخ الدفع
-            header.resizeSection(7, 100)  # المبلغ المدفوع
-            header.resizeSection(8, 100)  # المتبقي
-            header.resizeSection(9, 80)   # الحالة
+            header.resizeSection(3, 120)  # المبلغ
+            header.resizeSection(4, 110)  # تاريخ الدفع
+            header.resizeSection(5, 110)  # وقت الدفع
+            header.resizeSection(6, 200)  # ملاحظات
             
             # إخفاء العمود الأول (المعرف) 
             self.installments_table.setColumnHidden(0, True)
@@ -470,9 +466,7 @@ class InstallmentsPage(QWidget):
             # بناء الاستعلام مع الفلاتر
             query = """
                 SELECT i.id, s.name as student_name, sc.name_ar as school_name,
-                       i.type, i.amount, i.due_date, i.payment_date,
-                       i.paid_amount, (i.amount - COALESCE(i.paid_amount, 0)) as remaining,
-                       i.status, i.notes
+                       i.amount, i.payment_date, i.payment_time, i.notes
                 FROM installments i
                 LEFT JOIN students s ON i.student_id = s.id
                 LEFT JOIN schools sc ON s.school_id = sc.id
@@ -492,26 +486,15 @@ class InstallmentsPage(QWidget):
                 query += " AND i.student_id = ?"
                 params.append(selected_student_id)
             
-            # فلتر الحالة
-            selected_status = self.status_combo.currentText()
-            if selected_status and selected_status != "جميع الأقساط":
-                query += " AND i.status = ?"
-                params.append(selected_status)
             
-            # فلتر تاريخ الاستحقاق
-            due_from = self.due_date_from.date().toString("yyyy-MM-dd")
-            due_to = self.due_date_to.date().toString("yyyy-MM-dd")
-            query += " AND i.due_date BETWEEN ? AND ?"
-            params.extend([due_from, due_to])
-            
-            query += " ORDER BY i.due_date DESC, i.created_at DESC"
+            query += " ORDER BY i.payment_date DESC, i.created_at DESC"
             
             # تنفيذ الاستعلام
             installments = db_manager.execute_query(query, params)
             
             self.current_installments = installments or []
             self.populate_installments_table()
-            self.update_financial_summary()
+            # update_financial_summary() skipped due to updated schema without status/due_date
             
         except Exception as e:
             logging.error(f"خطأ في تحميل الأقساط: {e}")
@@ -525,70 +508,22 @@ class InstallmentsPage(QWidget):
             for row, installment in enumerate(self.current_installments):
                 # المعرف (مخفي)
                 self.installments_table.setItem(row, 0, QTableWidgetItem(str(installment[0])))
-                
                 # الطالب
                 self.installments_table.setItem(row, 1, QTableWidgetItem(installment[1] or ""))
-                
                 # المدرسة
                 self.installments_table.setItem(row, 2, QTableWidgetItem(installment[2] or ""))
-                
-                # نوع القسط
-                self.installments_table.setItem(row, 3, QTableWidgetItem(installment[3] or ""))
-                
                 # المبلغ
-                amount = installment[4] or 0
-                self.installments_table.setItem(row, 4, QTableWidgetItem(f"{amount:,.0f}"))
-                
-                # تاريخ الاستحقاق
-                due_date = installment[5]
-                if due_date:
-                    try:
-                        date_obj = datetime.fromisoformat(due_date.replace('Z', '+00:00'))
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                    except:
-                        formatted_date = str(due_date)[:10]
-                else:
-                    formatted_date = ""
-                self.installments_table.setItem(row, 5, QTableWidgetItem(formatted_date))
-                
+                amount = installment[3] or 0
+                self.installments_table.setItem(row, 3, QTableWidgetItem(f"{amount:,.2f}"))
                 # تاريخ الدفع
-                payment_date = installment[6]
-                if payment_date:
-                    try:
-                        date_obj = datetime.fromisoformat(payment_date.replace('Z', '+00:00'))
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                    except:
-                        formatted_date = str(payment_date)[:10]
-                else:
-                    formatted_date = ""
-                self.installments_table.setItem(row, 6, QTableWidgetItem(formatted_date))
-                
-                # المبلغ المدفوع
-                paid_amount = installment[7] or 0
-                self.installments_table.setItem(row, 7, QTableWidgetItem(f"{paid_amount:,.0f}"))
-                
-                # المتبقي
-                remaining = installment[8] or 0
-                self.installments_table.setItem(row, 8, QTableWidgetItem(f"{remaining:,.0f}"))
-                
-                # الحالة
-                status = installment[9] or "مستحق"
-                status_item = QTableWidgetItem(status)
-                
-                if status == "مدفوع":
-                    status_item.setBackground(Qt.green)
-                elif status == "متأخر":
-                    status_item.setBackground(Qt.red)
-                elif status == "مستحق":
-                    status_item.setBackground(Qt.yellow)
-                elif status == "ملغي":
-                    status_item.setBackground(Qt.gray)
-                
-                self.installments_table.setItem(row, 9, status_item)
-                
+                payment_date = installment[4] or ""
+                self.installments_table.setItem(row, 4, QTableWidgetItem(str(payment_date)))
+                # وقت الدفع
+                payment_time = installment[5] or ""
+                self.installments_table.setItem(row, 5, QTableWidgetItem(str(payment_time)))
                 # الملاحظات
-                notes = installment[10] or ""
-                self.installments_table.setItem(row, 10, QTableWidgetItem(notes))
+                notes = installment[6] or ""
+                self.installments_table.setItem(row, 6, QTableWidgetItem(notes))
             
             # تحديث إحصائية العدد المعروض
             self.displayed_count_label.setText(f"عدد الأقساط المعروضة: {len(self.current_installments)}")

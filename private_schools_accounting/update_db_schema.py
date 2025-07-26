@@ -68,44 +68,7 @@ def update_database_schema():
             else:
                 raise
         
-        # إضافة الأعمدة المفقودة إلى جدول الأقساط
-        logging.info("إضافة الأعمدة المفقودة إلى جدول الأقساط...")
-        
-        try:
-            cursor.execute("ALTER TABLE installments ADD COLUMN type TEXT DEFAULT 'قسط دراسي'")
-            logging.info("تم إضافة عمود type")
-        except sqlite3.OperationalError as e:
-            if "duplicate column name" in str(e):
-                logging.info("عمود type موجود مسبقاً")
-            else:
-                raise
-                
-        try:
-            cursor.execute("ALTER TABLE installments ADD COLUMN due_date DATE")
-            logging.info("تم إضافة عمود due_date")
-        except sqlite3.OperationalError as e:
-            if "duplicate column name" in str(e):
-                logging.info("عمود due_date موجود مسبقاً")
-            else:
-                raise
-                
-        try:
-            cursor.execute("ALTER TABLE installments ADD COLUMN paid_amount DECIMAL(10,2) DEFAULT 0")
-            logging.info("تم إضافة عمود paid_amount")
-        except sqlite3.OperationalError as e:
-            if "duplicate column name" in str(e):
-                logging.info("عمود paid_amount موجود مسبقاً")
-            else:
-                raise
-                
-        try:
-            cursor.execute("ALTER TABLE installments ADD COLUMN status TEXT DEFAULT 'غير مدفوع'")
-            logging.info("تم إضافة عمود status")
-        except sqlite3.OperationalError as e:
-            if "duplicate column name" in str(e):
-                logging.info("عمود status موجود مسبقاً")
-            else:
-                raise
+        # لم يعد هناك أعمدة إضافية لجداول الأقساط بعد التعديل
         
         # إضافة الأعمدة المفقودة إلى جدول الرسوم الإضافية
         logging.info("إضافة الأعمدة المفقودة إلى جدول الرسوم الإضافية...")

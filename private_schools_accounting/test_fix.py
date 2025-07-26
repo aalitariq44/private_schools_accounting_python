@@ -29,10 +29,10 @@ def test_installment_insert():
         current_date = datetime.now().strftime("%Y-%m-%d")
         
         query = """
-            INSERT INTO installments (student_id, amount, payment_date, payment_time, notes, status, paid_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO installments (student_id, amount, payment_date, payment_time, notes)
+            VALUES (?, ?, ?, ?, ?)
         """
-        params = (1, 500.0, current_date, current_time, "قسط تجريبي", "مدفوع", 500.0)
+        params = (1, 500.0, current_date, current_time, "قسط تجريبي")
         
         result = db_manager.execute_query(query, params)
         print("\nتم إدخال قسط تجريبي بنجاح!")

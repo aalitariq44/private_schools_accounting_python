@@ -58,13 +58,9 @@ cursor.execute("""
     CREATE TABLE IF NOT EXISTS installments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         student_id INTEGER NOT NULL,
-        type TEXT DEFAULT 'قسط دراسي',
         amount DECIMAL(10,2) NOT NULL,
-        due_date DATE,
         payment_date DATE NOT NULL,
         payment_time TIME NOT NULL,
-        paid_amount DECIMAL(10,2) DEFAULT 0,
-        status TEXT DEFAULT 'غير مدفوع',
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
