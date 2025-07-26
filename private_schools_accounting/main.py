@@ -55,7 +55,7 @@ class SchoolAccountingApp:
             self.app.setApplicationVersion(config.APP_VERSION)
             self.app.setOrganizationName(config.APP_ORGANIZATION)
             
-            # إعداد الخط العربي
+            # إعداد الخط العربي (تحميل وتعيين الخط الافتراضي)
             self.setup_arabic_font()
             
             # إعداد اتجاه التطبيق (من اليمين إلى اليسار)
@@ -73,14 +73,16 @@ class SchoolAccountingApp:
     def setup_arabic_font(self):
         """إعداد الخط العربي"""
         try:
-            # تحميل خطوط التطبيق
+            # تحميل خطوط Cairo
             font_db = QFontDatabase()
             font_dir = config.RESOURCES_DIR / "fonts"
-            # إضافة الخطوط إلى قاعدة الخطوط
-            font_db.addApplicationFont(str(font_dir / "Cairo-Medium.ttf"))
-            font_db.addApplicationFont(str(font_dir / "Cairo-Bold.ttf"))
+            id_medium = font_db.addApplicationFont(str(font_dir / "Cairo-Medium.ttf"))
+            id_bold = font_db.addApplicationFont(str(font_dir / "Cairo-Bold.ttf"))
+            # اختيار اسم العائلة بعد التحميل
+            families = font_db.applicationFontFamilies(id_medium)
+            cairo_family = families[0] if families else "Cairo"
             # ضبط الخط الافتراضي للتطبيق
-            app_font = QFont("Cairo", 10)
+            app_font = QFont(cairo_family, 10)
             self.app.setFont(app_font)
             
         except Exception as e:

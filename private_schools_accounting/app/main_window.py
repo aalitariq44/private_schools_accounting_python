@@ -762,6 +762,10 @@ class MainWindow(QMainWindow):
         """إعداد تنسيقات النافذة"""
         try:
             style = """
+                /* Apply Cairo font to all widgets */
+                * {
+                    font-family: 'Cairo';
+                }
                 QMainWindow {
                     background-color: #F8F9FA;
                     font-family: 'Cairo', 'Segoe UI', Tahoma, Arial;

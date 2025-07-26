@@ -668,7 +668,7 @@ class EditSchoolDialog(QDialog):
                 }
                 
                 #headerDesc {
-                    font-size: 12px;
+                    font-size: 18px;
                     color: #7F8C8D;
                 }
                 
@@ -683,7 +683,7 @@ class EditSchoolDialog(QDialog):
                 }
                 
                 #fieldLabel {
-                    font-size: 12px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     margin-bottom: 5px;
@@ -693,7 +693,7 @@ class EditSchoolDialog(QDialog):
                     padding: 8px 12px;
                     border: 2px solid #F39C12;
                     border-radius: 4px;
-                    font-size: 13px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -706,7 +706,7 @@ class EditSchoolDialog(QDialog):
                     padding: 8px 12px;
                     border: 1px solid #BDC3C7;
                     border-radius: 4px;
-                    font-size: 13px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -716,7 +716,7 @@ class EditSchoolDialog(QDialog):
                 }
                 
                 #typeCheckbox {
-                    font-size: 13px;
+                    font-size: 18px;
                     color: #2C3E50;
                     spacing: 8px;
                 }
@@ -747,7 +747,7 @@ class EditSchoolDialog(QDialog):
                 
                 #logoLabel {
                     color: #7F8C8D;
-                    font-size: 12px;
+                    font-size: 18px;
                 }
                 
                 #logoButton {
@@ -787,7 +787,7 @@ class EditSchoolDialog(QDialog):
                     border: none;
                     padding: 10px 20px;
                     border-radius: 4px;
-                    font-size: 13px;
+                    font-size: 18px;
                     font-weight: bold;
                     min-width: 120px;
                 }
@@ -807,7 +807,7 @@ class EditSchoolDialog(QDialog):
                     border: none;
                     padding: 10px 20px;
                     border-radius: 4px;
-                    font-size: 13px;
+                    font-size: 18px;
                     font-weight: bold;
                     min-width: 80px;
                 }

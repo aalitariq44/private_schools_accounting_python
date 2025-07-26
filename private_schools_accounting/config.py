@@ -51,5 +51,9 @@ for directory in [DATA_DIR, DATABASE_DIR, UPLOADS_DIR, BACKUPS_DIR, EXPORTS_DIR,
 (EXPORTS_DIR / "reports").mkdir(exist_ok=True)
 (EXPORTS_DIR / "prints").mkdir(exist_ok=True)
 
+# إنشاء مجلد الموارد وخطوط التطبيق
+RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
+(RESOURCES_DIR / "fonts").mkdir(parents=True, exist_ok=True)
+
 # وضع التطوير (True لتفعيل وضع التطوير، False للإنتاج)
 DEBUG_MODE = True
