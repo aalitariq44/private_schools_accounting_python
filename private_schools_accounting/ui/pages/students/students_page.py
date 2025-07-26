@@ -116,7 +116,7 @@ class StudentsPage(QWidget):
             filters_layout.addWidget(gender_label)
             self.gender_combo = QComboBox()
             self.gender_combo.setObjectName("filterCombo")
-            self.gender_combo.addItems(["جميع الأجناس", "ذكر", "أنثى"])
+            self.gender_combo.addItems(["جميع الطلاب", "ذكر", "أنثى"])
             filters_layout.addWidget(self.gender_combo)
 
             # مربع البحث
@@ -307,7 +307,7 @@ class StudentsPage(QWidget):
             
             # فلتر الجنس
             selected_gender = self.gender_combo.currentText()
-            if selected_gender and selected_gender != "جميع الأجناس":
+            if selected_gender and selected_gender != "جميع الطلاب":
                 query += " AND s.gender = ?"
                 params.append(selected_gender)
             
