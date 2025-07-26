@@ -389,12 +389,12 @@ class EditIncomeDialog(QDialog):
                 }
                 
                 #dialogDesc {
-                    font-size: 14px;
+                    font-size: 18px;
                     color: #B8E6F0;
                 }
                 
                 #sectionGroupBox {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     background-color: white;
@@ -408,7 +408,7 @@ class EditIncomeDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -425,7 +425,7 @@ class EditIncomeDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     min-height: 20px;
                 }
@@ -438,7 +438,7 @@ class EditIncomeDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #17A2B8;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     font-weight: bold;
                 }
@@ -447,14 +447,14 @@ class EditIncomeDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #17A2B8;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
                 #notesInput {
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     padding: 8px;
                 }
@@ -466,7 +466,7 @@ class EditIncomeDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 140px;
                 }
                 
@@ -481,7 +481,7 @@ class EditIncomeDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 120px;
                 }
                 
@@ -496,7 +496,7 @@ class EditIncomeDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 120px;
                 }
                 
@@ -505,7 +505,7 @@ class EditIncomeDialog(QDialog):
                 }
                 
                 QLabel {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                 }

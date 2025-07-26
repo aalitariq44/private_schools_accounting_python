@@ -51,8 +51,6 @@ class EditExpenseDialog(QDialog):
             # معلومات المصروف الأساسية
             self.create_basic_info_section(layout)
             
-            # تفاصيل الدفع
-            self.create_payment_details_section(layout)
             
             # تفاصيل إضافية
             self.create_additional_details_section(layout)
@@ -142,34 +140,6 @@ class EditExpenseDialog(QDialog):
         except Exception as e:
             logging.error(f"خطأ في إنشاء قسم المعلومات الأساسية: {e}")
     
-    def create_payment_details_section(self, layout):
-        """إنشاء قسم تفاصيل الدفع"""
-        try:
-            group_box = QGroupBox("تفاصيل الدفع")
-            group_box.setObjectName("sectionGroupBox")
-            
-            form_layout = QFormLayout(group_box)
-            form_layout.setContentsMargins(15, 20, 15, 15)
-            form_layout.setSpacing(12)
-            
-            # طريقة الدفع
-            self.payment_method_combo = QComboBox()
-            self.payment_method_combo.setObjectName("optionalCombo")
-            self.payment_method_combo.addItems([
-                "-- اختر طريقة الدفع --", "نقدي", "شيك", "تحويل مصرفي", "أخرى"
-            ])
-            form_layout.addRow("طريقة الدفع:", self.payment_method_combo)
-            
-            # رقم المرجع
-            self.reference_input = QLineEdit()
-            self.reference_input.setObjectName("optionalInput")
-            self.reference_input.setPlaceholderText("رقم الشيك، رقم التحويل، إلخ...")
-            form_layout.addRow("رقم المرجع:", self.reference_input)
-            
-            layout.addWidget(group_box)
-            
-        except Exception as e:
-            logging.error(f"خطأ في إنشاء قسم تفاصيل الدفع: {e}")
     
     def create_additional_details_section(self, layout):
         """إنشاء قسم التفاصيل الإضافية"""
@@ -181,11 +151,6 @@ class EditExpenseDialog(QDialog):
             form_layout.setContentsMargins(15, 20, 15, 15)
             form_layout.setSpacing(12)
             
-            # المورد
-            self.supplier_input = QLineEdit()
-            self.supplier_input.setObjectName("optionalInput")
-            self.supplier_input.setPlaceholderText("اسم المورد أو الجهة المستفيدة...")
-            form_layout.addRow("المورد/المستفيد:", self.supplier_input)
             
             # الملاحظات
             self.notes_input = QTextEdit()
@@ -274,8 +239,6 @@ class EditExpenseDialog(QDialog):
             # ملء الحقول بالبيانات الحالية
             self.title_input.setText(self.expense_data['title'] or "")
             self.amount_input.setValue(float(self.expense_data['amount'] or 0))
-            self.supplier_input.setText(self.expense_data['supplier'] or "")
-            self.reference_input.setText(self.expense_data['reference_number'] or "")
             self.notes_input.setPlainText(self.expense_data['notes'] or "")
             
             # تعيين تاريخ المصروف
@@ -294,11 +257,6 @@ class EditExpenseDialog(QDialog):
                 if category_index >= 0:
                     self.category_combo.setCurrentIndex(category_index)
             
-            # تعيين طريقة الدفع
-            if self.expense_data['payment_method']:
-                payment_index = self.payment_method_combo.findText(self.expense_data['payment_method'])
-                if payment_index >= 0:
-                    self.payment_method_combo.setCurrentIndex(payment_index)
             
         except Exception as e:
             logging.error(f"خطأ في تحميل بيانات المصروف: {e}")
@@ -346,9 +304,6 @@ class EditExpenseDialog(QDialog):
                 'title': self.title_input.text().strip(),
                 'amount': self.amount_input.value(),
                 'category': self.category_combo.currentText(),
-                'supplier': self.supplier_input.text().strip() or None,
-                'payment_method': self.payment_method_combo.currentText() if self.payment_method_combo.currentIndex() > 0 else None,
-                'reference_number': self.reference_input.text().strip() or None,
                 'expense_date': self.expense_date.date().toPyDate(),
                 'notes': self.notes_input.toPlainText().strip() or None,
                 'school_id': self.school_combo.currentData()
@@ -357,8 +312,7 @@ class EditExpenseDialog(QDialog):
             # تحديث البيانات في قاعدة البيانات
             update_query = """
                 UPDATE expenses 
-                SET title = ?, amount = ?, category = ?, supplier = ?, 
-                    payment_method = ?, reference_number = ?, expense_date = ?, 
+                SET title = ?, amount = ?, category = ?, expense_date = ?, 
                     notes = ?, school_id = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             """
@@ -367,9 +321,6 @@ class EditExpenseDialog(QDialog):
                 updated_data['title'],
                 updated_data['amount'],
                 updated_data['category'],
-                updated_data['supplier'],
-                updated_data['payment_method'],
-                updated_data['reference_number'],
                 updated_data['expense_date'],
                 updated_data['notes'],
                 updated_data['school_id'],
@@ -444,12 +395,12 @@ class EditExpenseDialog(QDialog):
                 }
                 
                 #dialogDesc {
-                    font-size: 14px;
+                    font-size: 18px;
                     color: #FEF1E8;
                 }
                 
                 #sectionGroupBox {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     background-color: white;
@@ -463,7 +414,7 @@ class EditExpenseDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -480,7 +431,7 @@ class EditExpenseDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     min-height: 20px;
                 }
@@ -493,7 +444,7 @@ class EditExpenseDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #FD7E14;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     font-weight: bold;
                 }
@@ -502,14 +453,14 @@ class EditExpenseDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #FD7E14;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
                 #notesInput {
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     padding: 8px;
                 }
@@ -521,7 +472,7 @@ class EditExpenseDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 140px;
                 }
                 
@@ -536,7 +487,7 @@ class EditExpenseDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 120px;
                 }
                 
@@ -551,7 +502,7 @@ class EditExpenseDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 120px;
                 }
                 
@@ -560,7 +511,7 @@ class EditExpenseDialog(QDialog):
                 }
                 
                 QLabel {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                 }

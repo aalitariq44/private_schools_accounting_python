@@ -47,8 +47,6 @@ class AddExpenseDialog(QDialog):
             # معلومات المصروف الأساسية
             self.create_basic_info_section(layout)
             
-            # تفاصيل الدفع
-            self.create_payment_details_section(layout)
             
             # تفاصيل إضافية
             self.create_additional_details_section(layout)
@@ -69,12 +67,6 @@ class AddExpenseDialog(QDialog):
             header_frame.setObjectName("headerFrame")
             
             header_layout = QVBoxLayout(header_frame)
-            header_layout.setContentsMargins(20, 15, 20, 15)
-            
-            title_label = QLabel("إضافة مصروف جديد")
-            title_label.setObjectName("dialogTitle")
-            title_label.setStyleSheet("color: black;")
-            header_layout.addWidget(title_label)
             
             desc_label = QLabel("يرجى ملء جميع الحقول المطلوبة لإضافة المصروف")
             desc_label.setObjectName("dialogDesc")
@@ -138,34 +130,6 @@ class AddExpenseDialog(QDialog):
         except Exception as e:
             logging.error(f"خطأ في إنشاء قسم المعلومات الأساسية: {e}")
     
-    def create_payment_details_section(self, layout):
-        """إنشاء قسم تفاصيل الدفع"""
-        try:
-            group_box = QGroupBox("تفاصيل الدفع")
-            group_box.setObjectName("sectionGroupBox")
-            
-            form_layout = QFormLayout(group_box)
-            form_layout.setContentsMargins(15, 20, 15, 15)
-            form_layout.setSpacing(12)
-            
-            # طريقة الدفع
-            self.payment_method_combo = QComboBox()
-            self.payment_method_combo.setObjectName("optionalCombo")
-            self.payment_method_combo.addItems([
-                "-- اختر طريقة الدفع --", "نقدي", "شيك", "تحويل مصرفي", "أخرى"
-            ])
-            form_layout.addRow("طريقة الدفع:", self.payment_method_combo)
-            
-            # رقم المرجع
-            self.reference_input = QLineEdit()
-            self.reference_input.setObjectName("optionalInput")
-            self.reference_input.setPlaceholderText("رقم الشيك، رقم التحويل، إلخ...")
-            form_layout.addRow("رقم المرجع:", self.reference_input)
-            
-            layout.addWidget(group_box)
-            
-        except Exception as e:
-            logging.error(f"خطأ في إنشاء قسم تفاصيل الدفع: {e}")
     
     def create_additional_details_section(self, layout):
         """إنشاء قسم التفاصيل الإضافية"""
@@ -177,11 +141,6 @@ class AddExpenseDialog(QDialog):
             form_layout.setContentsMargins(15, 20, 15, 15)
             form_layout.setSpacing(12)
             
-            # المورد
-            self.supplier_input = QLineEdit()
-            self.supplier_input.setObjectName("optionalInput")
-            self.supplier_input.setPlaceholderText("اسم المورد أو الجهة المستفيدة...")
-            form_layout.addRow("المورد/المستفيد:", self.supplier_input)
             
             # الملاحظات
             self.notes_input = QTextEdit()
@@ -284,9 +243,6 @@ class AddExpenseDialog(QDialog):
                 'title': self.title_input.text().strip(),
                 'amount': self.amount_input.value(),
                 'category': self.category_combo.currentText(),
-                'supplier': self.supplier_input.text().strip() or None,
-                'payment_method': self.payment_method_combo.currentText() if self.payment_method_combo.currentIndex() > 0 else None,
-                'reference_number': self.reference_input.text().strip() or None,
                 'expense_date': self.expense_date.date().toPyDate(),
                 'notes': self.notes_input.toPlainText().strip() or None
             }
@@ -294,9 +250,8 @@ class AddExpenseDialog(QDialog):
             # إدراج البيانات في قاعدة البيانات
             insert_query = """
                 INSERT INTO expenses 
-                (school_id, title, amount, category, supplier, payment_method, 
-                 reference_number, expense_date, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (school_id, title, amount, category, expense_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             
             params = (
@@ -304,9 +259,6 @@ class AddExpenseDialog(QDialog):
                 expense_data['title'],
                 expense_data['amount'],
                 expense_data['category'],
-                expense_data['supplier'],
-                expense_data['payment_method'],
-                expense_data['reference_number'],
                 expense_data['expense_date'],
                 expense_data['notes']
             )
@@ -351,12 +303,12 @@ class AddExpenseDialog(QDialog):
                 }
                 
                 #dialogDesc {
-                    font-size: 14px;
+                    font-size: 18px;
                     color: #F8E5E5;
                 }
                 
                 #sectionGroupBox {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                     background-color: white;
@@ -370,7 +322,7 @@ class AddExpenseDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
@@ -387,7 +339,7 @@ class AddExpenseDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     min-height: 20px;
                 }
@@ -400,7 +352,7 @@ class AddExpenseDialog(QDialog):
                     padding: 10px;
                     border: 2px solid #DC3545;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     font-weight: bold;
                 }
@@ -409,14 +361,14 @@ class AddExpenseDialog(QDialog):
                     padding: 8px;
                     border: 2px solid #DC3545;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                 }
                 
                 #notesInput {
                     border: 2px solid #BDC3C7;
                     border-radius: 6px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     padding: 8px;
                 }
@@ -428,7 +380,7 @@ class AddExpenseDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 140px;
                 }
                 
@@ -443,7 +395,7 @@ class AddExpenseDialog(QDialog):
                     padding: 12px 30px;
                     border-radius: 6px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     min-width: 120px;
                 }
                 
@@ -452,7 +404,7 @@ class AddExpenseDialog(QDialog):
                 }
                 
                 QLabel {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2C3E50;
                 }

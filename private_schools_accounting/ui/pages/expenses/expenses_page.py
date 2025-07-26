@@ -53,10 +53,7 @@ class ExpensesPage(QWidget):
                     title VARCHAR(255) NOT NULL,
                     amount DECIMAL(10,2) NOT NULL,
                     category VARCHAR(100),
-                    supplier VARCHAR(255),
                     expense_date DATE NOT NULL,
-                    payment_method VARCHAR(50),
-                    reference_number VARCHAR(100),
                     notes TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -180,17 +177,6 @@ class ExpensesPage(QWidget):
             ])
             filters_layout.addWidget(self.category_combo)
             
-            # فلتر طريقة الدفع
-            payment_label = QLabel("طريقة الدفع:")
-            payment_label.setObjectName("filterLabel")
-            filters_layout.addWidget(payment_label)
-            
-            self.payment_combo = QComboBox()
-            self.payment_combo.setObjectName("filterCombo")
-            self.payment_combo.addItems([
-                "جميع الطرق", "نقدي", "شيك", "تحويل مصرفي", "أخرى"
-            ])
-            filters_layout.addWidget(self.payment_combo)
             
             # فلتر التاريخ
             date_label = QLabel("من تاريخ:")
@@ -220,7 +206,7 @@ class ExpensesPage(QWidget):
             
             self.search_input = QLineEdit()
             self.search_input.setObjectName("searchInput")
-            self.search_input.setPlaceholderText("ابحث في العناوين والموردين...")
+            self.search_input.setPlaceholderText("ابحث في العناوين والملاحظات...")
             filters_layout.addWidget(self.search_input)
             
             toolbar_layout.addLayout(filters_layout)
@@ -262,7 +248,7 @@ class ExpensesPage(QWidget):
             self.expenses_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
 
             # إعداد أعمدة الجدول
-            columns = ["المعرف", "العنوان", "المبلغ", "الفئة", "المورد", "طريقة الدفع", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]
+            columns = ["المعرف", "العنوان", "المبلغ", "الفئة", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]
             self.expenses_table.setColumnCount(len(columns))
             self.expenses_table.setHorizontalHeaderLabels(columns)
 
@@ -336,7 +322,6 @@ class ExpensesPage(QWidget):
             # ربط الفلاتر
             self.school_combo.currentTextChanged.connect(self.apply_filters)
             self.category_combo.currentTextChanged.connect(self.apply_filters)
-            self.payment_combo.currentTextChanged.connect(self.apply_filters)
             self.start_date.dateChanged.connect(self.apply_filters)
             self.end_date.dateChanged.connect(self.apply_filters)
             self.search_input.textChanged.connect(self.apply_filters)
@@ -349,18 +334,15 @@ class ExpensesPage(QWidget):
         try:
             self.school_combo.clear()
             self.school_combo.addItem("جميع المدارس", None)
-            
             # جلب المدارس من قاعدة البيانات
             query = "SELECT id, name_ar FROM schools ORDER BY name_ar"
             schools = db_manager.execute_query(query)
-            
             if schools:
                 for school in schools:
                     self.school_combo.addItem(school['name_ar'], school['id'])
-            
-            # تحميل المصروفات بعد تحميل المدارس
-            self.refresh()
-            
+            else:
+                self.school_combo.addItem("لا توجد مدارس", None)
+    
         except Exception as e:
             logging.error(f"خطأ في تحميل المدارس: {e}")
     
@@ -369,8 +351,7 @@ class ExpensesPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT e.id, e.title, e.amount, e.category, e.supplier,
-                       e.payment_method, e.expense_date, e.reference_number,
+                SELECT e.id, e.title, e.amount, e.category, e.expense_date,
                        e.notes, s.name_ar as school_name, e.created_at
                 FROM expenses e
                 LEFT JOIN schools s ON e.school_id = s.id
@@ -390,11 +371,6 @@ class ExpensesPage(QWidget):
                 query += " AND e.category = ?"
                 params.append(selected_category)
             
-            # فلتر طريقة الدفع
-            selected_payment = self.payment_combo.currentText()
-            if selected_payment and selected_payment != "جميع الطرق":
-                query += " AND e.payment_method = ?"
-                params.append(selected_payment)
             
             # فلتر التاريخ
             start_date = self.start_date.date().toPyDate()
@@ -405,8 +381,8 @@ class ExpensesPage(QWidget):
             # فلتر البحث
             search_text = self.search_input.text().strip()
             if search_text:
-                query += " AND (e.title LIKE ? OR e.supplier LIKE ? OR e.notes LIKE ?)"
-                params.extend([f"%{search_text}%", f"%{search_text}%", f"%{search_text}%"])
+                query += " AND (e.title LIKE ? OR e.notes LIKE ?)"
+                params.extend([f"%{search_text}%", f"%{search_text}%"])
             
             query += " ORDER BY e.expense_date DESC, e.created_at DESC"
             
@@ -443,8 +419,6 @@ class ExpensesPage(QWidget):
                     expense['title'] or "",
                     f"{expense['amount']:,.2f} د.ع",
                     expense['category'] or "",
-                    expense['supplier'] or "",
-                    expense['payment_method'] or "",
                     expense['expense_date'] or "",
                     expense['school_name'] or "",
                     (expense['notes'] or "")[:50] + ("..." if len(expense['notes'] or "") > 50 else "")
@@ -462,7 +436,7 @@ class ExpensesPage(QWidget):
                 
                 # أزرار الإجراءات
                 actions_widget = self.create_actions_widget(expense['id'])
-                self.expenses_table.setCellWidget(row_idx, 9, actions_widget)
+                self.expenses_table.setCellWidget(row_idx, 7, actions_widget)
             
             # تحديث العداد
             self.displayed_count_label.setText(f"عدد المصروفات المعروضة: {len(self.current_expenses)}")
@@ -700,7 +674,7 @@ class ExpensesPage(QWidget):
                 QWidget {
                     background-color: #F8F9FA;
                     font-family: 'Segoe UI', Tahoma, Arial;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
                 
                 /* رأس الصفحة */
@@ -714,14 +688,14 @@ class ExpensesPage(QWidget):
                 }
                 
                 #pageTitle {
-                    font-size: 24px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: white;
                     margin-bottom: 8px;
                 }
                 
                 #pageDesc {
-                    font-size: 16px;
+                    font-size: 18px;
                     color: #F8E5E5;
                 }
                 
@@ -738,7 +712,7 @@ class ExpensesPage(QWidget):
                     font-weight: bold;
                     color: #2C3E50;
                     margin-right: 8px;
-                    font-size: 14px;
+                    font-size: 18px;
                 }
                 
                 #filterCombo, #filterDate {
@@ -747,7 +721,7 @@ class ExpensesPage(QWidget):
                     border-radius: 6px;
                     background-color: white;
                     min-width: 120px;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin: 3px;
                 }
                 
@@ -755,7 +729,7 @@ class ExpensesPage(QWidget):
                     padding: 8px 15px;
                     border: 2px solid #DC3545;
                     border-radius: 8px;
-                    font-size: 14px;
+                    font-size: 18px;
                     background-color: white;
                     margin: 3px;
                     min-width: 200px;
@@ -770,7 +744,7 @@ class ExpensesPage(QWidget):
                     border-radius: 8px;
                     font-weight: bold;
                     min-width: 140px;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin: 3px;
                 }
                 
@@ -786,7 +760,7 @@ class ExpensesPage(QWidget):
                     border-radius: 8px;
                     font-weight: bold;
                     min-width: 140px;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin: 3px;
                 }
                 
@@ -798,14 +772,14 @@ class ExpensesPage(QWidget):
                     border-radius: 8px;
                     font-weight: bold;
                     min-width: 100px;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin: 3px;
                 }
                 
                 #editButton, #deleteButton {
                     padding: 6px 12px;
                     border-radius: 4px;
-                    font-size: 12px;
+                    font-size: 18px;
                     font-weight: bold;
                     border: none;
                     margin: 1px;
@@ -827,14 +801,14 @@ class ExpensesPage(QWidget):
                     border: 2px solid #E9ECEF;
                     border-radius: 12px;
                     gridline-color: #E9ECEF;
-                    font-size: 13px;
+                    font-size: 18px;
                     margin: 10px 0px;
                 }
                 
                 QTableWidget::item {
                     padding: 12px 8px;
                     border-bottom: 1px solid #E9ECEF;
-                    font-size: 13px;
+                    font-size: 18px;
                 }
                 
                 QTableWidget::item:selected {
@@ -847,7 +821,7 @@ class ExpensesPage(QWidget):
                     color: white;
                     padding: 12px 8px;
                     font-weight: bold;
-                    font-size: 14px;
+                    font-size: 18px;
                     border: none;
                     border-right: 1px solid #C82333;
                 }
@@ -863,7 +837,7 @@ class ExpensesPage(QWidget):
                 }
                 
                 #summaryStatLabel {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #DC3545;
                     background-color: white;
@@ -882,7 +856,7 @@ class ExpensesPage(QWidget):
                 }
                 
                 #detailStatLabel {
-                    font-size: 14px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #495057;
                     margin: 5px;
