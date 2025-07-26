@@ -70,10 +70,12 @@ class AddIncomeDialog(QDialog):
             
             title_label = QLabel("إضافة وارد خارجي جديد")
             title_label.setObjectName("dialogTitle")
+            title_label.setStyleSheet("color: black;")
             header_layout.addWidget(title_label)
             
             desc_label = QLabel("يرجى ملء جميع الحقول المطلوبة لإضافة الوارد الخارجي")
             desc_label.setObjectName("dialogDesc")
+            desc_label.setStyleSheet("color: black;")
             header_layout.addWidget(desc_label)
             
             layout.addWidget(header_frame)
