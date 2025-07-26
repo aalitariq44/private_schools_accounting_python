@@ -133,11 +133,6 @@ class AddIncomeDialog(QDialog):
             form_layout.setContentsMargins(15, 20, 15, 15)
             form_layout.setSpacing(12)
             
-            # مصدر الوارد
-            self.source_input = QLineEdit()
-            self.source_input.setObjectName("optionalInput")
-            self.source_input.setPlaceholderText("مثال: الحانوت، النقل، التبرعات...")
-            form_layout.addRow("المصدر:", self.source_input)
             
             # فئة الوارد
             self.category_combo = QComboBox()
@@ -244,7 +239,6 @@ class AddIncomeDialog(QDialog):
                 'school_id': self.school_combo.currentData(),
                 'title': self.title_input.text().strip(),
                 'amount': self.amount_input.value(),
-                'source': self.source_input.text().strip() or None,
                 'category': self.category_combo.currentText() if self.category_combo.currentIndex() > 0 else None,
                 'income_date': self.income_date.date().toPyDate(),
                 'notes': self.notes_input.toPlainText().strip() or None
@@ -253,15 +247,14 @@ class AddIncomeDialog(QDialog):
             # إدراج البيانات في قاعدة البيانات
             insert_query = """
                 INSERT INTO external_income 
-                (school_id, title, amount, source, category, income_date, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (school_id, title, amount, category, income_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             
             params = (
                 income_data['school_id'],
                 income_data['title'],
                 income_data['amount'],
-                income_data['source'],
                 income_data['category'],
                 income_data['income_date'],
                 income_data['notes']

@@ -67,7 +67,6 @@ def test_database_tables():
                 school_id INTEGER NOT NULL,
                 title VARCHAR(255) NOT NULL,
                 amount DECIMAL(10,2) NOT NULL,
-                source VARCHAR(255),
                 category VARCHAR(100),
                 income_date DATE NOT NULL,
                 notes TEXT,

@@ -52,7 +52,6 @@ class ExternalIncomePage(QWidget):
                     school_id INTEGER NOT NULL,
                     title VARCHAR(255) NOT NULL,
                     amount DECIMAL(10,2) NOT NULL,
-                    source VARCHAR(255),
                     category VARCHAR(100),
                     income_date DATE NOT NULL,
                     notes TEXT,
@@ -264,7 +263,7 @@ class ExternalIncomePage(QWidget):
             self.income_table.setStyleSheet("QTableWidget::item { padding: 0px; }")  # إزالة الحشو لإظهار أزرار الإجراءات بشكل صحيح
 
             # إعداد أعمدة الجدول
-            columns = ["المعرف", "العنوان", "المبلغ", "المصدر", "الفئة", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]
+            columns = ["المعرف", "العنوان", "المبلغ", "الفئة", "التاريخ", "المدرسة", "الملاحظات", "الإجراءات"]
             self.income_table.setColumnCount(len(columns))
             self.income_table.setHorizontalHeaderLabels(columns)
 
@@ -370,7 +369,7 @@ class ExternalIncomePage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT ei.id, ei.title, ei.amount, ei.source, ei.category,
+                SELECT ei.id, ei.title, ei.amount, ei.category,
                        ei.income_date, ei.notes, s.name_ar as school_name,
                        ei.created_at
                 FROM external_income ei
@@ -437,7 +436,6 @@ class ExternalIncomePage(QWidget):
                     str(income['id']),
                     income['title'] or "",
                     f"{income['amount']:,.2f} د.ع",
-                    income['source'] or "",
                     income['category'] or "",
                     income['income_date'] or "",
                     income['school_name'] or "",
@@ -456,7 +454,7 @@ class ExternalIncomePage(QWidget):
                 
                 # أزرار الإجراءات
                 actions_widget = self.create_actions_widget(income['id'])
-                self.income_table.setCellWidget(row_idx, 8, actions_widget)
+                self.income_table.setCellWidget(row_idx, 7, actions_widget)
             
             # تحديث العداد
             self.displayed_count_label.setText(f"عدد الواردات المعروضة: {len(self.current_incomes)}")
@@ -634,11 +632,11 @@ class ExternalIncomePage(QWidget):
             # إنشاء التقرير
             with open(filename, 'w', encoding='utf-8-sig') as f:
                 # كتابة الرأس
-                f.write("المعرف,العنوان,المبلغ,المصدر,الفئة,التاريخ,المدرسة,الملاحظات\n")
+                f.write("المعرف,العنوان,المبلغ,الفئة,التاريخ,المدرسة,الملاحظات\n")
                 
                 # كتابة البيانات
                 for income in self.current_incomes:
-                    f.write(f"{income['id']},{income['title']},{income['amount']},{income['source']},"
+                    f.write(f"{income['id']},{income['title']},{income['amount']},"
                            f"{income['category']},{income['income_date']},{income['school_name']},"
                            f"\"{income['notes'] or ''}\"\n")
             

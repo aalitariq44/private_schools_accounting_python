@@ -137,11 +137,6 @@ class EditIncomeDialog(QDialog):
             form_layout.setContentsMargins(15, 20, 15, 15)
             form_layout.setSpacing(12)
             
-            # مصدر الوارد
-            self.source_input = QLineEdit()
-            self.source_input.setObjectName("optionalInput")
-            self.source_input.setPlaceholderText("مثال: الحانوت، النقل، التبرعات...")
-            form_layout.addRow("المصدر:", self.source_input)
             
             # فئة الوارد
             self.category_combo = QComboBox()
@@ -222,7 +217,8 @@ class EditIncomeDialog(QDialog):
         try:
             # جلب بيانات الوارد
             query = """
-                SELECT ei.*, s.name_ar as school_name
+                SELECT ei.id, ei.title, ei.amount, ei.category,
+                       ei.income_date, ei.notes, ei.school_id, s.name_ar as school_name
                 FROM external_income ei
                 LEFT JOIN schools s ON ei.school_id = s.id
                 WHERE ei.id = ?
@@ -239,7 +235,6 @@ class EditIncomeDialog(QDialog):
             # ملء الحقول بالبيانات الحالية
             self.title_input.setText(self.income_data['title'] or "")
             self.amount_input.setValue(float(self.income_data['amount'] or 0))
-            self.source_input.setText(self.income_data['source'] or "")
             self.notes_input.setPlainText(self.income_data['notes'] or "")
             
             # تعيين تاريخ الوارد
@@ -299,7 +294,6 @@ class EditIncomeDialog(QDialog):
             updated_data = {
                 'title': self.title_input.text().strip(),
                 'amount': self.amount_input.value(),
-                'source': self.source_input.text().strip() or None,
                 'category': self.category_combo.currentText() if self.category_combo.currentIndex() > 0 else None,
                 'income_date': self.income_date.date().toPyDate(),
                 'notes': self.notes_input.toPlainText().strip() or None,
@@ -309,7 +303,7 @@ class EditIncomeDialog(QDialog):
             # تحديث البيانات في قاعدة البيانات
             update_query = """
                 UPDATE external_income 
-                SET title = ?, amount = ?, source = ?, category = ?, 
+                SET title = ?, amount = ?, category = ?, 
                     income_date = ?, notes = ?, school_id = ?, 
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
@@ -318,7 +312,6 @@ class EditIncomeDialog(QDialog):
             params = (
                 updated_data['title'],
                 updated_data['amount'],
-                updated_data['source'],
                 updated_data['category'],
                 updated_data['income_date'],
                 updated_data['notes'],
