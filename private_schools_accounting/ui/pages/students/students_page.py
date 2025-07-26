@@ -110,6 +110,15 @@ class StudentsPage(QWidget):
             self.status_combo.addItems(["جميع الحالات", "نشط", "منقطع", "متخرج", "محول"])
             filters_layout.addWidget(self.status_combo)
             
+            # فلتر الجنس
+            gender_label = QLabel("الجنس:")
+            gender_label.setObjectName("filterLabel")
+            filters_layout.addWidget(gender_label)
+            self.gender_combo = QComboBox()
+            self.gender_combo.setObjectName("filterCombo")
+            self.gender_combo.addItems(["جميع الأجناس", "ذكر", "أنثى"])
+            filters_layout.addWidget(self.gender_combo)
+
             # مربع البحث
             search_label = QLabel("البحث:")
             search_label.setObjectName("filterLabel")
@@ -238,6 +247,7 @@ class StudentsPage(QWidget):
             self.school_combo.currentTextChanged.connect(self.apply_filters)
             self.grade_combo.currentTextChanged.connect(self.apply_filters)
             self.status_combo.currentTextChanged.connect(self.apply_filters)
+            self.gender_combo.currentTextChanged.connect(self.apply_filters)
             self.search_input.textChanged.connect(self.apply_filters)
             
         except Exception as e:
@@ -294,6 +304,12 @@ class StudentsPage(QWidget):
             if selected_status and selected_status != "جميع الحالات":
                 query += " AND s.status = ?"
                 params.append(selected_status)
+            
+            # فلتر الجنس
+            selected_gender = self.gender_combo.currentText()
+            if selected_gender and selected_gender != "جميع الأجناس":
+                query += " AND s.gender = ?"
+                params.append(selected_gender)
             
             # فلتر البحث
             search_text = self.search_input.text().strip()
