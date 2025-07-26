@@ -619,14 +619,14 @@ class EditSchoolDialog(QDialog):
                 WHERE id = ?
             """
             
-            success = db_manager.execute_query(
+            affected_rows = db_manager.execute_update(
                 update_query,
                 (updated_data['name_ar'], updated_data['name_en'], updated_data['principal_name'],
                  updated_data['phone'], updated_data['address'], updated_data['school_types'],
                  updated_data['logo_path'], updated_data['id'])
             )
             
-            if success:
+            if affected_rows >= 0:
                 # إرسال إشارة النجاح
                 self.school_updated.emit(updated_data)
                 
@@ -644,7 +644,6 @@ class EditSchoolDialog(QDialog):
                 self.accept()
             else:
                 QMessageBox.critical(self, "خطأ", "فشل في حفظ التعديلات")
-            
         except Exception as e:
             logging.error(f"خطأ في حفظ التعديلات: {e}")
             QMessageBox.critical(self, "خطأ", f"حدث خطأ في حفظ التعديلات: {str(e)}")
@@ -821,23 +820,7 @@ class EditSchoolDialog(QDialog):
                     background-color: #C0392B;
                 }
             """
-            
             self.setStyleSheet(style)
-            
         except Exception as e:
             logging.error(f"خطأ في إعداد التنسيقات: {e}")
-    
-    def keyPressEvent(self, event):
-        """معالجة ضغط المفاتيح"""
-        try:
-            if event.key() == Qt.Key_Escape:
-                self.reject()
-            elif event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-                if self.save_button.isEnabled():
-                    self.save_changes()
-            else:
-                super().keyPressEvent(event)
-                
-        except Exception as e:
-            logging.error(f"خطأ في معالجة ضغط المفاتيح: {e}")
-            super().keyPressEvent(event)
+            
