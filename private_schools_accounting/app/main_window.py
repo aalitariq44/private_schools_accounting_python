@@ -197,6 +197,8 @@ class MainWindow(QMainWindow):
                 {"name": "dashboard", "text": "الرئيسية", "icon": "dashboard.png", "active": True},
                 {"name": "schools", "text": "المدارس", "icon": "schools.png", "active": True},
                 {"name": "students", "text": "الطلاب", "icon": "students.png", "active": True},
+                {"name": "teachers", "text": "المعلمين", "icon": "teachers.png", "active": True},
+                {"name": "employees", "text": "الموظفين", "icon": "employees.png", "active": True},
                 {"name": "installments", "text": "الأقساط", "icon": "installments.png", "active": True},
                 {"name": "additional_fees", "text": "الرسوم الإضافية", "icon": "fees.png", "active": True},
                 {"name": "separator1", "text": "---", "icon": None, "active": False},
@@ -342,6 +344,12 @@ class MainWindow(QMainWindow):
             # صفحة الطلاب
             self.load_students_page()
             
+            # صفحة المعلمين
+            self.load_teachers_page()
+            
+            # صفحة الموظفين
+            self.load_employees_page()
+            
             # صفحة الأقساط
             self.load_installments_page()
             
@@ -405,6 +413,34 @@ class MainWindow(QMainWindow):
             # إنشاء صفحة بديلة
             placeholder = self.create_placeholder_page("الطلاب", "صفحة إدارة الطلاب")
             self.pages["students"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
+    def load_teachers_page(self):
+        """تحميل صفحة المعلمين"""
+        try:
+            from ui.pages.teachers.teachers_page import TeachersPage
+            teachers = TeachersPage()
+            self.pages["teachers"] = teachers
+            self.pages_stack.addWidget(teachers)
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة المعلمين: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("المعلمين", "صفحة إدارة المعلمين")
+            self.pages["teachers"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
+    def load_employees_page(self):
+        """تحميل صفحة الموظفين"""
+        try:
+            from ui.pages.employees.employees_page import EmployeesPage
+            employees = EmployeesPage()
+            self.pages["employees"] = employees
+            self.pages_stack.addWidget(employees)
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة الموظفين: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("الموظفين", "صفحة إدارة الموظفين")
+            self.pages["employees"] = placeholder
             self.pages_stack.addWidget(placeholder)
     
     def load_installments_page(self):
@@ -555,6 +591,8 @@ class MainWindow(QMainWindow):
                 "dashboard": "لوحة التحكم",
                 "schools": "المدارس",
                 "students": "الطلاب",
+                "teachers": "المعلمين",
+                "employees": "الموظفين",
                 "installments": "الأقساط",
                 "additional_fees": "الرسوم الإضافية",
                 "reports": "التقارير",

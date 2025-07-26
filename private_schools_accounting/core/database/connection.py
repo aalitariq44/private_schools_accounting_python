@@ -159,6 +159,38 @@ class DatabaseManager:
                     )
                 """)
                 
+                # جدول المعلمين
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS teachers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        school_id INTEGER NOT NULL,
+                        class_hours INTEGER NOT NULL DEFAULT 0,
+                        monthly_salary DECIMAL(10,2) NOT NULL,
+                        phone TEXT,
+                        notes TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+                    )
+                """)
+                
+                # جدول الموظفين
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS employees (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        school_id INTEGER NOT NULL,
+                        job_type TEXT NOT NULL CHECK (job_type IN ('عامل', 'حارس', 'كاتب', 'مخصص')),
+                        monthly_salary DECIMAL(10,2) NOT NULL,
+                        phone TEXT,
+                        notes TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+                    )
+                """)
+                
                 # جدول إعدادات التطبيق
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS app_settings (
@@ -195,6 +227,15 @@ class DatabaseManager:
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_additional_fees_student_id ON additional_fees(student_id)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_additional_fees_paid ON additional_fees(paid)")
             # تمت إزالة فهرسة العمود due_date لأنه لم يعد موجوداً بعد التعديل
+            
+            # فهارس المعلمين
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_teachers_school_id ON teachers(school_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_teachers_name ON teachers(name)")
+            
+            # فهارس الموظفين
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_employees_school_id ON employees(school_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_employees_name ON employees(name)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_employees_job_type ON employees(job_type)")
             
             logging.info("تم إنشاء فهارس قاعدة البيانات بنجاح")
             
