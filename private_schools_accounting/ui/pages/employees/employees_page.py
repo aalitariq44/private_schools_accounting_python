@@ -126,6 +126,10 @@ class EmployeesPage(QWidget):
             search_btn.clicked.connect(self.search_employees)
             clear_btn.clicked.connect(self.clear_search)
             self.search_input.returnPressed.connect(self.search_employees)
+            # بحث لحظي عند الكتابة بدلاً من استخدام زر البحث
+            self.search_input.textChanged.connect(self.search_employees)
+            # إخفاء زر البحث لأنه لم يعد ضروريًا مع البحث اللحظي
+            search_btn.hide()
             self.school_filter.currentTextChanged.connect(self.on_filter_changed)
             self.job_filter.currentTextChanged.connect(self.on_filter_changed)
             

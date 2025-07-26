@@ -113,6 +113,10 @@ class TeachersPage(QWidget):
             search_btn.clicked.connect(self.search_teachers)
             clear_btn.clicked.connect(self.clear_search)
             self.search_input.returnPressed.connect(self.search_teachers)
+            # بحث لحظي عند الكتابة بدلاً من استخدام زر البحث
+            self.search_input.textChanged.connect(self.search_teachers)
+            # إخفاء زر البحث لأنه لم يعد ضروريًا مع البحث اللحظي
+            search_btn.hide()
             self.school_filter.currentTextChanged.connect(self.on_school_filter_changed)
             
         except Exception as e:
