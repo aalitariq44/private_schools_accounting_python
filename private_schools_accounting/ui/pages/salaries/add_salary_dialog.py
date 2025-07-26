@@ -435,12 +435,16 @@ class AddSalaryDialog(QDialog):
             current_index = self.staff_combo.currentIndex()
             staff = self.staff_list[current_index]
             
-            from_date = self.from_date_input.date().toPyDate()
-            to_date = self.to_date_input.date().toPyDate()
-            payment_date = self.payment_date_input.date().toPyDate()
-            payment_time = datetime.now().time()
-            
-            days_count = (to_date - from_date).days + 1
+            # الحصول على كائنات QDate لحساب عدد الأيام
+            from_date_q = self.from_date_input.date()
+            to_date_q = self.to_date_input.date()
+            from_date = from_date_q.toString(Qt.ISODate)
+            to_date = to_date_q.toString(Qt.ISODate)
+            payment_date = self.payment_date_input.date().toString(Qt.ISODate)
+            payment_time = datetime.now().strftime("%H:%M:%S")
+
+            # حساب عدد الأيام بين التاريخين
+            days_count = from_date_q.daysTo(to_date_q) + 1
             
             # إدخال البيانات في قاعدة البيانات
             with db_manager.get_cursor() as cursor:
