@@ -206,9 +206,9 @@ class MainWindow(QMainWindow):
                 {"name": "separator1", "text": "---", "icon": None, "active": False},
                 {"name": "external_income", "text": "الواردات الخارجية", "icon": "income.png", "active": True},
                 {"name": "expenses", "text": "المصروفات", "icon": "expenses.png", "active": True},
+                {"name": "salaries", "text": "الرواتب", "icon": "salaries.png", "active": True},
                 {"name": "separator2", "text": "---", "icon": None, "active": False},
                 {"name": "reports", "text": "التقارير", "icon": "reports.png", "active": False},
-                {"name": "salaries", "text": "الرواتب", "icon": "salaries.png", "active": False},
                 {"name": "separator2", "text": "---", "icon": None, "active": False},
                 {"name": "settings", "text": "الإعدادات", "icon": "settings.png", "active": False},
                 {"name": "logout", "text": "تسجيل خروج", "icon": "logout.png", "active": True},
@@ -360,6 +360,9 @@ class MainWindow(QMainWindow):
             # صفحة المصروفات
             self.load_expenses_page()
             
+            # صفحة الرواتب
+            self.load_salaries_page()
+            
             # الصفحات الشكلية
             self.load_placeholder_pages()
             
@@ -505,12 +508,25 @@ class MainWindow(QMainWindow):
             self.pages["expenses"] = placeholder
             self.pages_stack.addWidget(placeholder)
     
+    def load_salaries_page(self):
+        """تحميل صفحة الرواتب"""
+        try:
+            from ui.pages.salaries.salaries_page import SalariesPage
+            salaries = SalariesPage()
+            self.pages["salaries"] = salaries
+            self.pages_stack.addWidget(salaries)
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة الرواتب: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("الرواتب", "صفحة إدارة الرواتب")
+            self.pages["salaries"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
     def load_placeholder_pages(self):
         """تحميل الصفحات الشكلية"""
         try:
             placeholder_pages = [
                 ("reports", "التقارير"),
-                ("salaries", "الرواتب"),
                 ("settings", "الإعدادات")
             ]
             
