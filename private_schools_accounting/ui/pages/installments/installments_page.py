@@ -148,15 +148,6 @@ class InstallmentsPage(QWidget):
             self.student_combo.setMinimumWidth(200)
             filters_layout.addWidget(self.student_combo)
             
-            # فلتر الحالة
-            status_label = QLabel("حالة القسط:")
-            status_label.setObjectName("filterLabel")
-            filters_layout.addWidget(status_label)
-            
-            self.status_combo = QComboBox()
-            self.status_combo.setObjectName("filterCombo")
-            self.status_combo.addItems(["جميع الأقساط", "مدفوع", "مستحق", "متأخر", "ملغي"])
-            filters_layout.addWidget(self.status_combo)
             
             filters_layout.addStretch()
             
@@ -378,9 +369,9 @@ class InstallmentsPage(QWidget):
             self.refresh_button.clicked.connect(self.refresh)
             
             # ربط الفلاتر
-            self.school_combo.currentTextChanged.connect(self.on_school_changed)
-            self.student_combo.currentTextChanged.connect(self.apply_filters)
-            self.status_combo.currentTextChanged.connect(self.apply_filters)
+            # ربط فلتر المدرسة والطالب باستخدام currentIndexChanged لالتقاط التغيير بشكل موثوق
+            self.school_combo.currentIndexChanged.connect(self.on_school_changed)
+            self.student_combo.currentIndexChanged.connect(self.apply_filters)
             self.due_date_from.dateChanged.connect(self.apply_filters)
             self.due_date_to.dateChanged.connect(self.apply_filters)
             
