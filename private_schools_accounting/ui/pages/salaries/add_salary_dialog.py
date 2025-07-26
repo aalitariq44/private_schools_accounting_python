@@ -33,44 +33,70 @@ class AddSalaryDialog(QDialog):
         self.calculate_default_period()
         
     def setup_ui(self):
-        """إعداد واجهة المستخدم"""
+        """إعداد واجهة المستخدم بتنسيق عصري مشابه لإضافة طالب"""
         self.setWindowTitle("إضافة راتب جديد")
-        self.setFixedSize(500, 650)
         self.setModal(True)
-        
+        self.resize(600, 750)
+        self.setMinimumWidth(500)
+        self.setMaximumWidth(700)
+
+        # ستايل عصري
+        self.setup_styles()
+
         # التخطيط الرئيسي
-        main_layout = QVBoxLayout()
-        main_layout.setSpacing(15)
-        main_layout.setContentsMargins(20, 20, 20, 20)
-        
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Scroll area لدعم الشاشات الصغيرة
+        from PyQt5.QtWidgets import QScrollArea, QWidget
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setSpacing(20)
+        content_layout.setContentsMargins(25, 25, 25, 25)
+
         # عنوان النافذة
         title_label = QLabel("إضافة راتب جديد")
-        title_label.setObjectName("titleLabel")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(title_label)
-        
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("""
+            QLabel {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3498db, stop:1 #2980b9);
+                color: white;
+                padding: 15px;
+                border-radius: 10px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+        """)
+        content_layout.addWidget(title_label)
+
         # مجموعة اختيار الموظف/المعلم
         staff_group = self.create_staff_group()
-        main_layout.addWidget(staff_group)
-        
+        content_layout.addWidget(staff_group)
+
         # مجموعة تفاصيل الراتب
         salary_group = self.create_salary_group()
-        main_layout.addWidget(salary_group)
-        
+        content_layout.addWidget(salary_group)
+
         # مجموعة فترة الراتب
         period_group = self.create_period_group()
-        main_layout.addWidget(period_group)
-        
+        content_layout.addWidget(period_group)
+
         # مجموعة الملاحظات
         notes_group = self.create_notes_group()
-        main_layout.addWidget(notes_group)
-        
+        content_layout.addWidget(notes_group)
+
         # أزرار الحفظ والإلغاء
         buttons_layout = self.create_buttons()
-        main_layout.addLayout(buttons_layout)
-        
-        self.setLayout(main_layout)
-        self.setup_styles()
+        content_layout.addLayout(buttons_layout)
+
+        scroll_area.setWidget(content_widget)
+        main_layout.addWidget(scroll_area)
         
     def create_staff_group(self):
         """إنشاء مجموعة اختيار الموظف/المعلم"""
@@ -187,87 +213,105 @@ class AddSalaryDialog(QDialog):
         self.cancel_btn.clicked.connect(self.reject)
     
     def setup_styles(self):
-        """إعداد أنماط العرض"""
+        """تطبيق ستايل عصري مشابه لإضافة طالب"""
         self.setStyleSheet("""
             QDialog {
-                background-color: #f8f9fa;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #f8f9ff, stop:1 #e8f0ff);
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
-            
-            QLabel#titleLabel {
-                font-size: 18px;
-                font-weight: bold;
+
+            QLabel {
                 color: #2c3e50;
-                padding: 10px;
-                background-color: #ecf0f1;
-                border-radius: 8px;
-                margin-bottom: 10px;
+                font-weight: bold;
+                font-size:18px;
+                margin: 5px 0px;
             }
-            
+
+            QLineEdit, QComboBox, QDoubleSpinBox, QDateEdit, QTextEdit {
+                padding: 12px 15px;
+                border: 2px solid #bdc3c7;
+                border-radius: 10px;
+                background-color: white;
+                font-size: 18px;
+                min-height: 30px;
+                margin: 5px 0px;
+            }
+
+            QLineEdit:focus, QComboBox:focus, QDoubleSpinBox:focus, QDateEdit:focus, QTextEdit:focus {
+                border-color: #3498db;
+                background-color: #f8fbff;
+            }
+
+            QComboBox::drop-down {
+                border: none;
+                width: 30px;
+            }
+
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3498db, stop:1 #2980b9);
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 18px;
+                min-width: 120px;
+                margin: 8px 4px;
+            }
+
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #5dade2, stop:1 #3498db);
+            }
+
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #2980b9, stop:1 #1f618d);
+            }
+
+            QPushButton#cancelButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #e74c3c, stop:1 #c0392b);
+            }
+
             QGroupBox {
                 font-weight: bold;
+                font-size: 18px;
+                color: #2c3e50;
                 border: 2px solid #bdc3c7;
-                border-radius: 8px;
-                margin-top: 10px;
-                padding-top: 10px;
+                border-radius: 12px;
+                margin: 15px 0px;
+                padding-top: 20px;
             }
-            
+
             QGroupBox::title {
                 subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 5px 0 5px;
-                color: #2c3e50;
+                left: 20px;
+                padding: 0 10px 0 10px;
+                background-color: #3498db;
+                color: white;
+                border-radius: 6px;
+                padding: 8px 15px;
+                font-size: 18px;
             }
-            
+
             QLabel#salaryLabel {
                 color: #27ae60;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 16px;
             }
-            
+
             QLabel#daysLabel {
                 color: #e74c3c;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 16px;
             }
-            
-            QPushButton#saveButton {
-                background-color: #27ae60;
-                color: white;
+
+            QScrollArea {
                 border: none;
-                border-radius: 6px;
-                font-weight: bold;
-            }
-            
-            QPushButton#saveButton:hover {
-                background-color: #2ecc71;
-            }
-            
-            QPushButton#saveButton:pressed {
-                background-color: #229954;
-            }
-            
-            QPushButton#cancelButton {
-                background-color: #6c757d;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: bold;
-            }
-            
-            QPushButton#cancelButton:hover {
-                background-color: #5a6268;
-            }
-            
-            QComboBox, QDoubleSpinBox, QDateEdit, QTextEdit {
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-                padding: 8px;
-                background-color: white;
-            }
-            
-            QComboBox:focus, QDoubleSpinBox:focus, QDateEdit:focus, QTextEdit:focus {
-                border-color: #007bff;
-                outline: none;
+                background-color: transparent;
             }
         """)
     
