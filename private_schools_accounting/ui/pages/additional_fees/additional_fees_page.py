@@ -85,7 +85,7 @@ class AdditionalFeesPage(QWidget):
             title_label.setStyleSheet("color: black;")
             text_layout.addWidget(title_label)
             
-            desc_label = QLabel("إدارة الرسوم الإضافية مثل الكتب والنشاطات والخدمات الأخرى")
+            desc_label = QLabel("عرض الرسوم الإضافية مثل رسوم التسجيل، الزي المدرسي، الكتب، وغيرها")
             desc_label.setObjectName("pageDesc")
             desc_label.setStyleSheet("color: black;")
             text_layout.addWidget(desc_label)
@@ -156,19 +156,19 @@ class AdditionalFeesPage(QWidget):
             self.fee_type_combo = QComboBox()
             self.fee_type_combo.setObjectName("filterCombo")
             self.fee_type_combo.addItems([
-                "جميع الأنواع", "رسوم كتب", "رسوم نشاطات", "رسوم نقل", 
-                "رسوم امتحانات", "رسوم شهادات", "رسوم أخرى"
+                "جميع الأنواع", "رسوم التسجيل", "الزي المدرسي", "الكتب", 
+                "القرطاسية", "رسم مخصص"
             ])
             filters_layout.addWidget(self.fee_type_combo)
             
             # فلتر الحالة
-            status_label = QLabel("حالة الرسم:")
+            status_label = QLabel("حالة الدفع:")
             status_label.setObjectName("filterLabel")
             filters_layout.addWidget(status_label)
             
             self.status_combo = QComboBox()
             self.status_combo.setObjectName("filterCombo")
-            self.status_combo.addItems(["جميع الرسوم", "مدفوع", "مستحق", "ملغي"])
+            self.status_combo.addItems(["الكل", "مدفوع", "غير مدفوع"])
             filters_layout.addWidget(self.status_combo)
             
             filters_layout.addStretch()
@@ -185,7 +185,7 @@ class AdditionalFeesPage(QWidget):
             
             self.search_input = QLineEdit()
             self.search_input.setObjectName("searchInput")
-            self.search_input.setPlaceholderText("ابحث في الرسوم بالوصف أو اسم الطالب...")
+            self.search_input.setPlaceholderText("ابحث في الملاحظات أو اسم الطالب...")
             self.search_input.setMinimumWidth(300)
             actions_layout.addWidget(self.search_input)
             
@@ -224,9 +224,8 @@ class AdditionalFeesPage(QWidget):
             
             # إعداد الأعمدة
             columns = [
-                "المعرف", "الطالب", "المدرسة", "نوع الرسم", "الوصف",
-                "المبلغ", "تاريخ الإضافة", "تاريخ التحصيل", 
-                "المبلغ المحصل", "الحالة", "ملاحظات"
+                "المعرف", "الطالب", "المدرسة", "نوع الرسم", "المبلغ",
+                "حالة الدفع", "تاريخ الدفع", "ملاحظات", "تاريخ الإنشاء"
             ]
             
             self.fees_table.setColumnCount(len(columns))
@@ -238,27 +237,25 @@ class AdditionalFeesPage(QWidget):
             self.fees_table.setSelectionMode(QAbstractItemView.SingleSelection)
             self.fees_table.setSortingEnabled(True)
             self.fees_table.setShowGrid(False)
+            self.fees_table.setEditTriggers(QAbstractItemView.NoEditTriggers) # منع التعديل المباشر
             
             # تخصيص عرض الأعمدة
             header = self.fees_table.horizontalHeader()
             header.setStretchLastSection(True)
-            header.setDefaultSectionSize(120)
+            header.setDefaultSectionSize(130)
             header.resizeSection(0, 80)   # المعرف
-            header.resizeSection(1, 160)  # الطالب
-            header.resizeSection(2, 130)  # المدرسة
+            header.resizeSection(1, 180)  # الطالب
+            header.resizeSection(2, 150)  # المدرسة
             header.resizeSection(3, 120)  # نوع الرسم
-            header.resizeSection(4, 150)  # الوصف
-            header.resizeSection(5, 100)  # المبلغ
-            header.resizeSection(6, 110)  # تاريخ الإضافة
-            header.resizeSection(7, 110)  # تاريخ التحصيل
-            header.resizeSection(8, 100)  # المبلغ المحصل
-            header.resizeSection(9, 80)   # الحالة
+            header.resizeSection(4, 110)  # المبلغ
+            header.resizeSection(5, 100)  # حالة الدفع
+            header.resizeSection(6, 120)  # تاريخ الدفع
+            header.resizeSection(7, 200)  # ملاحظات
             
             # إخفاء العمود الأول (المعرف) 
             self.fees_table.setColumnHidden(0, True)
             
             # ربط الأحداث
-            
             self.fees_table.setContextMenuPolicy(Qt.CustomContextMenu)
             self.fees_table.customContextMenuRequested.connect(self.show_context_menu)
             
@@ -326,25 +323,29 @@ class AdditionalFeesPage(QWidget):
             # إحصائيات حسب النوع
             types_layout = QVBoxLayout()
             
-            types_title = QLabel("إحصائيات حسب النوع")
+            types_title = QLabel("إحصائيات حسب النوع (المدفوع)")
             types_title.setObjectName("summaryLabel")
             types_layout.addWidget(types_title)
             
-            self.books_fees_label = QLabel("رسوم كتب: 0 د.ع")
+            self.registration_fees_label = QLabel("رسوم تسجيل: 0 د.ع")
+            self.registration_fees_label.setObjectName("statLabel")
+            types_layout.addWidget(self.registration_fees_label)
+
+            self.uniform_fees_label = QLabel("الزي المدرسي: 0 د.ع")
+            self.uniform_fees_label.setObjectName("statLabel")
+            types_layout.addWidget(self.uniform_fees_label)
+
+            self.books_fees_label = QLabel("الكتب: 0 د.ع")
             self.books_fees_label.setObjectName("statLabel")
             types_layout.addWidget(self.books_fees_label)
             
-            self.activities_fees_label = QLabel("رسوم نشاطات: 0 د.ع")
-            self.activities_fees_label.setObjectName("statLabel")
-            types_layout.addWidget(self.activities_fees_label)
-            
-            self.transport_fees_label = QLabel("رسوم نقل: 0 د.ع")
-            self.transport_fees_label.setObjectName("statLabel")
-            types_layout.addWidget(self.transport_fees_label)
-            
-            self.other_fees_label = QLabel("رسوم أخرى: 0 د.ع")
-            self.other_fees_label.setObjectName("statLabel")
-            types_layout.addWidget(self.other_fees_label)
+            self.stationery_fees_label = QLabel("القرطاسية: 0 د.ع")
+            self.stationery_fees_label.setObjectName("statLabel")
+            types_layout.addWidget(self.stationery_fees_label)
+
+            self.custom_fees_label = QLabel("رسم مخصص: 0 د.ع")
+            self.custom_fees_label.setObjectName("statLabel")
+            types_layout.addWidget(self.custom_fees_label)
             
             summary_layout.addLayout(types_layout)
             
@@ -355,11 +356,11 @@ class AdditionalFeesPage(QWidget):
             self.displayed_count_label.setObjectName("statLabel")
             stats_layout.addWidget(self.displayed_count_label)
             
-            self.pending_count_label = QLabel("الرسوم المستحقة: 0")
+            self.pending_count_label = QLabel("الرسوم غير المدفوعة: 0")
             self.pending_count_label.setObjectName("statLabel")
             stats_layout.addWidget(self.pending_count_label)
             
-            self.collected_count_label = QLabel("الرسوم المحصلة: 0")
+            self.collected_count_label = QLabel("الرسوم المدفوعة: 0")
             self.collected_count_label.setObjectName("statLabel")
             stats_layout.addWidget(self.collected_count_label)
             
@@ -465,12 +466,19 @@ class AdditionalFeesPage(QWidget):
         try:
             # بناء الاستعلام مع الفلاتر
             query = """
-                SELECT af.id, s.name as student_name, sc.name_ar as school_name,
-                       af.fee_type, af.notes, af.amount, af.created_at,
-                       af.collection_date, af.collected_amount, af.status, af.notes
+                SELECT 
+                    af.id, 
+                    COALESCE(s.full_name, s.name) as student_name, 
+                    sc.name_ar as school_name,
+                    af.fee_type, 
+                    af.amount, 
+                    af.paid, 
+                    af.payment_date, 
+                    af.notes,
+                    af.created_at
                 FROM additional_fees af
-                LEFT JOIN students s ON af.student_id = s.id
-                LEFT JOIN schools sc ON s.school_id = sc.id
+                JOIN students s ON af.student_id = s.id
+                JOIN schools sc ON s.school_id = sc.id
                 WHERE 1=1
             """
             params = []
@@ -495,9 +503,10 @@ class AdditionalFeesPage(QWidget):
             
             # فلتر الحالة
             selected_status = self.status_combo.currentText()
-            if selected_status and selected_status != "جميع الرسوم":
-                query += " AND af.status = ?"
-                params.append(selected_status)
+            if selected_status and selected_status != "الكل":
+                paid_status = 1 if selected_status == "مدفوع" else 0
+                query += " AND af.paid = ?"
+                params.append(paid_status)
             
             # فلتر البحث
             search_text = self.search_input.text().strip()
@@ -509,7 +518,16 @@ class AdditionalFeesPage(QWidget):
             query += " ORDER BY af.created_at DESC"
             
             # تنفيذ الاستعلام
-            fees = db_manager.execute_query(query, params)
+            # تنفيذ الاستعلام مع معالجة غياب العمود full_name
+            try:
+                fees = db_manager.execute_query(query, params)
+            except Exception as e:
+                # في حال عمود full_name غير موجود، استخدم اسم الطالب العادي
+                if 'no such column' in str(e) and 's.full_name' in str(e):
+                    fallback_query = query.replace('COALESCE(s.full_name, s.name)', 's.name')
+                    fees = db_manager.execute_query(fallback_query, params)
+                else:
+                    raise
             
             self.current_fees = fees or []
             self.populate_fees_table()
@@ -525,6 +543,8 @@ class AdditionalFeesPage(QWidget):
             self.fees_table.setRowCount(len(self.current_fees))
             
             for row, fee in enumerate(self.current_fees):
+                # (id, student_name, school_name, fee_type, amount, paid, payment_date, notes, created_at)
+                
                 # المعرف (مخفي)
                 self.fees_table.setItem(row, 0, QTableWidgetItem(str(fee[0])))
                 
@@ -537,58 +557,40 @@ class AdditionalFeesPage(QWidget):
                 # نوع الرسم
                 self.fees_table.setItem(row, 3, QTableWidgetItem(fee[3] or ""))
                 
-                # الوصف
-                self.fees_table.setItem(row, 4, QTableWidgetItem(fee[4] or ""))
-                
                 # المبلغ
-                amount = fee[5] or 0
-                self.fees_table.setItem(row, 5, QTableWidgetItem(f"{amount:,.0f}"))
+                amount = fee[4] or 0
+                self.fees_table.setItem(row, 4, QTableWidgetItem(f"{amount:,.0f}"))
                 
-                # تاريخ الإضافة
-                created_at = fee[6]
+                # حالة الدفع
+                paid = fee[5]
+                status_text = "مدفوع" if paid else "غير مدفوع"
+                status_item = QTableWidgetItem(status_text)
+                status_item.setTextAlignment(Qt.AlignCenter)
+                if paid:
+                    status_item.setBackground(Qt.green)
+                else:
+                    status_item.setBackground(Qt.yellow)
+                self.fees_table.setItem(row, 5, status_item)
+
+                # تاريخ الدفع
+                payment_date = fee[6] or ""
+                self.fees_table.setItem(row, 6, QTableWidgetItem(str(payment_date)))
+
+                # الملاحظات
+                notes = fee[7] or ""
+                self.fees_table.setItem(row, 7, QTableWidgetItem(notes))
+
+                # تاريخ الإنشاء
+                created_at = fee[8]
+                formatted_date = ""
                 if created_at:
                     try:
                         date_obj = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
+                        formatted_date = date_obj.strftime("%Y-%m-%d %H:%M")
                     except:
-                        formatted_date = str(created_at)[:10]
-                else:
-                    formatted_date = ""
-                self.fees_table.setItem(row, 6, QTableWidgetItem(formatted_date))
-                
-                # تاريخ التحصيل
-                collection_date = fee[7]
-                if collection_date:
-                    try:
-                        date_obj = datetime.fromisoformat(collection_date.replace('Z', '+00:00'))
-                        formatted_date = date_obj.strftime("%Y-%m-%d")
-                    except:
-                        formatted_date = str(collection_date)[:10]
-                else:
-                    formatted_date = ""
-                self.fees_table.setItem(row, 7, QTableWidgetItem(formatted_date))
-                
-                # المبلغ المحصل
-                collected_amount = fee[8] or 0
-                self.fees_table.setItem(row, 8, QTableWidgetItem(f"{collected_amount:,.0f}"))
-                
-                # الحالة
-                status = fee[9] or "مستحق"
-                status_item = QTableWidgetItem(status)
-                
-                if status == "مدفوع":
-                    status_item.setBackground(Qt.green)
-                elif status == "مستحق":
-                    status_item.setBackground(Qt.yellow)
-                elif status == "ملغي":
-                    status_item.setBackground(Qt.gray)
-                
-                self.fees_table.setItem(row, 9, status_item)
-                
-                # الملاحظات
-                notes = fee[10] or ""
-                self.fees_table.setItem(row, 10, QTableWidgetItem(notes))
-            
+                        formatted_date = str(created_at)[:16]
+                self.fees_table.setItem(row, 8, QTableWidgetItem(formatted_date))
+
             # تحديث إحصائية العدد المعروض
             self.displayed_count_label.setText(f"عدد الرسوم المعروضة: {len(self.current_fees)}")
             
@@ -606,35 +608,30 @@ class AdditionalFeesPage(QWidget):
             collected_count = 0
             
             # إحصائيات حسب النوع
-            books_amount = 0
-            activities_amount = 0
-            transport_amount = 0
-            other_amount = 0
+            type_amounts = {
+                "رسوم التسجيل": 0,
+                "الزي المدرسي": 0,
+                "الكتب": 0,
+                "القرطاسية": 0,
+                "رسم مخصص": 0
+            }
             
             for fee in self.current_fees:
-                amount = fee[5] or 0
-                collected = fee[8] or 0
-                status = fee[9] or "مستحق"
+                # (id, student_name, school_name, fee_type, amount, paid, payment_date, notes, created_at)
+                amount = fee[4] or 0
+                paid = fee[5]
                 fee_type = fee[3] or ""
                 
                 total_amount += amount
-                collected_amount += collected
                 
-                if status == "مستحق":
-                    pending_amount += (amount - collected)
-                    pending_count += 1
-                elif status == "مدفوع":
+                if paid:
+                    collected_amount += amount
                     collected_count += 1
-                
-                # تصنيف حسب النوع
-                if fee_type == "رسوم كتب":
-                    books_amount += collected
-                elif fee_type == "رسوم نشاطات":
-                    activities_amount += collected
-                elif fee_type == "رسوم نقل":
-                    transport_amount += collected
+                    if fee_type in type_amounts:
+                        type_amounts[fee_type] += amount
                 else:
-                    other_amount += collected
+                    pending_amount += amount
+                    pending_count += 1
             
             # تحديث الملصقات الرئيسية
             self.total_amount_value.setText(f"{total_amount:,.0f} د.ع")
@@ -647,14 +644,15 @@ class AdditionalFeesPage(QWidget):
             self.pending_fees_label.setText(f"المستحق: {pending_amount:,.0f} د.ع")
             
             # تحديث الإحصائيات حسب النوع
-            self.books_fees_label.setText(f"رسوم كتب: {books_amount:,.0f} د.ع")
-            self.activities_fees_label.setText(f"رسوم نشاطات: {activities_amount:,.0f} د.ع")
-            self.transport_fees_label.setText(f"رسوم نقل: {transport_amount:,.0f} د.ع")
-            self.other_fees_label.setText(f"رسوم أخرى: {other_amount:,.0f} د.ع")
-            
+            self.registration_fees_label.setText(f"رسوم تسجيل: {type_amounts['رسوم التسجيل']:,.0f} د.ع")
+            self.uniform_fees_label.setText(f"الزي المدرسي: {type_amounts['الزي المدرسي']:,.0f} د.ع")
+            self.books_fees_label.setText(f"الكتب: {type_amounts['الكتب']:,.0f} د.ع")
+            self.stationery_fees_label.setText(f"القرطاسية: {type_amounts['القرطاسية']:,.0f} د.ع")
+            self.custom_fees_label.setText(f"رسم مخصص: {type_amounts['رسم مخصص']:,.0f} د.ع")
+
             # تحديث الإحصائيات الأخرى
-            self.pending_count_label.setText(f"الرسوم المستحقة: {pending_count}")
-            self.collected_count_label.setText(f"الرسوم المحصلة: {collected_count}")
+            self.pending_count_label.setText(f"الرسوم غير المدفوعة: {pending_count}")
+            self.collected_count_label.setText(f"الرسوم المدفوعة: {collected_count}")
             
         except Exception as e:
             logging.error(f"خطأ في تحديث ملخص الرسوم: {e}")
@@ -677,43 +675,9 @@ class AdditionalFeesPage(QWidget):
             logging.error(f"خطأ في تحديث صفحة الرسوم الإضافية: {e}")
     
     def show_context_menu(self, position):
-        """عرض قائمة السياق للجدول"""
-        try:
-            if self.fees_table.itemAt(position):
-                menu = QMenu()
-                
-                
-                
-                
-                
-                menu.addSeparator()
-                
-                
-                
-                
-                
-                menu.exec_(self.fees_table.mapToGlobal(position))
-            
-        except Exception as e:
-            logging.error(f"خطأ في عرض قائمة السياق: {e}")
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        """عرض قائمة السياق للجدول - تم تعطيلها"""
+        # تم تعطيل قائمة السياق بناء على الطلب
+        pass
     
     def export_fees(self):
         """تصدير تقرير الرسوم"""
