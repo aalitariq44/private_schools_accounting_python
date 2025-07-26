@@ -79,19 +79,16 @@ class ExpensesPage(QWidget):
             
             # رأس الصفحة
             self.create_header(layout)
-            
+
             # شريط الأدوات والفلاتر
             self.create_toolbar(layout)
-            
-            # إحصائيات سريعة
-            self.create_summary_stats(layout)
-            
+
             # جدول المصروفات
             self.create_expenses_table(layout)
-            
+
             # إحصائيات مفصلة
             self.create_detailed_stats(layout)
-            
+
             self.setLayout(layout)
             
         except Exception as e:
@@ -107,20 +104,42 @@ class ExpensesPage(QWidget):
             header_layout = QHBoxLayout(header_frame)
             header_layout.setContentsMargins(20, 15, 20, 15)
             
-            # عنوان الصفحة
+            # عنوان ووصف الصفحة (عمودي)
             title_layout = QVBoxLayout()
-            
             title_label = QLabel("إدارة المصروفات")
             title_label.setObjectName("pageTitle")
+            title_label.setStyleSheet("color: black;")
             title_layout.addWidget(title_label)
-            
             desc_label = QLabel("تسجيل وإدارة جميع مصروفات المدرسة")
             desc_label.setObjectName("pageDesc")
+            desc_label.setStyleSheet("color: black;")
             title_layout.addWidget(desc_label)
-            
-            header_layout.addLayout(title_layout)
-            header_layout.addStretch()
-            
+
+            # إحصائيات موجزة (أفقي)
+            stats_layout = QHBoxLayout()
+            stats_layout.setContentsMargins(0, 0, 0, 0)
+            self.monthly_total_label = QLabel("إجمالي هذا الشهر: 0 دينار")
+            self.monthly_total_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.monthly_total_label)
+            self.yearly_total_label = QLabel("إجمالي هذا العام: 0 دينار")
+            self.yearly_total_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.yearly_total_label)
+            self.displayed_count_label = QLabel("عدد المصروفات المعروضة: 0")
+            self.displayed_count_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.displayed_count_label)
+            stats_layout.addStretch()
+            self.refresh_button = QPushButton("تحديث")
+            self.refresh_button.setObjectName("refreshButton")
+            stats_layout.addWidget(self.refresh_button)
+
+            # تخطيط رئيسي أفقي: يسار (العنوان والوصف) - يمين (الإحصائيات)
+            main_header_layout = QHBoxLayout()
+            main_header_layout.setContentsMargins(0, 0, 0, 0)
+            main_header_layout.addLayout(title_layout)
+            main_header_layout.addStretch()
+            main_header_layout.addLayout(stats_layout)
+
+            header_layout.addLayout(main_header_layout)
             layout.addWidget(header_frame)
             
         except Exception as e:
@@ -226,42 +245,6 @@ class ExpensesPage(QWidget):
             logging.error(f"خطأ في إنشاء شريط الأدوات: {e}")
             raise
     
-    def create_summary_stats(self, layout):
-        """إنشاء الإحصائيات الموجزة"""
-        try:
-            stats_frame = QFrame()
-            stats_frame.setObjectName("summaryStatsFrame")
-            
-            stats_layout = QHBoxLayout(stats_frame)
-            stats_layout.setContentsMargins(20, 15, 20, 15)
-            
-            # إجمالي المصروفات هذا الشهر
-            self.monthly_total_label = QLabel("إجمالي هذا الشهر: 0 دينار")
-            self.monthly_total_label.setObjectName("summaryStatLabel")
-            stats_layout.addWidget(self.monthly_total_label)
-            
-            # إجمالي المصروفات هذا العام
-            self.yearly_total_label = QLabel("إجمالي هذا العام: 0 دينار")
-            self.yearly_total_label.setObjectName("summaryStatLabel")
-            stats_layout.addWidget(self.yearly_total_label)
-            
-            # عدد المصروفات المعروضة
-            self.displayed_count_label = QLabel("عدد المصروفات المعروضة: 0")
-            self.displayed_count_label.setObjectName("summaryStatLabel")
-            stats_layout.addWidget(self.displayed_count_label)
-            
-            stats_layout.addStretch()
-            
-            # زر التحديث
-            self.refresh_button = QPushButton("تحديث")
-            self.refresh_button.setObjectName("refreshButton")
-            stats_layout.addWidget(self.refresh_button)
-            
-            layout.addWidget(stats_frame)
-            
-        except Exception as e:
-            logging.error(f"خطأ في إنشاء الإحصائيات الموجزة: {e}")
-            raise
     
     def create_expenses_table(self, layout):
         """إنشاء جدول المصروفات"""
