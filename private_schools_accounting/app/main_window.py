@@ -175,8 +175,10 @@ class MainWindow(QMainWindow):
             title_label = QLabel("حسابات المدارس")
             title_label.setObjectName("appTitle")
             title_label.setAlignment(Qt.AlignCenter)
+            title_label.setMinimumHeight(48)  # زيادة ارتفاع العنوان
+            title_label.setWordWrap(True)     # السماح بتغليف النص إذا لزم
             header_layout.addWidget(title_label)
-            
+          
             # نسخة التطبيق
             version_label = QLabel(f"الإصدار {config.APP_VERSION}")
             version_label.setObjectName("appVersion")
@@ -774,13 +776,14 @@ class MainWindow(QMainWindow):
                 #sidebarHeader {
                     background-color: transparent; /* Make it blend with the sidebar */
                     border-bottom: 1px solid #2d3748;
-                    padding: 20px 10px; /* More vertical padding */
+                    padding: 0; /* إزالة البادينغ لمنع تقطيع النص */
                 }
                 
                 #appTitle {
                     color: #E5E7EB; /* Lighter text color */
                     font-size: 24px; /* Slightly smaller */
                     font-weight: bold;
+                    padding: 0; /* Prevent text cutoff */
                 }
                 
                 #appVersion {
