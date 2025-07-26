@@ -77,11 +77,13 @@ class AddInstallmentDialog(QDialog):
             form_layout.addRow(info_label)
             
             self.amount_input = QDoubleSpinBox()
-            self.amount_input.setMinimum(1.0)
+            self.amount_input.setMinimum(0.0)
             self.amount_input.setMaximum(self.max_amount)
             self.amount_input.setDecimals(0)
             self.amount_input.setSuffix(" د.ع")
-            self.amount_input.setValue(self.max_amount)
+            # جعل حقل المبلغ يظهر فارغًا عند البداية
+            self.amount_input.setSpecialValueText("")
+            self.amount_input.setValue(0.0)
             form_layout.addRow("مبلغ القسط:", self.amount_input)
             
             self.payment_date = QDateEdit()
