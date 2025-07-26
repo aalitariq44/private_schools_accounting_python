@@ -26,10 +26,11 @@ from .edit_income_dialog import EditIncomeDialog
 
 class ExternalIncomePage(QWidget):
     """صفحة إدارة الواردات الخارجية"""
-    
+
     # إشارات النافذة
     page_loaded = pyqtSignal()
-    
+
+
     def __init__(self):
         super().__init__()
         self.current_incomes = []
@@ -74,21 +75,19 @@ class ExternalIncomePage(QWidget):
             layout.setContentsMargins(20, 20, 20, 20)
             layout.setSpacing(15)
             
+
             # رأس الصفحة
             self.create_header(layout)
-            
+
             # شريط الأدوات والفلاتر
             self.create_toolbar(layout)
-            
-            # إحصائيات سريعة
-            self.create_summary_stats(layout)
-            
+
             # جدول الواردات
             self.create_income_table(layout)
-            
+
             # إحصائيات مفصلة
             self.create_detailed_stats(layout)
-            
+
             self.setLayout(layout)
             
         except Exception as e:
@@ -104,22 +103,45 @@ class ExternalIncomePage(QWidget):
             header_layout = QHBoxLayout(header_frame)
             header_layout.setContentsMargins(20, 15, 20, 15)
             
-            # عنوان الصفحة
+
+            # عنوان ووصف الصفحة (عمودي)
             title_layout = QVBoxLayout()
-            
             title_label = QLabel("إدارة الواردات الخارجية")
             title_label.setObjectName("pageTitle")
+            title_label.setStyleSheet("color: black;")
             title_layout.addWidget(title_label)
-            
             desc_label = QLabel("تسجيل وإدارة جميع الواردات الخارجية للمدرسة")
             desc_label.setObjectName("pageDesc")
+            desc_label.setStyleSheet("color: black;")
             title_layout.addWidget(desc_label)
-            
-            header_layout.addLayout(title_layout)
-            header_layout.addStretch()
-            
+
+            # إحصائيات موجزة (أفقي)
+            stats_layout = QHBoxLayout()
+            stats_layout.setContentsMargins(0, 0, 0, 0)
+            self.monthly_total_label = QLabel("إجمالي هذا الشهر: 0 دينار")
+            self.monthly_total_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.monthly_total_label)
+            self.yearly_total_label = QLabel("إجمالي هذا العام: 0 دينار")
+            self.yearly_total_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.yearly_total_label)
+            self.displayed_count_label = QLabel("عدد الواردات المعروضة: 0")
+            self.displayed_count_label.setObjectName("summaryStatLabel")
+            stats_layout.addWidget(self.displayed_count_label)
+            stats_layout.addStretch()
+            self.refresh_button = QPushButton("تحديث")
+            self.refresh_button.setObjectName("refreshButton")
+            stats_layout.addWidget(self.refresh_button)
+
+            # تخطيط رئيسي أفقي: يسار (العنوان والوصف) - يمين (الإحصائيات)
+            main_header_layout = QHBoxLayout()
+            main_header_layout.setContentsMargins(0, 0, 0, 0)
+            main_header_layout.addLayout(title_layout)
+            main_header_layout.addStretch()
+            main_header_layout.addLayout(stats_layout)
+
+            header_layout.addLayout(main_header_layout)
             layout.addWidget(header_frame)
-            
+
         except Exception as e:
             logging.error(f"خطأ في إنشاء رأس الصفحة: {e}")
     
