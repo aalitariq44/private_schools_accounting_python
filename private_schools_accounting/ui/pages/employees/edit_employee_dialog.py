@@ -91,7 +91,7 @@ class EditEmployeeDialog(QDialog):
             self.salary_input = QDoubleSpinBox()
             self.salary_input.setRange(0, 999999)
             self.salary_input.setDecimals(2)
-            self.salary_input.setSuffix(" ريال")
+            self.salary_input.setSuffix(" د.ع")
             form_layout.addRow("الراتب الشهري *:", self.salary_input)
             
             # رقم الهاتف
