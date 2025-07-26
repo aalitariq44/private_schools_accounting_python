@@ -244,7 +244,7 @@ class EmployeesPage(QWidget):
                 }
                 
                 QLabel#tableHeader {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: bold;
                     color: #2c3e50;
                     padding: 15px;

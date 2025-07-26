@@ -32,7 +32,8 @@ class AddEmployeeDialog(QDialog):
         try:
             self.setWindowTitle("إضافة موظف جديد")
             self.setModal(True)
-            self.setFixedSize(450, 380)
+            # set larger size to match student dialog
+            self.resize(800, 900)
             
             # التخطيط الرئيسي
             layout = QVBoxLayout()
@@ -142,61 +143,58 @@ class AddEmployeeDialog(QDialog):
     def setup_styles(self):
         """إعداد أنماط العرض"""
         try:
+            # Use student dialog styles
             self.setStyleSheet("""
-                QDialog {
-                    background-color: #f8f9fa;
-                }
-                
-                QLabel#dialogTitle {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #2c3e50;
-                    padding: 10px 0;
-                    border-bottom: 2px solid #3498db;
-                }
-                
-                QFrame#formFrame {
-                    background-color: white;
-                    border: 1px solid #dee2e6;
-                    border-radius: 8px;
-                }
-                
-                QLineEdit, QComboBox, QDoubleSpinBox, QTextEdit {
-                    padding: 8px;
-                    border: 1px solid #ced4da;
-                    border-radius: 4px;
-                    font-size: 12px;
-                }
-                
-                QLineEdit:focus, QComboBox:focus, QDoubleSpinBox:focus, QTextEdit:focus {
-                    border-color: #007bff;
-                    outline: none;
-                }
-                
-                QPushButton#primaryButton {
-                    background-color: #007bff;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 4px;
-                    font-weight: bold;
-                }
-                
-                QPushButton#primaryButton:hover {
-                    background-color: #0056b3;
-                }
-                
-                QPushButton#secondaryButton {
-                    background-color: #6c757d;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 4px;
-                }
-                
-                QPushButton#secondaryButton:hover {
-                    background-color: #545b62;
-                }
+            QDialog {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #f8f9ff, stop:1 #e8f0ff);
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+
+            QLabel {
+                color: #2c3e50;
+                font-weight: bold;
+                font-size:18px;
+                margin: 5px 0px;
+            }
+
+            QLineEdit, QComboBox, QDateEdit, QTextEdit, QSpinBox, QDoubleSpinBox {
+                padding: 12px 15px;
+                border: 2px solid #bdc3c7;
+                border-radius: 10px;
+                background-color: white;
+                font-size: 18px;
+                min-height: 30px;
+                margin: 5px 0px;
+            }
+
+            QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+                border-color: #3498db;
+                background-color: #f8fbff;
+            }
+
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3498db, stop:1 #2980b9);
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 18px;
+                min-width: 120px;
+                margin: 8px 4px;
+            }
+
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #5dade2, stop:1 #3498db);
+            }
+
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #2980b9, stop:1 #1f618d);
+            }
             """)
             
         except Exception as e:
