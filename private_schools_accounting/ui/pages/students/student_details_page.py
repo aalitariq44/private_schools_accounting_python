@@ -20,6 +20,7 @@ from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
 from .add_installment_dialog import AddInstallmentDialog
 from .add_additional_fee_dialog import AddAdditionalFeeDialog
+from core.printing.print_manager import print_payment_receipt  # دالة طباعة إيصال القسط
 from core.printing.print_manager import PrintManager
 from core.printing.print_config import TemplateType
 
@@ -504,6 +505,11 @@ class StudentDetailsPage(QWidget):
                 delete_btn.setObjectName("deleteButton")
                 delete_btn.clicked.connect(lambda checked, id=installment[0]: self.delete_installment(id))
                 actions_layout.addWidget(delete_btn)
+                # زر طباعة إيصال القسط
+                print_btn = QPushButton("طباعة")
+                print_btn.setObjectName("printButton")
+                print_btn.clicked.connect(lambda checked, id=installment[0]: self.print_installment(id))
+                actions_layout.addWidget(print_btn)
                 
                 actions_widget.setLayout(actions_layout)
                 self.installments_table.setCellWidget(row, 4, actions_widget)
@@ -619,6 +625,25 @@ class StudentDetailsPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في تحميل الرسوم الإضافية: {e}")
+    def print_installment(self, installment_id):
+        """طباعة إيصال قسط منفصل"""
+        try:
+            log_user_action(f"طباعة إيصال القسط: {installment_id}")
+            inst = next((i for i in self.installments_data if i[0] == installment_id), None)
+            if not inst:
+                return
+            receipt = {
+                'id': inst[0],
+                'student_name': self.name_label.text(),
+                'school_name': self.school_label.text(),
+                'payment_date': inst[2],
+                'payment_method': inst[4] or '',  # استخدم الملاحظات كوصف الدفع
+                'description': inst[4] or '',
+                'amount': float(inst[1]) if inst[1] else 0
+            }
+            print_payment_receipt(receipt, parent=self)
+        except Exception as e:
+            logging.error(f"خطأ في طباعة إيصال القسط: {e}")
     def print_details(self):
         """طباعة تفاصيل الطالب مع الأقساط والرسوم الإضافية"""
         try:
