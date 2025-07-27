@@ -20,6 +20,8 @@ from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
 from .add_installment_dialog import AddInstallmentDialog
 from .add_additional_fee_dialog import AddAdditionalFeeDialog
+from core.printing.print_manager import PrintManager
+from core.printing.print_config import TemplateType
 
 
 class StudentDetailsPage(QWidget):
@@ -118,6 +120,10 @@ class StudentDetailsPage(QWidget):
             self.refresh_button = QPushButton("تحديث")
             self.refresh_button.setObjectName("refreshButton")
             toolbar_layout.addWidget(self.refresh_button)
+            # زر طباعة التفاصيل
+            self.print_button = QPushButton("طباعة")
+            self.print_button.setObjectName("primaryButton")
+            toolbar_layout.addWidget(self.print_button)
             
             layout.addWidget(toolbar_frame)
             
@@ -349,6 +355,7 @@ class StudentDetailsPage(QWidget):
             # أزرار العمليات
             self.back_button.clicked.connect(self.back_requested.emit)
             self.refresh_button.clicked.connect(self.refresh_data)
+            self.print_button.clicked.connect(self.print_details)
             self.add_installment_button.clicked.connect(self.add_installment)
             self.add_fee_button.clicked.connect(self.add_additional_fee)
             
@@ -612,6 +619,54 @@ class StudentDetailsPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في تحميل الرسوم الإضافية: {e}")
+    def print_details(self):
+        """طباعة تفاصيل الطالب مع الأقساط والرسوم الإضافية"""
+        try:
+            log_user_action(f"طباعة تفاصيل الطالب: {self.student_id}")
+            # بيانات الطالب
+            try:
+                total_fee = float(self.student_data[11])
+            except Exception:
+                total_fee = 0
+            student = {
+                'id': self.student_id,
+                'name': self.name_label.text(),
+                'school_name': self.school_label.text(),
+                'grade': self.grade_label.text(),
+                'section': self.section_label.text(),
+                'gender': self.gender_label.text(),
+                'phone': self.phone_label.text(),
+                'status': self.status_label.text(),
+                'total_fee': total_fee
+            }
+            # الأقساط
+            installments = []
+            for inst in self.installments_data:
+                installments.append({
+                    'amount': float(inst[1]) if inst[1] else 0,
+                    'payment_date': inst[2],
+                    'payment_time': inst[3],
+                    'notes': inst[4]
+                })
+            # الرسوم الإضافية
+            additional_fees = []
+            for fee in self.additional_fees_data:
+                additional_fees.append({
+                    'fee_type': fee[1],
+                    'amount': float(fee[2]) if fee[2] else 0,
+                    'added_at': fee[5],
+                    'payment_date': fee[4],
+                    'notes': fee[6]
+                })
+            # معاينة الطباعة
+            pm = PrintManager(self)
+            pm.preview_document(TemplateType.STUDENT_REPORT, {
+                'student': student,
+                'installments': installments,
+                'additional_fees': additional_fees
+            })
+        except Exception as e:
+            logging.error(f"خطأ في طباعة تفاصيل الطالب: {e}")
     
     def update_additional_fees_table(self):
         """تحديث جدول الرسوم الإضافية"""
