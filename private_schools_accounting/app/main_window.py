@@ -254,7 +254,8 @@ class MainWindow(QMainWindow):
             if name == "logout":
                 button.clicked.connect(self.logout)
             elif active:
-                button.clicked.connect(lambda: self.navigate_to_page(name))
+                # Capture page name in lambda to avoid late binding closure issue
+                button.clicked.connect(lambda checked, page=name: self.navigate_to_page(page))
             else:
                 button.clicked.connect(self.show_coming_soon)
                 button.setProperty("coming_soon", True)

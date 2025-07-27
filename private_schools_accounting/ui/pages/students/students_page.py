@@ -19,12 +19,18 @@ from PyQt5.QtGui import QFont, QPixmap, QIcon
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
 
+# استيراد نظام الطباعة
+from core.printing import print_manager, PrintHelper, QuickPrintMixin, apply_print_styles, TemplateType
+# Override PrintHelper in case of import issues
+from core.printing.print_utils import PrintHelper as _PrintHelper
+PrintHelper = _PrintHelper
+
 # استيراد نوافذ إدارة الطلاب
 from .add_student_dialog import AddStudentDialog
 from .edit_student_dialog import EditStudentDialog
 
 
-class StudentsPage(QWidget):
+class StudentsPage(QWidget, QuickPrintMixin):
     """صفحة إدارة الطلاب"""
     
     # إشارات النافذة
@@ -38,6 +44,8 @@ class StudentsPage(QWidget):
         self.setup_ui()
         self.setup_styles()
         self.setup_connections()
+        # إعداد الطباعة باستخدام QuickPrintMixin
+        self.setup_printing(TemplateType.STUDENT_LIST, self.get_current_data_for_print)
         self.load_schools()
         
         log_user_action("فتح صفحة إدارة الطلاب")
@@ -138,6 +146,19 @@ class StudentsPage(QWidget):
             self.add_student_button = QPushButton("إضافة طالب")
             self.add_student_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_student_button)
+            
+            # أزرار الطباعة
+            self.print_list_button = QPushButton("طباعة القائمة")
+            self.print_list_button.setObjectName("printButton")
+            actions_layout.addWidget(self.print_list_button)
+            
+            self.quick_print_button = QPushButton("طباعة سريعة")
+            self.quick_print_button.setObjectName("quickPrintButton") 
+            actions_layout.addWidget(self.quick_print_button)
+            
+            self.export_pdf_button = QPushButton("تصدير PDF")
+            self.export_pdf_button.setObjectName("exportButton")
+            actions_layout.addWidget(self.export_pdf_button)
             
             
             
@@ -242,6 +263,11 @@ class StudentsPage(QWidget):
             # ربط أزرار العمليات
             self.add_student_button.clicked.connect(self.add_student)
             self.refresh_button.clicked.connect(self.refresh)
+            
+            # ربط أزرار الطباعة
+            self.print_list_button.clicked.connect(self.print_students_list)
+            self.quick_print_button.clicked.connect(self.quick_print_current_data)
+            self.export_pdf_button.clicked.connect(self.export_students_pdf)
             
             # ربط الفلاتر
             self.school_combo.currentTextChanged.connect(self.apply_filters)
@@ -402,6 +428,13 @@ class StudentsPage(QWidget):
             details_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
             details_btn.clicked.connect(lambda: self.show_student_details(student_id))
             layout.addWidget(details_btn)
+            
+            # زر طباعة تقرير الطالب
+            print_btn = QPushButton("طباعة")
+            print_btn.setObjectName("printStudentButton")
+            print_btn.setFixedSize(120, 40)
+            print_btn.clicked.connect(lambda: self.print_student_report(student_id))
+            layout.addWidget(print_btn)
 
             return widget
 
@@ -567,6 +600,55 @@ class StudentsPage(QWidget):
                     background-color: #229954;
                 }
                 
+                /* أزرار الطباعة */
+                #printButton {
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    min-width: 150px;
+                    font-size: 18px;
+                    margin: 5px;
+                }
+                
+                #printButton:hover {
+                    background-color: #0056B3;
+                }
+                
+                #quickPrintButton {
+                    background-color: #FFC107;
+                    color: #212529;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    min-width: 150px;
+                    font-size: 18px;
+                    margin: 5px;
+                }
+                
+                #quickPrintButton:hover {
+                    background-color: #E0A800;
+                }
+                
+                #exportButton {
+                    background-color: #28A745;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    min-width: 150px;
+                    font-size: 18px;
+                    margin: 5px;
+                }
+                
+                #exportButton:hover {
+                    background-color: #1E7E34;
+                }
+                
                 #refreshButton {
                     background-color: #F39C12;
                     color: white;
@@ -583,7 +665,7 @@ class StudentsPage(QWidget):
                     background-color: #E67E22;
                 }
                 
-                #editButton, #deleteButton, #detailsButton {
+                #editButton, #deleteButton, #detailsButton, #printStudentButton {
                     padding: 8px 15px;
                     border-radius: 5px;
                     font-size: 18px;
@@ -605,6 +687,15 @@ class StudentsPage(QWidget):
                 #detailsButton {
                     background-color: #9B59B6;
                     color: white;
+                }
+                
+                #printStudentButton {
+                    background-color: #17A2B8;
+                    color: white;
+                }
+                
+                #printStudentButton:hover {
+                    background-color: #138496;
                 }
                 
                 /* الجدول */
@@ -654,6 +745,9 @@ class StudentsPage(QWidget):
                     margin: 5px;
                 }
             """
+            
+            # إضافة تنسيقات الطباعة
+            # style += apply_print_styles()
             
             self.setStyleSheet(style)
             
@@ -804,3 +898,109 @@ class StudentsPage(QWidget):
         except Exception as e:
             logging.error(f"خطأ في الحصول على النافذة الرئيسية: {e}")
             return None
+    
+    # وظائف الطباعة الجديدة
+    def print_students_list(self):
+        """طباعة قائمة الطلاب مع معاينة"""
+        try:
+            if not self.current_students:
+                QMessageBox.warning(self, "تحذير", "لا توجد بيانات للطباعة")
+                return
+            
+            # إعداد بيانات الطلاب للطباعة
+            students_data = PrintHelper.format_students_list_for_print(self.current_students)
+            
+            # إعداد معلومات الفلاتر
+            filter_info = self.get_current_filters_info()
+            
+            # طباعة مع معاينة
+            print_manager.print_students_list(students_data, filter_info, self)
+            
+        except Exception as e:
+            logging.error(f"خطأ في طباعة قائمة الطلاب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في الطباعة:\\n{str(e)}")
+    
+    def print_student_report(self, student_id: int):
+        """طباعة تقرير طالب واحد"""
+        try:
+            # البحث عن بيانات الطالب
+            student_data = None
+            for student in self.current_students:
+                if student['id'] == student_id:
+                    student_data = student
+                    break
+            
+            if not student_data:
+                # جلب البيانات من قاعدة البيانات
+                query = """
+                    SELECT s.*, sc.name_ar as school_name
+                    FROM students s
+                    LEFT JOIN schools sc ON s.school_id = sc.id
+                    WHERE s.id = ?
+                """
+                result = db_manager.execute_query(query, (student_id,))
+                if result:
+                    student_data = result[0]
+            
+            if student_data:
+                formatted_data = PrintHelper.format_student_data_for_print(student_data)
+                print_manager.print_student_report(formatted_data, self)
+            else:
+                QMessageBox.warning(self, "خطأ", "لم يتم العثور على بيانات الطالب")
+                
+        except Exception as e:
+            logging.error(f"خطأ في طباعة تقرير الطالب: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في طباعة التقرير:\\n{str(e)}")
+    
+    def export_students_pdf(self):
+        """تصدير قائمة الطلاب إلى PDF"""
+        try:
+            if not self.current_students:
+                QMessageBox.warning(self, "تحذير", "لا توجد بيانات للتصدير")
+                return
+            
+            from PyQt5.QtWidgets import QFileDialog
+            from core.printing import TemplateType
+            
+            # اختيار مكان الحفظ
+            file_path, _ = QFileDialog.getSaveFileName(
+                self, "حفظ قائمة الطلاب", 
+                f"قائمة_الطلاب_{len(self.current_students)}_طالب.pdf",
+                "PDF Files (*.pdf)"
+            )
+            
+            if file_path:
+                students_data = PrintHelper.format_students_list_for_print(self.current_students)
+                filter_info = self.get_current_filters_info()
+                
+                data = {
+                    'students': students_data,
+                    'filter_info': filter_info
+                }
+                
+                print_manager.export_to_pdf(TemplateType.STUDENT_LIST, data, file_path, self)
+                
+        except Exception as e:
+            logging.error(f"خطأ في تصدير PDF: {e}")
+            QMessageBox.critical(self, "خطأ", f"حدث خطأ في التصدير:\\n{str(e)}")
+    
+    def get_current_data_for_print(self):
+        """الحصول على البيانات الحالية للطباعة السريعة"""
+        return PrintHelper.format_students_list_for_print(self.current_students)
+    
+    def get_current_filters_info(self):
+        """الحصول على معلومات الفلاتر الحالية"""
+        try:
+            filters = {
+                'school': self.school_combo.currentText(),
+                'grade': self.grade_combo.currentText(),
+                'status': self.status_combo.currentText(),
+                'gender': self.gender_combo.currentText(),
+                'search': self.search_input.text().strip()
+            }
+            
+            return PrintHelper.create_filter_info_string(filters)
+            
+        except Exception as e:
+            logging.error(f"خطأ في الحصول على معلومات الفلاتر: {e}")
+            return "خطأ في الفلاتر"
