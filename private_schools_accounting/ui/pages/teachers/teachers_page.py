@@ -495,7 +495,7 @@ class TeachersPage(QWidget):
             dialog = EditTeacherDialog(teacher_id, self)
             if dialog.exec_() == dialog.Accepted:
                 self.load_teachers()
-                log_user_action("تعديل بيانات معلم", teacher_id)
+                log_user_action("تعديل بيانات معلم", str(teacher_id))
                 
         except Exception as e:
             logging.error(f"خطأ في تعديل معلم: {e}")
@@ -524,7 +524,7 @@ class TeachersPage(QWidget):
                     cursor.execute("DELETE FROM teachers WHERE id = ?", (teacher_id,))
                     
                 self.load_teachers()
-                log_user_action("حذف معلم", teacher_id)
+                log_user_action("حذف معلم", str(teacher_id))
                 QMessageBox.information(self, "نجح", "تم حذف المعلم بنجاح")
                 
         except Exception as e:

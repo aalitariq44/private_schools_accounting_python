@@ -92,7 +92,7 @@ class CreateBackupDialog(QDialog):
 
 
 class BackupPage(QWidget):
-    """صفحة إدارة النسخ الاحتياطية"""
+    """صفحة إدارة النسخ الاحتياطيات"""
     
     def __init__(self):
         super().__init__()
@@ -343,7 +343,7 @@ class BackupPage(QWidget):
                 self.backup_worker.start()
                 
                 # تسجيل العملية
-                log_user_action("backup", "create_backup", {"description": description})
+                log_user_action(f"backup - create_backup: {description}")
                 
         except Exception as e:
             logging.error(f"خطأ في إنشاء النسخة الاحتياطية: {e}")
@@ -446,7 +446,7 @@ class BackupPage(QWidget):
                     self, "تحميل", 
                     "تم فتح رابط التحميل في المتصفح\nسيبدأ التحميل تلقائياً"
                 )
-                log_user_action("backup", "download_backup", {"filename": backup['filename']})
+                log_user_action(f"backup - download_backup: {backup['filename']}")
             else:
                 QMessageBox.warning(self, "خطأ", "فشل في إنشاء رابط التحميل")
                 
@@ -475,7 +475,7 @@ class BackupPage(QWidget):
                 if success:
                     QMessageBox.information(self, "نجح", message)
                     self.refresh_backups()  # تحديث القائمة
-                    log_user_action("backup", "delete_backup", {"filename": backup['filename']})
+                    log_user_action(f"backup - delete_backup: {backup['filename']}")
                 else:
                     QMessageBox.critical(self, "خطأ", message)
                     
@@ -501,7 +501,7 @@ class BackupPage(QWidget):
                 if success:
                     QMessageBox.information(self, "نجح", message)
                     self.refresh_backups()  # تحديث القائمة
-                    log_user_action("backup", "cleanup_old_backups", {"keep_days": 30})
+                    log_user_action("backup - cleanup_old_backups: keep_days=30")
                 else:
                     QMessageBox.critical(self, "خطأ", message)
                     

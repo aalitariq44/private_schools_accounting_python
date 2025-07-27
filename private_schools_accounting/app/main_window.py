@@ -315,6 +315,7 @@ class MainWindow(QMainWindow):
             self.quick_backup_btn = QPushButton("نسخ احتياطي سريع")
             self.quick_backup_btn.setObjectName("quickBackupButton")
             self.quick_backup_btn.setToolTip("إنشاء نسخة احتياطية فورية من قاعدة البيانات")
+            self.quick_backup_btn.setStyleSheet("font-size: 18px;")
             self.quick_backup_btn.clicked.connect(self.create_quick_backup)
             header_layout.addWidget(self.quick_backup_btn)
             
@@ -1061,10 +1062,10 @@ class MainWindow(QMainWindow):
             
             # إنشاء النسخة الاحتياطية
             success, message = backup_manager.create_backup(description)
-            
+
             # إغلاق حوار التقدم
             progress.close()
-            
+
             if success:
                 QMessageBox.information(
                     self, "نجح النسخ الاحتياطي",
@@ -1072,10 +1073,17 @@ class MainWindow(QMainWindow):
                 )
                 log_user_action("backup", "quick_backup", {"description": description})
             else:
-                QMessageBox.critical(
-                    self, "خطأ في النسخ الاحتياطي",
-                    f"فشل في إنشاء النسخة الاحتياطية:\n\n{message}"
-                )
+                # تحقق من تعطيل النظام
+                if "disabled" in message.lower():
+                    QMessageBox.critical(
+                        self, "خطأ في النسخ الاحتياطي",
+                        "نظام النسخ الاحتياطي معطل. يرجى التحقق من صحة API Key واسم البوكت في ملف الإعدادات (config.py)."
+                    )
+                else:
+                    QMessageBox.critical(
+                        self, "خطأ في النسخ الاحتياطي",
+                        f"فشل في إنشاء النسخة الاحتياطية:\n\n{message}"
+                    )
                 
         except Exception as e:
             logging.error(f"خطأ في النسخ الاحتياطي السريع: {e}")

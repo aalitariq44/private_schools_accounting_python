@@ -16,7 +16,7 @@ import tempfile
 import zipfile
 
 try:
-    from supabase import create_client
+    from supabase import create_client  # type: ignore
 except ImportError:
     create_client = None
     logging.warning("supabase library not installed; backup functionality disabled.")
@@ -35,36 +35,30 @@ class BackupManager:
         # تحقق من توفر عميل Supabase
         if create_client is None:
             self.logger.error("Supabase client not available; backup functionality is disabled.")
-            self.supabase = None
-            return
+            raise Exception("مكتبة Supabase غير مثبتة. يرجى تثبيتها باستخدام: pip install supabase")
+        
         # تهيئة عميل Supabase
-        self.supabase = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
-        self.bucket_name = config.SUPABASE_BUCKET
-        self.setup_storage()
+        try:
+            self.supabase = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
+            self.bucket_name = config.SUPABASE_BUCKET
+            self.setup_storage()
+        except Exception as e:
+            self.logger.error(f"فشل في تهيئة Supabase: {e}")
+            raise Exception(f"فشل في الاتصال بـ Supabase: {e}")
     
     def setup_storage(self):
         """إعداد التخزين على Supabase"""
         try:
-            # التحقق من وجود البكت أو إنشاؤه
-            buckets = self.supabase.storage.list_buckets()
-            bucket_exists = any(bucket.name == self.bucket_name for bucket in buckets)
+            # التحقق من وجود البكت بدون محاولة إنشاؤه
+            self.logger.info(f"محاولة الاتصال بـ Supabase Storage...")
             
-            if not bucket_exists:
-                self.supabase.storage.create_bucket(
-                    self.bucket_name,
-                    options={
-                        "public": False,
-                        "allowedMimeTypes": ["application/zip", "application/x-sqlite3"],
-                        "fileSizeLimit": 100 * 1024 * 1024  # 100MB
-                    }
-                )
-                self.logger.info(f"تم إنشاء بكت التخزين: {self.bucket_name}")
-            else:
-                self.logger.info(f"بكت التخزين موجود: {self.bucket_name}")
+            # نجرب فقط الوصول للبكت الموجود
+            # إذا كان موجود سيعمل، إذا لم يكن موجود فسنتعامل مع الخطأ في create_backup
+            self.logger.info(f"سنستخدم بكت التخزين: {self.bucket_name}")
                 
         except Exception as e:
-            self.logger.error(f"خطأ في إعداد التخزين: {e}")
-            raise
+            self.logger.warning(f"تحذير في إعداد التخزين: {type(e).__name__}: {e}")
+            # لا نرمي خطأ هنا، فقط تحذير
     
     def create_backup(self, description: str = "") -> Tuple[bool, str]:
         """
@@ -76,9 +70,6 @@ class BackupManager:
         Returns:
             tuple: (نجح العملية, رسالة النتيجة)
         """
-        # guard if Supabase disabled
-        if self.supabase is None:
-            return False, "backup functionality is disabled"
         try:
             # التحقق من وجود قاعدة البيانات
             if not config.DATABASE_PATH.exists():
@@ -115,27 +106,27 @@ class BackupManager:
                     
                     zip_file.writestr("backup_info.txt", info_content.encode('utf-8'))
                 
-                # رفع الملف على Supabase
+                # رفع على Supabase - طريقة مبسطة مثل المثال الناجح
+                self.logger.info("محاولة رفع النسخة الاحتياطية على Supabase...")
                 folder_path = f"backups/{datetime.now().strftime('%Y/%m')}"
                 file_path = f"{folder_path}/{backup_filename}"
                 
-                with open(temp_path, 'rb') as file_data:
-                    result = self.supabase.storage.from_(self.bucket_name).upload(
-                        file_path,
-                        file_data,
-                        file_options={
-                            "content-type": "application/zip",
-                            "upsert": False
-                        }
-                    )
+                # قراءة الملف كما في المثال الناجح
+                with open(temp_path, 'rb') as f:
+                    data = f.read()
                 
-                # حفظ النسخة محلياً أيضاً
-                local_backup_path = config.BACKUPS_DIR / "manual" / backup_filename
-                shutil.copy2(temp_path, local_backup_path)
+                # رفع الملف بنفس الطريقة البسيطة
+                upload_result = self.supabase.storage.from_(self.bucket_name).upload(file_path, data)
                 
-                self.logger.info(f"تم إنشاء النسخة الاحتياطية: {file_path}")
-                return True, f"تم إنشاء النسخة الاحتياطية بنجاح\nالملف: {backup_filename}"
+                # التحقق من النتيجة مثل المثال الناجح
+                if hasattr(upload_result, 'error') and upload_result.error:
+                    error_msg = f"فشل في رفع النسخة الاحتياطية: {upload_result.error}"
+                    self.logger.error(error_msg)
+                    return False, error_msg
                 
+                self.logger.info(f"تم إنشاء النسخة الاحتياطية على Supabase: {file_path}, النتيجة: {upload_result}")
+                return True, f"تم إنشاء النسخة الاحتياطية بنجاح على Supabase\nالملف: {backup_filename}"
+                    
             finally:
                 # حذف الملف المؤقت
                 if os.path.exists(temp_path):
@@ -153,14 +144,11 @@ class BackupManager:
     
     def list_backups(self) -> List[Dict]:
         """
-        قائمة بجميع النسخ الاحتياطية المتاحة
+        قائمة بجميع النسخ الاحتياطية المتاحة على Supabase
         
         Returns:
             قائمة بالنسخ الاحتياطية مع معلوماتها
         """
-        # guard if Supabase disabled
-        if self.supabase is None:
-            return []
         try:
             backups = []
             
@@ -271,7 +259,7 @@ class BackupManager:
     
     def delete_backup(self, file_path: str) -> Tuple[bool, str]:
         """
-        حذف نسخة احتياطية
+        حذف نسخة احتياطية من Supabase
         
         Args:
             file_path: مسار الملف
@@ -279,8 +267,6 @@ class BackupManager:
         Returns:
             tuple: (نجح العملية, رسالة النتيجة)
         """
-        if self.supabase is None:
-            return False, "backup functionality is disabled"
         try:
             result = self.supabase.storage.from_(self.bucket_name).remove([file_path])
             
@@ -297,7 +283,7 @@ class BackupManager:
     
     def cleanup_old_backups(self, keep_days: int = 30) -> Tuple[bool, str]:
         """
-        تنظيف النسخ الاحتياطية القديمة
+        تنظيف النسخ الاحتياطية القديمة على Supabase
         
         Args:
             keep_days: عدد الأيام للاحتفاظ بالنسخ
@@ -305,8 +291,6 @@ class BackupManager:
         Returns:
             tuple: (نجح العملية, رسالة النتيجة)
         """
-        if self.supabase is None:
-            return False, "backup functionality is disabled"
         try:
             backups = self.list_backups()
             cutoff_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -327,7 +311,49 @@ class BackupManager:
             error_msg = f"خطأ في تنظيف النسخ الاحتياطية: {e}"
             self.logger.error(error_msg)
             return False, error_msg
+    
+    def get_backup_url(self, file_path: str, expires_in: int = 3600) -> Optional[str]:
+        """
+        الحصول على رابط تحميل النسخة الاحتياطية من Supabase
+        
+        Args:
+            file_path: مسار الملف
+            expires_in: مدة صلاحية الرابط بالثواني
+            
+        Returns:
+            رابط التحميل أو None في حالة الخطأ
+        """
+        try:
+            result = self.supabase.storage.from_(self.bucket_name).create_signed_url(
+                file_path, expires_in
+            )
+            return result.get('signedURL')
+            
+        except Exception as e:
+            self.logger.error(f"خطأ في إنشاء رابط التحميل: {e}")
+            return None
 
 
-# إنشاء مثيل مشترك من مدير النسخ الاحتياطية
-backup_manager = BackupManager()
+# إنشاء مثيل مشترك من مدير النسخ الاحتياطية - تجنب None
+backup_manager = None
+
+def get_backup_manager():
+    """الحصول على مثيل من مدير النسخ الاحتياطية مع إعادة المحاولة"""
+    global backup_manager
+    if backup_manager is None:
+        try:
+            backup_manager = BackupManager()
+        except Exception as e:
+            import logging
+            logging.error(f"فشل في تهيئة مدير النسخ الاحتياطية: {e}")
+            # إرجاع كائن وهمي بدلاً من None لتجنب NoneType errors
+            class DummyBackupManager:
+                def create_backup(self, description=""):
+                    return False, f"فشل في تهيئة النظام: {e}"
+                def list_backups(self):
+                    return []
+            backup_manager = DummyBackupManager()
+    return backup_manager
+
+# تهيئة فورية
+backup_manager = get_backup_manager()
