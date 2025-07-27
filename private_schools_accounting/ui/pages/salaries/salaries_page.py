@@ -20,6 +20,7 @@ from core.utils.logger import log_user_action
 
 # استيراد نوافذ إدارة الرواتب
 from .add_salary_dialog import AddSalaryDialog
+from .edit_salary_dialog import EditSalaryDialog
 
 
 class SalariesPage(QWidget):
@@ -212,6 +213,14 @@ class SalariesPage(QWidget):
             self.refresh_btn = QPushButton("تحديث")
             self.refresh_btn.setObjectName("secondaryButton")
             self.refresh_btn.setMinimumWidth(100)
+            # زر تعديل راتب
+            self.edit_btn = QPushButton("تعديل راتب")
+            self.edit_btn.setObjectName("secondaryButton")
+            self.edit_btn.setMinimumWidth(120)
+            # زر حذف راتب
+            self.delete_btn = QPushButton("حذف راتب")
+            self.delete_btn.setObjectName("secondaryButton")
+            self.delete_btn.setMinimumWidth(120)
             
             # معلومات العدد
             self.count_label = QLabel("إجمالي الرواتب: 0")
@@ -219,6 +228,8 @@ class SalariesPage(QWidget):
             
             # ترتيب العناصر
             toolbar_layout.addWidget(self.add_btn)
+            toolbar_layout.addWidget(self.edit_btn)
+            toolbar_layout.addWidget(self.delete_btn)
             toolbar_layout.addWidget(self.refresh_btn)
             toolbar_layout.addStretch()
             toolbar_layout.addWidget(self.count_label)
@@ -286,6 +297,8 @@ class SalariesPage(QWidget):
             # أحداث الأزرار
             self.add_btn.clicked.connect(self.add_salary)
             self.refresh_btn.clicked.connect(self.refresh_data)
+            self.edit_btn.clicked.connect(self.handle_edit_selected)
+            self.delete_btn.clicked.connect(self.handle_delete_selected)
             
         except Exception as e:
             logging.error(f"خطأ في إعداد الاتصالات: {e}")
@@ -594,6 +607,40 @@ class SalariesPage(QWidget):
             logging.error(f"خطأ في إضافة راتب: {e}")
             QMessageBox.critical(self, "خطأ", f"فشل في فتح نافذة إضافة راتب:\n{e}")
     
+    def handle_edit_selected(self):
+        """معالجة تعديل الراتب المحدد في الجدول"""
+        row = self.salaries_table.currentRow()
+        if row < 0:
+            QMessageBox.warning(self, "خطأ", "يرجى اختيار راتب للتعديل.")
+            return
+        salary_id = self.salaries_table.item(row, 0).data(Qt.UserRole)
+        # فتح نافذة تعديل الراتب
+        dialog = EditSalaryDialog(salary_id, self)
+        dialog.salary_updated.connect(self.refresh_data)
+        dialog.exec_()
+
+    def handle_delete_selected(self):
+        """معالجة حذف الراتب المحدد في الجدول"""
+        row = self.salaries_table.currentRow()
+        if row < 0:
+            QMessageBox.warning(self, "خطأ", "يرجى اختيار راتب للحذف.")
+            return
+        salary_id = self.salaries_table.item(row, 0).data(Qt.UserRole)
+        reply = QMessageBox.question(
+            self, "تأكيد الحذف",
+            "هل أنت متأكد من حذف هذا الراتب؟",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            affected = db_manager.execute_update("DELETE FROM salaries WHERE id = ?", (salary_id,))
+            if affected > 0:
+                QMessageBox.information(self, "نجح", "تم حذف الراتب بنجاح")
+                self.refresh_data()
+                log_user_action(f"حذف الراتب {salary_id}", "نجح")
+            else:
+                QMessageBox.warning(self, "خطأ", "لم يتم العثور على الراتب")
+    
     def refresh_data(self):
         """تحديث البيانات"""
         try:
@@ -602,3 +649,4 @@ class SalariesPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في تحديث البيانات: {e}")
+    
