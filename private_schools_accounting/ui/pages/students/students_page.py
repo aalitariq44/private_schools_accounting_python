@@ -18,6 +18,7 @@ from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 from core.database.connection import db_manager
 from core.utils.logger import log_user_action, log_database_operation
+from core.printing.print_manager import print_students_list  # استيراد دالة الطباعة
 
 # استيراد نوافذ إدارة الطلاب
 from .add_student_dialog import AddStudentDialog
@@ -138,6 +139,10 @@ class StudentsPage(QWidget):
             self.add_student_button = QPushButton("إضافة طالب")
             self.add_student_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_student_button)
+            # زر طباعة قائمة الطلاب
+            self.print_list_button = QPushButton("طباعة قائمة الطلاب")
+            self.print_list_button.setObjectName("primaryButton")
+            actions_layout.addWidget(self.print_list_button)
             
             
             
@@ -242,6 +247,8 @@ class StudentsPage(QWidget):
             # ربط أزرار العمليات
             self.add_student_button.clicked.connect(self.add_student)
             self.refresh_button.clicked.connect(self.refresh)
+            # ربط زر الطباعة
+            self.print_list_button.clicked.connect(self.print_student_list)
             
             # ربط الفلاتر
             self.school_combo.currentTextChanged.connect(self.apply_filters)
@@ -450,6 +457,32 @@ class StudentsPage(QWidget):
             
         except Exception as e:
             logging.error(f"خطأ في تحديث صفحة الطلاب: {e}")
+    def print_student_list(self):
+        """طباعة قائمة الطلاب مع المعاينة والفلترة"""
+        try:
+            log_user_action("طباعة قائمة الطلاب")
+            # إعداد معلومات الفلاتر
+            filters = []
+            school = self.school_combo.currentText()
+            if school and school != "جميع المدارس":
+                filters.append(f"المدرسة: {school}")
+            grade = self.grade_combo.currentText()
+            if grade and grade != "جميع الصفوف":
+                filters.append(f"الصف: {grade}")
+            status = self.status_combo.currentText()
+            if status and status != "جميع الحالات":
+                filters.append(f"الحالة: {status}")
+            gender = self.gender_combo.currentText()
+            if gender and gender != "جميع الطلاب":
+                filters.append(f"الجنس: {gender}")
+            search = self.search_input.text().strip()
+            if search:
+                filters.append(f"بحث: {search}")
+            filter_info = "؛ ".join(filters) if filters else None
+            # استدعاء دالة الطباعة مع المعاينة
+            print_students_list(self.current_students, filter_info, parent=self)
+        except Exception as e:
+            logging.error(f"خطأ في طباعة قائمة الطلاب: {e}")
     
     def show_context_menu(self, position):
         """عرض قائمة السياق للجدول"""
