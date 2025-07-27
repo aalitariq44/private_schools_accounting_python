@@ -78,40 +78,28 @@ class StudentsPage(QWidget, QuickPrintMixin):
         try:
             toolbar_frame = QFrame()
             toolbar_frame.setObjectName("toolbarFrame")
-            
             toolbar_layout = QHBoxLayout(toolbar_frame)
             toolbar_layout.setContentsMargins(15, 10, 15, 10)
             
             # فلاتر البحث
             filters_layout = QHBoxLayout()
             
-            # فلتر المدرسة
-            school_label = QLabel("المدرسة:")
-            school_label.setObjectName("filterLabel")
-            filters_layout.addWidget(school_label)
-            
+            # فلتر المدرسة (label removed)
             self.school_combo = QComboBox()
             self.school_combo.setObjectName("filterCombo")
             filters_layout.addWidget(self.school_combo)
             
             # فلتر الصف
-            grade_label = QLabel("الصف:")
-            grade_label.setObjectName("filterLabel")
-            filters_layout.addWidget(grade_label)
-            
             self.grade_combo = QComboBox()
             self.grade_combo.setObjectName("filterCombo")
             self.grade_combo.addItems(["جميع الصفوف", "الأول الابتدائي", "الثاني الابتدائي", 
-                                      "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", 
-                                      "السادس الابتدائي", "الأول المتوسط", "الثاني المتوسط", 
-                                      "الثالث المتوسط", "الرابع العلمي", "الرابع الأدبي",
-                                      "الخامس العلمي", "الخامس الأدبي", "السادس العلمي", "السادس الأدبي"])
+                                       "الثالث الابتدائي", "الرابع الابتدائي", "الخامس الابتدائي", 
+                                       "السادس الابتدائي", "الأول المتوسط", "الثاني المتوسط", 
+                                       "الثالث المتوسط", "الرابع العلمي", "الرابع الأدبي",
+                                       "الخامس العلمي", "الخامس الأدبي", "السادس العلمي", "السادس الأدبي"])
             filters_layout.addWidget(self.grade_combo)
             
             # فلتر الحالة
-            status_label = QLabel("الحالة:")
-            status_label.setObjectName("filterLabel")
-            filters_layout.addWidget(status_label)
             
             self.status_combo = QComboBox()
             self.status_combo.setObjectName("filterCombo")
@@ -119,9 +107,6 @@ class StudentsPage(QWidget, QuickPrintMixin):
             filters_layout.addWidget(self.status_combo)
             
             # فلتر الجنس
-            gender_label = QLabel("الجنس:")
-            gender_label.setObjectName("filterLabel")
-            filters_layout.addWidget(gender_label)
             self.gender_combo = QComboBox()
             self.gender_combo.setObjectName("filterCombo")
             self.gender_combo.addItems(["جميع الطلاب", "ذكر", "أنثى"])
@@ -273,10 +258,12 @@ class StudentsPage(QWidget, QuickPrintMixin):
             self.export_pdf_button.clicked.connect(self.export_students_pdf)
             
             # ربط الفلاتر
-            self.school_combo.currentTextChanged.connect(self.apply_filters)
-            self.grade_combo.currentTextChanged.connect(self.apply_filters)
-            self.status_combo.currentTextChanged.connect(self.apply_filters)
-            self.gender_combo.currentTextChanged.connect(self.apply_filters)
+            # استخدام currentIndexChanged للإشارة إلى تغيير الاختيار في ComboBox
+            self.school_combo.currentIndexChanged.connect(self.apply_filters)
+            self.grade_combo.currentIndexChanged.connect(self.apply_filters)
+            self.status_combo.currentIndexChanged.connect(self.apply_filters)
+            self.gender_combo.currentIndexChanged.connect(self.apply_filters)
+            # البحث النصي
             self.search_input.textChanged.connect(self.apply_filters)
             
         except Exception as e:
@@ -347,10 +334,9 @@ class StudentsPage(QWidget, QuickPrintMixin):
                 params.append(f"%{search_text}%")
             
             query += " ORDER BY s.name"
-            
-            # تنفيذ الاستعلام
+            # تنفيذ الاستعلام لتحميل الطلاب
             self.current_students = db_manager.execute_query(query, tuple(params))
-            
+
             # ملء الجدول
             self.fill_students_table()
             
@@ -474,6 +460,15 @@ class StudentsPage(QWidget, QuickPrintMixin):
         """تطبيق الفلاتر وإعادة تحميل البيانات"""
         try:
             self.load_students()
+        except Exception as e:
+            logging.error(f"خطأ في تطبيق الفلاتر: {e}")
+    
+    def apply_filters(self, *args):
+        """تطبيق الفلاتر وإعادة تحميل البيانات"""
+        try:
+            self.load_students()
+        except Exception as e:
+            logging.error(f"خطأ في تطبيق الفلاتر: {e}")
             
         except Exception as e:
             logging.error(f"خطأ في تطبيق الفلاتر: {e}")

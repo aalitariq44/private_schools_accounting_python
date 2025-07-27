@@ -110,9 +110,8 @@ class TemplateManager:
         now = datetime.now()
         
         current_date = now.strftime('%Y-%m-%d')
+        # Remove hardcoded school and company names to allow dynamic values
         return {
-            'school_name': 'مدرسة النور الأهلية',
-            'company_name': 'مدرسة النور الأهلية',  # alias for templates
             'system_version': '1.0',  # application version
             'current_date': current_date,
             'current_time': now.strftime('%H:%M'),
