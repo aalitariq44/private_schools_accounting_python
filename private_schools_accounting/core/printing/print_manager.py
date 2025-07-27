@@ -72,7 +72,9 @@ def print_student_report(data, parent=None):
 def print_payment_receipt(data, parent=None):
     """طباعة إيصال دفع مع معاينة"""
     pm = PrintManager(parent)
-    pm.preview_document(TemplateType.PAYMENT_RECEIPT, data)
+    # Ensure data is wrapped under 'receipt' key for the template
+    payload = {'receipt': data} if not isinstance(data, dict) or 'receipt' not in data else data
+    pm.preview_document(TemplateType.PAYMENT_RECEIPT, payload)
 
 
 def print_financial_report(data, date_range=None, parent=None):
