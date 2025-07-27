@@ -55,5 +55,10 @@ for directory in [DATA_DIR, DATABASE_DIR, UPLOADS_DIR, BACKUPS_DIR, EXPORTS_DIR,
 RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
 (RESOURCES_DIR / "fonts").mkdir(parents=True, exist_ok=True)
 
+# إعدادات Supabase للنسخ الاحتياطية
+SUPABASE_URL = "https://tsyvpjhpogxmqcpeaowb.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzeXZwamhwb2d4bXFjcGVhb3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2ODE1MjgsImV4cCI6MjAzMjI1NzUyOH0.30rbkShbpM_h06pZIAw39Ma2SC0thZi9WiV__lhh4Lk"
+SUPABASE_BUCKET = "private-schools-accounting"
+
 # وضع التطوير (True لتفعيل وضع التطوير، False للإنتاج)
 DEBUG_MODE = True

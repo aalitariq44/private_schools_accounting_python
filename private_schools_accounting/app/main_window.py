@@ -18,6 +18,7 @@ from PyQt5.QtGui import QFont, QIcon, QPixmap, QKeySequence
 import config
 from core.auth.login_manager import auth_manager
 from core.utils.logger import log_user_action
+from core.backup.backup_manager import backup_manager
 
 
 class MainWindow(QMainWindow):
@@ -208,8 +209,9 @@ class MainWindow(QMainWindow):
                 {"name": "expenses", "text": "المصروفات", "icon": "expenses.png", "active": True},
                 {"name": "salaries", "text": "الرواتب", "icon": "salaries.png", "active": True},
                 {"name": "separator2", "text": "---", "icon": None, "active": False},
+                {"name": "backup", "text": "النسخ الاحتياطية", "icon": "backup.png", "active": True},
                 {"name": "reports", "text": "التقارير", "icon": "reports.png", "active": False},
-                {"name": "separator2", "text": "---", "icon": None, "active": False},
+                {"name": "separator3", "text": "---", "icon": None, "active": False},
                 {"name": "settings", "text": "الإعدادات", "icon": "settings.png", "active": False},
                 {"name": "logout", "text": "تسجيل خروج", "icon": "logout.png", "active": True},
             ]
@@ -309,6 +311,13 @@ class MainWindow(QMainWindow):
             # مساحة مرنة
             header_layout.addStretch()
             
+            # زر النسخ الاحتياطي السريع
+            self.quick_backup_btn = QPushButton("نسخ احتياطي سريع")
+            self.quick_backup_btn.setObjectName("quickBackupButton")
+            self.quick_backup_btn.setToolTip("إنشاء نسخة احتياطية فورية من قاعدة البيانات")
+            self.quick_backup_btn.clicked.connect(self.create_quick_backup)
+            header_layout.addWidget(self.quick_backup_btn)
+            
             layout.addWidget(header_frame)
             
         except Exception as e:
@@ -362,6 +371,9 @@ class MainWindow(QMainWindow):
             
             # صفحة الرواتب
             self.load_salaries_page()
+            
+            # صفحة النسخ الاحتياطية
+            self.load_backup_page()
             
             # الصفحات الشكلية
             self.load_placeholder_pages()
@@ -522,6 +534,20 @@ class MainWindow(QMainWindow):
             self.pages["salaries"] = placeholder
             self.pages_stack.addWidget(placeholder)
     
+    def load_backup_page(self):
+        """تحميل صفحة النسخ الاحتياطية"""
+        try:
+            from ui.pages.backup.backup_page import BackupPage
+            backup = BackupPage()
+            self.pages["backup"] = backup
+            self.pages_stack.addWidget(backup)
+        except Exception as e:
+            logging.error(f"خطأ في تحميل صفحة النسخ الاحتياطية: {e}")
+            # إنشاء صفحة بديلة
+            placeholder = self.create_placeholder_page("النسخ الاحتياطية", "صفحة إدارة النسخ الاحتياطية")
+            self.pages["backup"] = placeholder
+            self.pages_stack.addWidget(placeholder)
+    
     def load_placeholder_pages(self):
         """تحميل الصفحات الشكلية"""
         try:
@@ -613,6 +639,7 @@ class MainWindow(QMainWindow):
                 "external_income": "الواردات الخارجية",
                 "expenses": "المصروفات",
                 "salaries": "الرواتب",
+                "backup": "النسخ الاحتياطية",
                 "settings": "الإعدادات"
             }
             
@@ -928,6 +955,26 @@ class MainWindow(QMainWindow):
                     border-top: 1px solid #BDC3C7;
                     color: #2C3E50;
                 }
+                
+                /* زر النسخ الاحتياطي السريع */
+                QPushButton#quickBackupButton {
+                    background-color: #27AE60;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 8px 16px;
+                    font-weight: bold;
+                    font-size: 12px;
+                    min-width: 140px;
+                }
+                
+                QPushButton#quickBackupButton:hover {
+                    background-color: #229954;
+                }
+                
+                QPushButton#quickBackupButton:pressed {
+                    background-color: #1E8449;
+                }
             """
             self.setStyleSheet(style)
             
@@ -992,3 +1039,47 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             logging.error(f"خطأ في العودة لصفحة الطلاب: {e}")
+    
+    def create_quick_backup(self):
+        """إنشاء نسخة احتياطية سريعة"""
+        try:
+            from PyQt5.QtWidgets import QProgressDialog, QMessageBox
+            from PyQt5.QtCore import QThread, pyqtSignal
+            from datetime import datetime
+            
+            # عرض حوار التقدم
+            progress = QProgressDialog(
+                "جاري إنشاء النسخة الاحتياطية...",
+                None, 0, 0, self
+            )
+            progress.setWindowTitle("نسخ احتياطي سريع")
+            progress.setModal(True)
+            progress.show()
+            
+            # إنشاء وصف للنسخة الاحتياطية
+            description = f"نسخة احتياطية سريعة - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            
+            # إنشاء النسخة الاحتياطية
+            success, message = backup_manager.create_backup(description)
+            
+            # إغلاق حوار التقدم
+            progress.close()
+            
+            if success:
+                QMessageBox.information(
+                    self, "نجح النسخ الاحتياطي",
+                    f"تم إنشاء النسخة الاحتياطية بنجاح!\n\n{message}"
+                )
+                log_user_action("backup", "quick_backup", {"description": description})
+            else:
+                QMessageBox.critical(
+                    self, "خطأ في النسخ الاحتياطي",
+                    f"فشل في إنشاء النسخة الاحتياطية:\n\n{message}"
+                )
+                
+        except Exception as e:
+            logging.error(f"خطأ في النسخ الاحتياطي السريع: {e}")
+            QMessageBox.critical(
+                self, "خطأ", 
+                f"حدث خطأ أثناء النسخ الاحتياطي:\n{e}"
+            )
