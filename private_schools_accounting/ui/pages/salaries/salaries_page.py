@@ -120,7 +120,7 @@ class SalariesPage(QWidget):
             self.to_date_filter.setMinimumWidth(120)
             
             # زر مسح البحث
-            self.clear_search_btn = QPushButton("مسح")
+            self.clear_search_btn = QPushButton("مسح الفلاتر")
             self.clear_search_btn.setObjectName("clearButton")
             self.clear_search_btn.setMinimumWidth(100)
             
