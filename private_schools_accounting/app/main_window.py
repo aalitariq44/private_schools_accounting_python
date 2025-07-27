@@ -1067,11 +1067,13 @@ class MainWindow(QMainWindow):
             progress.close()
 
             if success:
+                # عرض رسالة النجاح المبسطة دون التكرار
                 QMessageBox.information(
                     self, "نجح النسخ الاحتياطي",
-                    f"تم إنشاء النسخة الاحتياطية بنجاح!\n\n{message}"
+                    message
                 )
-                log_user_action("backup", "quick_backup", {"description": description})
+                # تسجيل الإجراء مع وصف النسخ الاحتياطي السريع
+                log_user_action("backup quick", description)
             else:
                 # تحقق من تعطيل النظام
                 if "disabled" in message.lower():
