@@ -147,18 +147,6 @@ class StudentsPage(QWidget, QuickPrintMixin):
             self.add_student_button.setObjectName("primaryButton")
             actions_layout.addWidget(self.add_student_button)
             
-            # أزرار الطباعة
-            self.print_list_button = QPushButton("طباعة القائمة")
-            self.print_list_button.setObjectName("printButton")
-            actions_layout.addWidget(self.print_list_button)
-            
-            self.quick_print_button = QPushButton("طباعة سريعة")
-            self.quick_print_button.setObjectName("quickPrintButton") 
-            actions_layout.addWidget(self.quick_print_button)
-            
-            self.export_pdf_button = QPushButton("تصدير PDF")
-            self.export_pdf_button.setObjectName("exportButton")
-            actions_layout.addWidget(self.export_pdf_button)
             
             
             
@@ -238,7 +226,22 @@ class StudentsPage(QWidget, QuickPrintMixin):
             self.active_students_label = QLabel("الطلاب النشطون: 0")
             self.active_students_label.setObjectName("countLabel")
             stats_layout.addWidget(self.active_students_label)
-            
+            # أزرار الطباعة بجانب إحصائيات الطلاب النشطين
+            self.print_list_button = QPushButton("طباعة القائمة")
+            self.print_list_button.setObjectName("printButton")
+            self.print_list_button.setFixedSize(90, 60)
+            stats_layout.addWidget(self.print_list_button)
+
+            self.quick_print_button = QPushButton("طباعة سريعة")
+            self.quick_print_button.setObjectName("quickPrintButton")
+            self.quick_print_button.setFixedSize(90, 60)
+            stats_layout.addWidget(self.quick_print_button)
+
+            self.export_pdf_button = QPushButton("تصدير PDF")
+            self.export_pdf_button.setObjectName("exportButton")
+            self.export_pdf_button.setFixedSize(90, 60)
+            stats_layout.addWidget(self.export_pdf_button)
+
             stats_layout.addStretch()
             
             # معلومات آخر تحديث
@@ -411,28 +414,28 @@ class StudentsPage(QWidget, QuickPrintMixin):
             # زر التعديل
             edit_btn = QPushButton("تعديل")
             edit_btn.setObjectName("editButton")
-            edit_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
+            edit_btn.setFixedSize(80, 40)  # ضبط حجم الزر بشكل ثابت
             edit_btn.clicked.connect(lambda: self.edit_student_by_id(student_id))
             layout.addWidget(edit_btn)
 
             # زر الحذف
             delete_btn = QPushButton("حذف")
             delete_btn.setObjectName("deleteButton")
-            delete_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
+            delete_btn.setFixedSize(80, 40)  # ضبط حجم الزر بشكل ثابت
             delete_btn.clicked.connect(lambda: self.delete_student(student_id))
             layout.addWidget(delete_btn)
 
             # زر التفاصيل
             details_btn = QPushButton("تفاصيل")
             details_btn.setObjectName("detailsButton")
-            details_btn.setFixedSize(120, 40)  # ضبط حجم الزر بشكل ثابت
+            details_btn.setFixedSize(80, 40)  # ضبط حجم الزر بشكل ثابت
             details_btn.clicked.connect(lambda: self.show_student_details(student_id))
             layout.addWidget(details_btn)
             
             # زر طباعة تقرير الطالب
             print_btn = QPushButton("طباعة")
             print_btn.setObjectName("printStudentButton")
-            print_btn.setFixedSize(120, 40)
+            print_btn.setFixedSize(80, 40)
             print_btn.clicked.connect(lambda: self.print_student_report(student_id))
             layout.addWidget(print_btn)
 
